@@ -14,9 +14,9 @@ namespace SiriusTimetable.Common.Services
 		public static Dictionary<string, string> KeywordDictionary { get; set; }
 		public static Dictionary<string, List<string>> TeamsLiterPossibleNumbers { get; set; }
 		private static readonly ITimetableProvider Provider = ServiceLocator.GetService<ITimetableProvider>();
-		public static void RefreshTimetables(DateTime date)
+		public static async void RefreshTimetables(DateTime date)
 		{
-			var timetables = Provider.GetTimetables(date);
+			var timetables = await Provider.GetTimetables(date);
 			if (timetables == null)
 				throw new Exception();
 

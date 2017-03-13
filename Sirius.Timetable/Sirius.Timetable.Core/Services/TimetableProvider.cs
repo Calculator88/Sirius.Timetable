@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using SiriusTimetable.Core.Services.Abstractions;
 
 namespace SiriusTimetable.Core.Services
@@ -13,7 +14,7 @@ namespace SiriusTimetable.Core.Services
 		public IDialogAlertService AlertService { get; set; } = ServiceLocator.GetService<IDialogAlertService>();
 		public IResourceService Resources { get; set; } = ServiceLocator.GetService<IResourceService>();
 
-		public Dictionary<String, Timetable.Timetable> GetTimetables(DateTime date)
+		public async Task<Dictionary<String, Timetable.Timetable>> GetTimetables(DateTime date)
 		{
 			var cacheState = Cacher.IsStale(date);
 			var json = Cacher.Get(date);
@@ -35,8 +36,9 @@ namespace SiriusTimetable.Core.Services
 					Debug.WriteLine(ex.Message);
 					if (!String.IsNullOrEmpty(json))
 					{
-						var res = AlertService
-							.ShowDialog(Resources.GetDialogTitleString(), Resources.GetDialogCacheIsStaleString(), "Ок", "Отмена").Result;
+						var res = await
+						AlertService
+							.ShowDialog(Resources.GetDialogTitleString(), Resources.GetDialogCacheIsStaleString(), "Ок", "Отмена");
 						return res == DialogResult.Positive ? Parser.ParseTimetables(json) : null;
 					}
 				}
@@ -52,7 +54,7 @@ namespace SiriusTimetable.Core.Services
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex);
-				var dialogResult = AlertService.ShowDialog(Resources.GetDialogTitleString(), Resources.GetDialogNoInternetString(), "Ок", null).Result;
+				await AlertService.ShowDialog(Resources.GetDialogTitleString(), Resources.GetDialogNoInternetString(), "Ок", null);
 				return null;
 			}
 		}

@@ -44,6 +44,7 @@
     <Compile Include="Models\TimetableItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\DateTimeService.cs" />
+    <Compile Include="Services\DialogAlertService.cs" />
     <Compile Include="Services\MasterDetailsServices.cs" />
     <Compile Include="Services\TimetableService.cs" />
     <Compile Include="ViewModels\TimetableViewModel.cs" />
