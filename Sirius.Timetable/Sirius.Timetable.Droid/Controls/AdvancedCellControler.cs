@@ -73,7 +73,7 @@ namespace SiriusTimetable.Droid.Controls
 				BusToTextView.TextSize = BusFromTextView.TextSize = PlaceTextView.TextSize = cell.TabletDetailTextSize;
 				TitleTextView.SetMaxLines(cell.TabletMaxLines);
 			}
-
+			
 			BackLayout.SetBackgroundColor(cell.BackgroundColor.ToAndroid());
 		}
 	}

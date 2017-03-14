@@ -18,16 +18,18 @@ namespace SiriusTimetable.Core.Services
 		{
 			var cacheState = Cacher.IsStale(date);
 			var json = Cacher.Get(date);
+			//Если кеш существует и актуален
 			if (cacheState.HasValue && !cacheState.Value)
 			{
 				if (!String.IsNullOrEmpty(json))
 					return Parser.ParseTimetables(json);
 			}
+			//Если кеш существует, но не актуален
 			else if (cacheState.HasValue)
 			{
 				try
 				{
-					var jsonText = Downloader.GetJsonString(date);
+					var jsonText = await Downloader.GetJsonString(date);
 					Cacher.Cache(jsonText, date);
 					return Parser.ParseTimetables(jsonText);
 				}
@@ -36,25 +38,29 @@ namespace SiriusTimetable.Core.Services
 					Debug.WriteLine(ex.Message);
 					if (!String.IsNullOrEmpty(json))
 					{
-						var res = await
-						AlertService
-							.ShowDialog(Resources.GetDialogTitleString(), Resources.GetDialogCacheIsStaleString(), "Ок", "Отмена");
+						var res = await AlertService.ShowDialog(
+							Resources.GetDialogTitleString(), 
+							Resources.GetDialogCacheIsStaleString(), 
+							"Ок", "Отмена");
 						return res == DialogResult.Positive ? Parser.ParseTimetables(json) : null;
 					}
 				}
 			}
 
+			//Если нет кеша
 			try
 			{
-				var jsonText = Downloader.GetJsonString(date);
-				if (String.IsNullOrEmpty(jsonText)) throw new Exception("JsonTest is empty");
+				var jsonText = await Downloader.GetJsonString(date);
 				Cacher.Cache(jsonText, date);
 				return Parser.ParseTimetables(jsonText);
 			}
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex);
-				await AlertService.ShowDialog(Resources.GetDialogTitleString(), Resources.GetDialogNoInternetString(), "Ок", null);
+				await AlertService.ShowDialog(
+					Resources.GetDialogTitleString(), 
+					Resources.GetDialogNoInternetString(), 
+					"Ок");
 				return null;
 			}
 		}

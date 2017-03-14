@@ -40,13 +40,14 @@
     </Compile>
     <Compile Include="Controls\AdvancedCell.cs" />
     <Compile Include="Helpers\ObservableObject.cs" />
+    <Compile Include="Helpers\TimetableInfo.cs" />
     <Compile Include="Models\TimetableHeader.cs" />
     <Compile Include="Models\TimetableItem.cs" />
+    <Compile Include="Models\TimetableModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\DateTimeService.cs" />
     <Compile Include="Services\DialogAlertService.cs" />
     <Compile Include="Services\MasterDetailsServices.cs" />
-    <Compile Include="Services\TimetableService.cs" />
     <Compile Include="ViewModels\TimetableViewModel.cs" />
     <Compile Include="Views\LoadingView.xaml.cs">
       <DependentUpon>LoadingView.xaml</DependentUpon>

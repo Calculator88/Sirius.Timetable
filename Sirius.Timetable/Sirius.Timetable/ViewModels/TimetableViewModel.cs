@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using SiriusTimetable.Common.Helpers;
 using SiriusTimetable.Common.Models;
-using SiriusTimetable.Common.Services;
 using SiriusTimetable.Common.Views;
 using SiriusTimetable.Core.Services;
 using SiriusTimetable.Core.Services.Abstractions;
@@ -13,10 +13,10 @@ namespace SiriusTimetable.Common.ViewModels
 {
 	public class TimetableViewModel : ObservableObject
 	{
+		#region Constructores
 		public TimetableViewModel()
 		{
 			Init();
-			Date = DateTime.Today;
 		}
 		public TimetableViewModel(DateTime date, string team)
 		{
@@ -24,32 +24,52 @@ namespace SiriusTimetable.Common.ViewModels
 			Date = date;
 			ShortTeam = team;
 		}
-		private void Init()
-		{
-			RefreshCommand = new Command(RefreshTimetable, CanCommandsBeExecuted);
-			SelectTeamCommand = new Command(SelectTeamExecute, CanCommandsBeExecuted);
-		}
+		#endregion
 
-		private void SelectTeamExecute()
+		#region Commands
+		public Command SelectTeamCommand { get; set; }
+		private async Task SelectTeamExecute()
 		{
 			IsBusy = true;
 			SelectTeamCommand.ChangeCanExecute();
 
-			TimetableService.RefreshTimetables(Date);
-			var team = new TeamSelectPage().SelectTeamAsync().Result;
+			if (TimetableInfo == null)
+			{
+				var info = await _model.GetTimetableInfo(Date);
+				if (info == null)
+				{
+					IsBusy = false;
+					SelectTeamCommand.ChangeCanExecute();
+					return;
+				}
+				TimetableInfo = info;
+			}
+
+			var team = await new TeamSelectPage().SelectTeamAsync(TimetableInfo);
+			if (String.IsNullOrEmpty(team))
+			{
+				IsBusy = false;
+				SelectTeamCommand.ChangeCanExecute();
+				return;
+			}
+
 			ShortTeam = team;
-			UpdateTeam();
+			UpdateTeam(Date);
 
 			IsBusy = false;
 			SelectTeamCommand.ChangeCanExecute();
 		}
+		private bool SelectTeamCanExecute()
+		{
+			return !_isBusy;
+		}
 
-		private TimetableHeader _header;
-		private bool _isBusy;
-		private ObservableCollection<TimetableItem> _timetable;
-		private readonly ITimerService _timer = ServiceLocator.GetService<ITimerService>();
-		public Command RefreshCommand { get; set; }
-		public Command SelectTeamCommand { get; set; }
+		#endregion
+
+		#region Public Properties
+
+		public TimetableInfo TimetableInfo { get; private set; }
+
 		public string ShortTeam { get; set; }
 		public TimetableHeader Header
 		{
@@ -67,11 +87,15 @@ namespace SiriusTimetable.Common.ViewModels
 			get { return _timetable; }
 			set { SetProperty(ref _timetable, value); }
 		}
-		public string Team => TimetableService.KeywordDictionary[ShortTeam];
+		public string Team => TimetableInfo.KeywordDictionary[ShortTeam];
+		#endregion
 
-		private bool CanCommandsBeExecuted()
+		#region Private Methods
+		private void Init()
 		{
-			return !_isBusy;
+			SelectTeamCommand = new Command(async () => await SelectTeamExecute(), SelectTeamCanExecute);
+			_model = new TimetableModel();
+			Date = _dateTimeService.GetCurrentTime();
 		}
 
 		private void UpdateCurrentAction()
@@ -90,41 +114,34 @@ namespace SiriusTimetable.Common.ViewModels
 			}
 		}
 
-		private void RefreshTimetable()
+		private void UpdateTeam(DateTime date)
 		{
-			RefreshCommand.ChangeCanExecute();
-			try
-			{
-				TimetableService.RefreshTimetables(Date);
-			}
-			catch (Exception)
-			{
-				IsBusy = false;
-				RefreshCommand.ChangeCanExecute();
-				return;
-			}
-
+			Date = date;
 			var dateKey = Date.ToString("ddMMyyyy");
-			var timetable = TimetableService.Timetables[dateKey];
-			var currentTimetable = timetable.Teams[TimetableService.KeywordDictionary[ShortTeam]];
+			var timetable = TimetableInfo.Timetable[dateKey];
+			var currentTimetable = timetable.Teams[TimetableInfo.KeywordDictionary[ShortTeam]];
 			var collection = currentTimetable.Select(activity => new TimetableItem(activity));
 			Timetable = new ObservableCollection<TimetableItem>(collection);
 
-			_timer.SetHandler(UpdateCurrentAction);
+			Header = new TimetableHeader
+			{
+				Date = $"{Date:D}",
+				Team = TimetableInfo.KeywordDictionary[ShortTeam],
+				IsLoaded = true
+			};
 
 			UpdateCurrentAction();
-			IsBusy = false;
-			RefreshCommand.ChangeCanExecute();
 		}
+		#endregion
 
-		private void UpdateTeam()
-		{
-			var dateKey = Date.ToString("ddMMyyyy");
-			var timetable = TimetableService.Timetables[dateKey];
-			var currentTimetable = timetable.Teams[TimetableService.KeywordDictionary[ShortTeam]];
-			var collection = currentTimetable.Select(activity => new TimetableItem(activity));
-			Timetable = new ObservableCollection<TimetableItem>(collection);
-			UpdateCurrentAction();
-		}
+		#region Private Fields
+		private TimetableHeader _header;
+		private bool _isBusy;
+		private ObservableCollection<TimetableItem> _timetable;
+		private readonly ITimerService _timer = ServiceLocator.GetService<ITimerService>();
+		private readonly IDateTimeService _dateTimeService = ServiceLocator.GetService<IDateTimeService>();
+		private TimetableModel _model;
+
+		#endregion
 	}
 }

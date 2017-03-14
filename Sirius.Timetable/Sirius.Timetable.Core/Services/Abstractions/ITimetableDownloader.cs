@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace SiriusTimetable.Core.Services.Abstractions
 {
 	public interface ITimetableDownloader
 	{
-		string GetJsonString(DateTime date);
+		Task<string> GetJsonString(DateTime date);
 	}
 }

@@ -17,7 +17,7 @@ namespace SiriusTimetable.Droid.Services
 		/// <summary>
 		/// Время, по истечении которого кеш считается устарешим
 		/// </summary>
-		public TimeSpan StalePeriod { get; set; } = TimeSpan.FromHours(4);
+		public TimeSpan StalePeriod { get; set; } = TimeSpan.FromHours(0.01);
 		/// <summary>
 		/// Возвращает имя json файла
 		/// </summary>
@@ -37,8 +37,9 @@ namespace SiriusTimetable.Droid.Services
 		public bool? IsStale(DateTime date)
 		{
 			var fileName = GetFileName(date);
-			if (!File.Exists(fileName)) return null;
-			return File.GetCreationTimeUtc(fileName) - DateTime.UtcNow >= StalePeriod;
+			if (!File.Exists(fileName) || String.IsNullOrEmpty(File.ReadAllText(fileName))) return null;
+			var period = DateTime.UtcNow - File.GetCreationTimeUtc(fileName);
+			return period >= StalePeriod;
 		}
 
 

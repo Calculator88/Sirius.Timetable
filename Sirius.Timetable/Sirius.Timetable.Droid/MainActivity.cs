@@ -23,13 +23,13 @@ namespace SiriusTimetable.Droid
 		protected override void OnCreate(Bundle bundle)
 		{	
 			ServiceLocator.RegisterService<IDatePickerDialogService>(new DatePickerDialogService(FragmentManager));
-			ServiceLocator.RegisterService<IDateTimeService>(new DateTimeService());
+			ServiceLocator.RegisterService<IDateTimeService>(new DateTimeServiceFake());
 			ServiceLocator.RegisterService<IDialogAlertService>(new DialogAlertService());
 			ServiceLocator.RegisterService<IResourceService>(new ResourceService(Resources));
 			ServiceLocator.RegisterService<ISelectedTeamCacher>(new SelectedTeamCacher(CacheDir.Path));
 			ServiceLocator.RegisterService<ITimerService>(new TimerSerice());
 			ServiceLocator.RegisterService<ITimetableCacher>(new TimetableCacher(CacheDir.Path));
-			ServiceLocator.RegisterService<ITimetableDownloader>(new TimetableDownloader());
+			ServiceLocator.RegisterService<ITimetableDownloader>(new TimetableDownloaderFake());
 			ServiceLocator.RegisterService<ITimetableParser>(new TimetableParser());
 			ServiceLocator.RegisterService<ITimetableProvider>(new TimetableProvider());
 			TabLayoutResource = Resource.Layout.Tabbar;

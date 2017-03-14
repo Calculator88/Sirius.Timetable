@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net;
+using System.Threading.Tasks;
 using SiriusTimetable.Core.Services.Abstractions;
 
 namespace SiriusTimetable.Droid.Services
@@ -15,19 +15,11 @@ namespace SiriusTimetable.Droid.Services
 			return JsonUrl + date.ToString("yyyy-MM-dd") + Key;
 		}
 
-		public string GetJsonString(DateTime date)
+		public async Task<string> GetJsonString(DateTime date)
 		{
-			try
-			{
-				var str = GetFileUrl(date);
-				var result = new WebClient().DownloadString(new Uri(str));
-				return result;
-			}
-			catch (Exception ex)
-			{
-				Debug.WriteLine(ex.Message);
-				return null;
-			}
+			var str = GetFileUrl(date);
+			var result = await new WebClient().DownloadStringTaskAsync(new Uri(str));
+			return result;
 		}
 	}
 }

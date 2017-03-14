@@ -172,11 +172,13 @@
     <Compile Include="Services\DatePickerDialogService.cs" />
     <Compile Include="Services\DatePickerFragment.cs" />
     <Compile Include="Services\DateTimeService.cs" />
+    <Compile Include="Services\DateTimeServiceFake.cs" />
     <Compile Include="Services\ResourceService.cs" />
     <Compile Include="Services\SelectedTeamCacher.cs" />
     <Compile Include="Services\TimetableCacher.cs" />
     <Compile Include="Services\TimerSerice.cs" />
     <Compile Include="Services\TimetableDownloader.cs" />
+    <Compile Include="Services\TimetableDownloaderFake.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

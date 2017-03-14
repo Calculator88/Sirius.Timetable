@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Rg.Plugins.Popup.Extensions;
-using SiriusTimetable.Common.Services;
+using SiriusTimetable.Common.Helpers;
 using Xamarin.Forms;
 
 namespace SiriusTimetable.Common.Views
@@ -35,8 +35,10 @@ namespace SiriusTimetable.Common.Views
 
 		private double ImageHeight { get; } = 55;
 
-		public async Task<string> SelectTeamAsync()
+		private TimetableInfo _info;
+		public async Task<string> SelectTeamAsync(TimetableInfo info)
 		{
+			_info = info;
 			await Application.Current.MainPage.Navigation.PushPopupAsync(this);
 			return await CompletionTask;
 		}
@@ -69,7 +71,7 @@ namespace SiriusTimetable.Common.Views
 			DirectionName.Text = (string) DirectionName.Resources[SelectedItem];
 
 
-			var numbers = TimetableService.TeamsLiterPossibleNumbers[SelectedItem].Select(GetGroupSelector);
+			var numbers = _info.TeamsLiterPossibleNumbers[SelectedItem].Select(GetGroupSelector);
 
 			Groups.Children.Clear();
 			foreach (var item in numbers) Groups.Children.Add(item);
@@ -87,7 +89,7 @@ namespace SiriusTimetable.Common.Views
 			SelectedGroup = SelectedItem + SelectedNumber;
 			IsSelected = true;
 			ButtonOk.FadeTo(1);
-			GroupName.Text = TimetableService.KeywordDictionary[SelectedGroup];
+			GroupName.Text = _info.KeywordDictionary[SelectedGroup];
 			GroupName.FadeTo(1);
 		}
 

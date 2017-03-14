@@ -14,7 +14,7 @@
         <ToolbarItem Text="Выбрать" Command="{Binding SelectTeamCommand}" CommandParameter="True" />
     </ContentPage.ToolbarItems>
     <ListView HasUnevenRows="True"
-              IsPullToRefreshEnabled="True"
+              IsPullToRefreshEnabled="False"
               ItemsSource="{Binding Timetable}"
               IsRefreshing="{Binding IsBusy}"
               VerticalOptions="FillAndExpand"
