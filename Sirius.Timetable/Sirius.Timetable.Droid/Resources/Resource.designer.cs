@@ -2161,14 +2161,14 @@ namespace SiriusTimetable.Droid
 			// aapt resource value: 0x7f020093
 			public const int ic_tv_light = 2130837651;
 			
-			// aapt resource value: 0x7f0200ad
-			public const int item = 2130837677;
+			// aapt resource value: 0x7f0200af
+			public const int item = 2130837679;
 			
 			// aapt resource value: 0x7f020094
 			public const int item_background = 2130837652;
 			
-			// aapt resource value: 0x7f0200ac
-			public const int item_pressed = 2130837676;
+			// aapt resource value: 0x7f0200ae
+			public const int item_pressed = 2130837678;
 			
 			// aapt resource value: 0x7f020095
 			public const int literature = 2130837653;
@@ -2224,8 +2224,8 @@ namespace SiriusTimetable.Droid
 			// aapt resource value: 0x7f0200a6
 			public const int mr_ic_play_light = 2130837670;
 			
-			// aapt resource value: 0x7f0200ab
-			public const int notification_template_icon_bg = 2130837675;
+			// aapt resource value: 0x7f0200ad
+			public const int notification_template_icon_bg = 2130837677;
 			
 			// aapt resource value: 0x7f0200a7
 			public const int profile_generic = 2130837671;
@@ -2237,7 +2237,13 @@ namespace SiriusTimetable.Droid
 			public const int slideout = 2130837673;
 			
 			// aapt resource value: 0x7f0200aa
-			public const int sport = 2130837674;
+			public const int splash = 2130837674;
+			
+			// aapt resource value: 0x7f0200ab
+			public const int splash_screen = 2130837675;
+			
+			// aapt resource value: 0x7f0200ac
+			public const int sport = 2130837676;
 			
 			static Drawable()
 			{
@@ -3618,6 +3624,9 @@ namespace SiriusTimetable.Droid
 			
 			// aapt resource value: 0x7f0a0173
 			public const int MyTheme_Base = 2131362163;
+			
+			// aapt resource value: 0x7f0a0176
+			public const int MyTheme_Splash = 2131362166;
 			
 			// aapt resource value: 0x7f0a0032
 			public const int Platform_AppCompat = 2131361842;

@@ -1,4 +1,4 @@
-﻿using SiriusTimetable.Common.Services;
+﻿using SiriusTimetable.Common.Helpers;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using TimetablePage = SiriusTimetable.Common.Views.TimetablePage;

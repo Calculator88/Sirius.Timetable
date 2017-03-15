@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Xamarin.Forms;
 
-namespace SiriusTimetable.Common.Services
+namespace SiriusTimetable.Common.Helpers
 {
 	public class MasterDetailsServices
 	{

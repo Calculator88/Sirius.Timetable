@@ -7,7 +7,7 @@ namespace SiriusTimetable.Droid.Services
 	{
 		public DateTime GetCurrentTime()
 		{
-			return DateTime.ParseExact("06.02.2017", "dd.MM.yyyy", null);
+			return DateTime.ParseExact("06.02.2017 16:00", "dd.MM.yyyy HH:mm", null);
 		}
 	}
 }

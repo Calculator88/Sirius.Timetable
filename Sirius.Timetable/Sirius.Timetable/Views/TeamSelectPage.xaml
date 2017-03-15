@@ -94,7 +94,9 @@
                     </ResourceDictionary>
                 </Label.Resources>
             </Label>
+          <ScrollView Orientation="Horizontal">
             <StackLayout x:Name="Groups" Orientation="Horizontal" Opacity="0" HorizontalOptions="CenterAndExpand" />
+          </ScrollView>
             <Label
                 x:Name="GroupName"
                 Opacity="0"

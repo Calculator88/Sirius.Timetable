@@ -173,12 +173,15 @@
     <Compile Include="Services\DatePickerFragment.cs" />
     <Compile Include="Services\DateTimeService.cs" />
     <Compile Include="Services\DateTimeServiceFake.cs" />
+    <Compile Include="Services\LocalNotificationService.cs" />
     <Compile Include="Services\ResourceService.cs" />
+    <Compile Include="Services\ScheduledAlarmHandler.cs" />
     <Compile Include="Services\SelectedTeamCacher.cs" />
     <Compile Include="Services\TimetableCacher.cs" />
     <Compile Include="Services\TimerSerice.cs" />
     <Compile Include="Services\TimetableDownloader.cs" />
     <Compile Include="Services\TimetableDownloaderFake.cs" />
+    <Compile Include="SplashActivity.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
@@ -246,6 +249,12 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\strings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\splash_screen.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\splash.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />

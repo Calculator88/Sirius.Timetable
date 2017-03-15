@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using SiriusTimetable.Core.Services;
+using SiriusTimetable.Core.Services.Abstractions;
 using SiriusTimetable.Core.Timetable;
 
 namespace SiriusTimetable.Common.Helpers
@@ -17,18 +20,17 @@ namespace SiriusTimetable.Common.Helpers
 			KeywordDictionary = new Dictionary<string, string>();
 			TeamsLiterPossibleNumbers = new Dictionary<String, List<String>>();
 
-			foreach(var pair in Timetable[$"{Date:ddMMyyyy}"].Teams)
+			foreach (var pair in Timetable[$"{Date:ddMMyyyy}"].Teams)
 			{
 				var shortTeamName = pair.Key.Split()[0];
 				KeywordDictionary[shortTeamName] = pair.Key;
 
 				var liter = shortTeamName[0].ToString();
 				var number = shortTeamName.Substring(1);
-				if(TeamsLiterPossibleNumbers.ContainsKey(liter))
+				if (TeamsLiterPossibleNumbers.ContainsKey(liter))
 					TeamsLiterPossibleNumbers[liter].Add(number);
-				else TeamsLiterPossibleNumbers[liter] = new List<string> { number };
+				else TeamsLiterPossibleNumbers[liter] = new List<string> {number};
 			}
-
 		}
 
 		private Dictionary<string, Timetable> _timetable;

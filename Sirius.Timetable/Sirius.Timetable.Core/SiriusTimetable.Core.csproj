@@ -39,12 +39,14 @@
     <Compile Include="Services\Abstractions\IDatePickerDialogService.cs" />
     <Compile Include="Services\Abstractions\IDateTimeService.cs" />
     <Compile Include="Services\Abstractions\IDialogAlertService.cs" />
+    <Compile Include="Services\Abstractions\ILocalNotificationService.cs" />
     <Compile Include="Services\Abstractions\IResourceService.cs" />
     <Compile Include="Services\Abstractions\ISelectedTeamCacher.cs" />
     <Compile Include="Services\Abstractions\ITimerService.cs" />
     <Compile Include="Services\Abstractions\ITimetableDownloader.cs" />
     <Compile Include="Services\Abstractions\ITimetableParser.cs" />
     <Compile Include="Services\Abstractions\ITimetableProvider.cs" />
+    <Compile Include="Services\LocalNotification.cs" />
     <Compile Include="Services\ServiceLocator.cs" />
     <Compile Include="Services\TimetableParser.cs" />
     <Compile Include="Services\TimetableProvider.cs" />

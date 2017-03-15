@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace SiriusTimetable.Core.Services.Abstractions
 {
 	public interface IDatePickerDialogService
 	{
-		void ChoosenDate(Action<DateTime> action);
+		Task<DateTime?> SelectedDate();
 	}
 }

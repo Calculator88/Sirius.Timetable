@@ -17,7 +17,7 @@ namespace SiriusTimetable.Droid.Services
 		/// <summary>
 		/// Время, по истечении которого кеш считается устарешим
 		/// </summary>
-		public TimeSpan StalePeriod { get; set; } = TimeSpan.FromHours(0.01);
+		public TimeSpan StalePeriod { get; set; } = TimeSpan.FromHours(4);
 		/// <summary>
 		/// Возвращает имя json файла
 		/// </summary>
