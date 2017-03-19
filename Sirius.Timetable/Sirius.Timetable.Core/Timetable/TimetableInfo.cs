@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using SiriusTimetable.Core.Services;
-using SiriusTimetable.Core.Services.Abstractions;
-using SiriusTimetable.Core.Timetable;
 
-namespace SiriusTimetable.Common.Helpers
+namespace SiriusTimetable.Core.Timetable
 {
 	public class TimetableInfo
 	{

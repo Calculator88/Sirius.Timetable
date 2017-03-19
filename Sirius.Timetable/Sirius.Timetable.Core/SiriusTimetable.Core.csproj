@@ -42,10 +42,12 @@
     <Compile Include="Services\Abstractions\ILocalNotificationService.cs" />
     <Compile Include="Services\Abstractions\IResourceService.cs" />
     <Compile Include="Services\Abstractions\ISelectedTeamCacher.cs" />
+    <Compile Include="Services\Abstractions\ISelectTeamDialogService.cs" />
     <Compile Include="Services\Abstractions\ITimerService.cs" />
     <Compile Include="Services\Abstractions\ITimetableDownloader.cs" />
     <Compile Include="Services\Abstractions\ITimetableParser.cs" />
     <Compile Include="Services\Abstractions\ITimetableProvider.cs" />
+    <Compile Include="Services\Abstractions\ILoadingDialogService.cs" />
     <Compile Include="Services\LocalNotification.cs" />
     <Compile Include="Services\ServiceLocator.cs" />
     <Compile Include="Services\TimetableParser.cs" />
@@ -53,6 +55,7 @@
     <Compile Include="Timetable\Activity.cs" />
     <Compile Include="Timetable\Timetable.cs" />
     <Compile Include="Services\Abstractions\ITimetableCacher.cs" />
+    <Compile Include="Timetable\TimetableInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">

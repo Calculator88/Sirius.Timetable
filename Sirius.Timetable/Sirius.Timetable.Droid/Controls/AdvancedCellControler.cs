@@ -13,8 +13,9 @@ namespace SiriusTimetable.Droid.Controls
 		public AdvancedCellControler(Context context, AdvancedCell advancedCell) : base(context)
 		{
 			AdvancedCell = advancedCell;
-			var view = (context as Activity).LayoutInflater.Inflate(Resource.Layout.AdvancedCellView, null);
+			var view = ((Activity) context).LayoutInflater.Inflate(Resource.Layout.AdvancedCellView, null);
 			StartTextView = view.FindViewById<TextView>(Resource.Id.TextStart);
+			
 			EndTextView = view.FindViewById<TextView>(Resource.Id.TextEnd);
 			TitleTextView = view.FindViewById<TextView>(Resource.Id.TextTitle);
 			BusToTextView = view.FindViewById<TextView>(Resource.Id.TextBusTo);
@@ -26,7 +27,7 @@ namespace SiriusTimetable.Droid.Controls
 			Bus = view.FindViewById<LinearLayout>(Resource.Id.Bus);
 			BusHelper1 = view.FindViewById<ImageView>(Resource.Id.DetailHelp1);
 			BusHelper2 = view.FindViewById<ImageView>(Resource.Id.DetailHelp2);
-
+			Button = view.FindViewById<Android.Widget.Button>(Resource.Id.ManNot);
 			AddView(view, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent));
 		}
 
@@ -44,6 +45,8 @@ namespace SiriusTimetable.Droid.Controls
 		public LinearLayout Bus { get; set; }
 		public AdvancedCell AdvancedCell { get; set; }
 		public Element Element => AdvancedCell;
+
+		public Android.Widget.Button Button { get; set; }
 
 		public void UpdateCell(AdvancedCell cell)
 		{
@@ -63,14 +66,14 @@ namespace SiriusTimetable.Droid.Controls
 			{
 				StartTextView.TextSize =
 					EndTextView.TextSize = DashTextView.TextSize = TitleTextView.TextSize = cell.PhoneMainTextSize;
-				BusToTextView.TextSize = BusFromTextView.TextSize = PlaceTextView.TextSize = cell.PhoneDetailTextSize;
+				BusToTextView.TextSize = BusFromTextView.TextSize = PlaceTextView.TextSize = Button.TextSize = cell.PhoneDetailTextSize;
 				TitleTextView.SetMaxLines(cell.PhoneMaxLines);
 			}
 			else
 			{
 				StartTextView.TextSize =
 					EndTextView.TextSize = DashTextView.TextSize = TitleTextView.TextSize = cell.TabletMainTextSize;
-				BusToTextView.TextSize = BusFromTextView.TextSize = PlaceTextView.TextSize = cell.TabletDetailTextSize;
+				BusToTextView.TextSize = BusFromTextView.TextSize = PlaceTextView.TextSize = Button.TextSize = cell.TabletDetailTextSize;
 				TitleTextView.SetMaxLines(cell.TabletMaxLines);
 			}
 			

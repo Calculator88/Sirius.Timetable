@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using SiriusTimetable.Common.Helpers;
 using SiriusTimetable.Common.Models;
-using SiriusTimetable.Common.Views;
 using SiriusTimetable.Core.Services;
 using SiriusTimetable.Core.Services.Abstractions;
+using SiriusTimetable.Core.Timetable;
 using Xamarin.Forms;
 
 namespace SiriusTimetable.Common.ViewModels
@@ -32,32 +32,25 @@ namespace SiriusTimetable.Common.ViewModels
 
 		#region Commands
 
-		public Command SelectTeamCommand { get; set; }
+		public AsyncCommand SelectTeamCommand { get; set; }
 
 		private async Task SelectTeamExecute()
 		{
-			IsBusy = true;
-			SelectTeamCommand.ChangeCanExecute();
-
+			_loading.Show();
+			await Task.Delay(5000);
 			if (!await UpdateInfo(Date))
 			{
-				IsBusy = false;
-				SelectTeamCommand.ChangeCanExecute();
+				_loading.Hide();
 				return;
 			}
-
-			var team = await new TeamSelectPage().SelectTeamAsync(TimetableInfo);
+			_loading.Hide();
+			var team = await _selectTeam.SelectedTeam(TimetableInfo);
 			if (String.IsNullOrEmpty(team))
-			{
-				IsBusy = false;
-				SelectTeamCommand.ChangeCanExecute();
 				return;
-			}
 
+			_loading.Show();
 			await UpdateTeam(Date, team);
-
-			IsBusy = false;
-			SelectTeamCommand.ChangeCanExecute();
+			_loading.Hide();
 		}
 
 		private async Task SelectDateExecute()
@@ -66,11 +59,6 @@ namespace SiriusTimetable.Common.ViewModels
 			if (date == null) return;
 
 			await UpdateTeam(date.Value, ShortTeam);
-		}
-
-		private bool SelectTeamCanExecute()
-		{
-			return !_isBusy;
 		}
 
 		#endregion
@@ -107,7 +95,7 @@ namespace SiriusTimetable.Common.ViewModels
 
 		private void Init()
 		{
-			SelectTeamCommand = new Command(async () => await SelectTeamExecute(), SelectTeamCanExecute);
+			SelectTeamCommand = new AsyncCommand(async () => await SelectTeamExecute());
 			_model = new TimetableModel();
 			Date = _dateTimeService.GetCurrentTime().Date;
 		}
@@ -149,7 +137,15 @@ namespace SiriusTimetable.Common.ViewModels
 		{
 			if (!await UpdateInfo(date)) return;
 
-			var dateKey = date.ToString("ddMMyyyy");
+			Date = date;
+
+			if(!TimetableInfo.KeywordDictionary.ContainsKey(shortTeam))
+			{
+				await SelectTeamExecute();
+				return;
+			}
+			
+			var dateKey = Date.ToString("ddMMyyyy");
 			var timetable = TimetableInfo.Timetable[dateKey];
 			var currentTimetable = timetable.Teams[TimetableInfo.KeywordDictionary[shortTeam]];
 			var collection = currentTimetable.Select(activity => new TimetableItem(activity));
@@ -157,13 +153,12 @@ namespace SiriusTimetable.Common.ViewModels
 
 			Header = new TimetableHeader
 			{
-				Date = $"{date:D}",
+				Date = $"{Date:D}",
 				Team = TimetableInfo.KeywordDictionary[shortTeam],
 				IsLoaded = true,
 				SelectDateCommand = new Command(async () => await SelectDateExecute())
 			};
 
-			Date = date;
 			ShortTeam = shortTeam;
 
 			_timer.SetHandler(UpdateCurrentAction);
@@ -178,7 +173,9 @@ namespace SiriusTimetable.Common.ViewModels
 		private readonly ITimerService _timer = ServiceLocator.GetService<ITimerService>();
 		private readonly IDateTimeService _dateTimeService = ServiceLocator.GetService<IDateTimeService>();
 		private readonly IDatePickerDialogService _datePicker = ServiceLocator.GetService<IDatePickerDialogService>();
+		private readonly ISelectTeamDialogService _selectTeam = ServiceLocator.GetService<ISelectTeamDialogService>();
 		private readonly IDialogAlertService _alertService = ServiceLocator.GetService<IDialogAlertService>();
+		private readonly ILoadingDialogService _loading = ServiceLocator.GetService<ILoadingDialogService>();
 		private TimetableModel _model;
 
 		#endregion

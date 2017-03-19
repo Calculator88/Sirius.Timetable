@@ -1,4 +1,5 @@
-﻿using SiriusTimetable.Common.Models;
+﻿using System;
+using SiriusTimetable.Common.Models;
 using Xamarin.Forms;
 using ListView = Xamarin.Forms.ListView;
 
@@ -20,6 +21,11 @@ namespace SiriusTimetable.Common.Views
 		private void ListViewOnActivitySelected(object sender, SelectedItemChangedEventArgs e)
 		{
 			((ListView) sender).SelectedItem = null;
+		}
+
+		private void AdvancedCell_OnNotifyButtonClicked(Object sender, EventArgs e)
+		{
+
 		}
 	}
 }

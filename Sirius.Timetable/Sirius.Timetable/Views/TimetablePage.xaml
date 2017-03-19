@@ -11,7 +11,7 @@
         <vm:TimetableViewModel/>
     </ContentPage.BindingContext>
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Выбрать" Command="{Binding SelectTeamCommand}" CommandParameter="True" />
+        <ToolbarItem Text="Выбрать" Command="{Binding SelectTeamCommand}"/>
     </ContentPage.ToolbarItems>
     <ListView HasUnevenRows="True"
               IsPullToRefreshEnabled="False"
@@ -21,6 +21,7 @@
               RefreshCommand="{Binding SelectTeamCommand}"
               ItemTapped="ListViewOnActivityTapped"
               ItemSelected="ListViewOnActivitySelected"
+              
               Header="{Binding Header}"
               x:Name="ListView">
         <ListView.HeaderTemplate>
@@ -44,6 +45,8 @@
         <ListView.ItemTemplate>
             <DataTemplate>
                 <local:AdvancedCell
+                    Content="{Binding Parent}"
+                    NotifyButtonClicked="AdvancedCell_OnNotifyButtonClicked"
                     End="{Binding End}"
                     Start="{Binding Start}"
                     SelectedBackgroundColor="Transparent"

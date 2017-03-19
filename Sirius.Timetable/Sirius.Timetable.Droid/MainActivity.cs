@@ -4,6 +4,7 @@ using Android.OS;
 using SiriusTimetable.Common.Services;
 using SiriusTimetable.Core.Services;
 using SiriusTimetable.Core.Services.Abstractions;
+using SiriusTimetable.Droid.Dialogs;
 using SiriusTimetable.Droid.Services;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
@@ -46,6 +47,8 @@ namespace SiriusTimetable.Droid
 			ServiceLocator.RegisterService<ITimetableParser>(new TimetableParser());
 			ServiceLocator.RegisterService<ITimetableProvider>(new TimetableProvider());
 			ServiceLocator.RegisterService<ILocalNotificationService>(new LocalNotificationService());
+			ServiceLocator.RegisterService<ISelectTeamDialogService>(new SelectTeamDialog(SupportFragmentManager));
+			ServiceLocator.RegisterService<ILoadingDialogService>(new LoadingDialog(FragmentManager));
 		}
 		public override void OnBackPressed()
 		{

@@ -1,9 +1,11 @@
-﻿using Xamarin.Forms;
+﻿using System;
+using Xamarin.Forms;
 
 namespace SiriusTimetable.Common.Controls
 {
 	public class AdvancedCell : ViewCell
 	{
+
 		public static readonly BindableProperty SelectedBackgroundColorProperty =
 			BindableProperty.Create(nameof(SelectedBackgroundColor), typeof(Color), typeof(AdvancedCell), Color.Transparent,
 				BindingMode.TwoWay);
@@ -55,6 +57,22 @@ namespace SiriusTimetable.Common.Controls
 
 		public static readonly BindableProperty TabletMaxLinesProperty = BindableProperty.Create(nameof(TabletMaxLines),
 			typeof(int), typeof(AdvancedCell), 1, BindingMode.TwoWay);
+
+		public static readonly BindableProperty ContentProperty = BindableProperty.Create(nameof(ContentProperty),
+			typeof(object), typeof(AdvancedCell), null, BindingMode.TwoWay);
+
+		public event EventHandler NotifyButtonClicked;
+
+		public void InvokeClick()
+		{
+			NotifyButtonClicked?.Invoke(Content, null);
+		}
+
+		public object Content
+		{
+			get { return GetValue(ContentProperty); }
+			set { SetValue(ContentProperty, value); }
+		}
 
 		public Color SelectedBackgroundColor
 		{
@@ -157,5 +175,6 @@ namespace SiriusTimetable.Common.Controls
 			get { return (int) GetValue(TabletMaxLinesProperty); }
 			set { SetValue(TabletMaxLinesProperty, value); }
 		}
+		
 	}
 }
