@@ -1,6 +1,5 @@
 ﻿using System;
 using SiriusTimetable.Common.Helpers;
-using Xamarin.Forms;
 
 namespace SiriusTimetable.Common.Models
 {
@@ -9,7 +8,7 @@ namespace SiriusTimetable.Common.Models
 		private string _date;
 		private bool _isLoaded;
 		private string _team;
-		private Command _choseDate;
+		private AsyncCommand _choseDate;
 		public string Team
 		{
 			get { return _team; }
@@ -27,7 +26,7 @@ namespace SiriusTimetable.Common.Models
 			get { return _isLoaded; }
 			set { SetProperty(ref _isLoaded, value); }
 		}
-		public Command SelectDateCommand
+		public AsyncCommand SelectDateCommand
 		{
 			get { return _choseDate; }
 			set { SetProperty(ref _choseDate, value); }

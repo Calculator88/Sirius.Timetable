@@ -1,7 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-
-<resources>
-  <!--<drawable name="item_pressed">#00000000</drawable>-->
-  <drawable name="item_pressed">#5096d1ff</drawable>
-  <drawable name="item">#00000000</drawable>
-</resources>

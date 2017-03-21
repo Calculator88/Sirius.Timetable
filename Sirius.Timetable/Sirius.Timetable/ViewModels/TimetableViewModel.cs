@@ -8,7 +8,6 @@ using SiriusTimetable.Common.Models;
 using SiriusTimetable.Core.Services;
 using SiriusTimetable.Core.Services.Abstractions;
 using SiriusTimetable.Core.Timetable;
-using Xamarin.Forms;
 
 namespace SiriusTimetable.Common.ViewModels
 {
@@ -37,7 +36,7 @@ namespace SiriusTimetable.Common.ViewModels
 		private async Task SelectTeamExecute()
 		{
 			_loading.Show();
-			await Task.Delay(5000);
+			await Task.Delay(1000);
 			if (!await UpdateInfo(Date))
 			{
 				_loading.Hide();
@@ -108,11 +107,11 @@ namespace SiriusTimetable.Common.ViewModels
 				var startTime = Date.AddHours(item.Parent.Start.Hour).AddMinutes(item.Parent.Start.Minute);
 				var endTime = Date.AddHours(item.Parent.End.Hour).AddMinutes(item.Parent.End.Minute);
 				if ((startTime <= time) && (time <= endTime))
-					item.Color = Color.FromHex("#10ff007b");
+					item.Color = 0x10ff007b;
 				else if (endTime < time)
-					item.Color = Color.FromHex("#88CBCBCB");
+					item.Color = 0x79CBCBCB;
 				else
-					item.Color = Color.Transparent;
+					item.Color = 0x00000000;
 			}
 		}
 
@@ -128,7 +127,7 @@ namespace SiriusTimetable.Common.ViewModels
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex.Message);
-				await _alertService.ShowDialog("Упс..", "На сервере произошла ошибка :(", "Ок");
+				await _alertService.ShowDialog("Упс..", "На сервере произошла ошибка :(", "Ок", null);
 				return false;
 			}
 
@@ -156,7 +155,7 @@ namespace SiriusTimetable.Common.ViewModels
 				Date = $"{Date:D}",
 				Team = TimetableInfo.KeywordDictionary[shortTeam],
 				IsLoaded = true,
-				SelectDateCommand = new Command(async () => await SelectDateExecute())
+				SelectDateCommand = new AsyncCommand(async () => await SelectDateExecute())
 			};
 
 			ShortTeam = shortTeam;

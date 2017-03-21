@@ -60,7 +60,7 @@ namespace SiriusTimetable.Core.Services
 				await AlertService.ShowDialog(
 					Resources.GetDialogTitleString(), 
 					Resources.GetDialogNoInternetString(), 
-					"Ок");
+					"Ок", null);
 				return null;
 			}
 		}
