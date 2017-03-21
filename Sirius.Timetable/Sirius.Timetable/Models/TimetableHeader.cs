@@ -1,14 +1,14 @@
 ﻿using System;
-using Sirius.Timetable.Helpers;
+using SiriusTimetable.Common.Helpers;
 
-namespace Sirius.Timetable.Models
+namespace SiriusTimetable.Common.Models
 {
 	public class TimetableHeader : ObservableObject
 	{
 		private string _date;
 		private bool _isLoaded;
 		private string _team;
-
+		private AsyncCommand _choseDate;
 		public string Team
 		{
 			get { return _team; }
@@ -25,6 +25,11 @@ namespace Sirius.Timetable.Models
 		{
 			get { return _isLoaded; }
 			set { SetProperty(ref _isLoaded, value); }
+		}
+		public AsyncCommand SelectDateCommand
+		{
+			get { return _choseDate; }
+			set { SetProperty(ref _choseDate, value); }
 		}
 	}
 }

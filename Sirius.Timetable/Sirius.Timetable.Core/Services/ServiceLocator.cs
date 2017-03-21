@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Sirius.Timetable.Core.Services
+namespace SiriusTimetable.Core.Services
 {
 	public static class ServiceLocator
 	{

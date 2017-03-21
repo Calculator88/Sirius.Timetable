@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Sirius.Timetable.Helpers
+namespace SiriusTimetable.Common.Helpers
 {
 	/// <summary>
 	///     Observable object with INotifyPropertyChanged implemented

@@ -1,27 +1,25 @@
 ﻿using System;
-using Sirius.Timetable.Core;
-using Sirius.Timetable.Helpers;
-using Xamarin.Forms;
+using SiriusTimetable.Common.Helpers;
+using SiriusTimetable.Core.Timetable;
 
-namespace Sirius.Timetable.Models
+namespace SiriusTimetable.Common.Models
 {
 	public class TimetableItem : ObservableObject
 	{
 		private string _busFrom;
 		private string _busTo;
-		private Color _color = Color.Transparent;
+		private int _color;
 		private bool _isBus;
 		private bool _isPlace;
 		private bool _isSelected;
 		private string _place;
 		private string _start;
-		private LineBreakMode _warp = LineBreakMode.TailTruncation;
 
 		public TimetableItem(Activity activity)
 		{
 			Parent = activity;
-			if (activity.Start != null) Start = activity.Start.Value.ToString("HH:mm");
-			if (activity.End != null) End = activity.End.Value.ToString("HH:mm");
+			Start = activity.Start.ToString("HH:mm");
+			End = activity.End.ToString("HH:mm");
 			if (activity.BusTo != null) BusTo = activity.BusTo.Value.ToString("HH:mm");
 			if (activity.BusFrom != null) BusFrom = activity.BusFrom.Value.ToString("HH:mm");
 			Title = activity.Title;
@@ -32,13 +30,7 @@ namespace Sirius.Timetable.Models
 
 		public Activity Parent { get; }
 
-		public LineBreakMode Wrap
-		{
-			get { return _warp; }
-			set { SetProperty(ref _warp, value); }
-		}
-
-		public Color Color
+		public int Color
 		{
 			get { return _color; }
 			set { SetProperty(ref _color, value); }
@@ -50,8 +42,6 @@ namespace Sirius.Timetable.Models
 			set
 			{
 				SetProperty(ref _isSelected, value);
-				OnPropertyChanged(nameof(IsPlace));
-				OnPropertyChanged(nameof(IsBus));
 			}
 		}
 

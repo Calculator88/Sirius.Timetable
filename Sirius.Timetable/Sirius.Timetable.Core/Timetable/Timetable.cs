@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Sirius.Timetable.Core
+namespace SiriusTimetable.Core.Timetable
 {
 	/// <summary>
 	///     Расписание на один день для всех групп
