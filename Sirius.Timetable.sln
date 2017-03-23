@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiriusTimetable.Common", "Sirius.Timetable\Sirius.Timetable\SiriusTimetable.Common.csproj", "{67F9D3A8-F71E-4428-913F-C37AE82CDB24}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiriusTimetable.Common", "SiriusTimetable.Common\SiriusTimetable.Common.csproj", "{67F9D3A8-F71E-4428-913F-C37AE82CDB24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiriusTimetable.Core", "Sirius.Timetable\Sirius.Timetable.Core\SiriusTimetable.Core.csproj", "{BE52EB50-B0DA-4689-8964-AF0D7C5DEE46}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiriusTimetable.Core", "SiriusTimetable.Core\SiriusTimetable.Core.csproj", "{BE52EB50-B0DA-4689-8964-AF0D7C5DEE46}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiriusTimetable.Droid", "SiriusTimetable.Android\SiriusTimetable.Android.Droid\SiriusTimetable.Droid.csproj", "{99BFF500-44D2-4870-AA15-4460E07F4B2A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiriusTimetable.Droid", "SiriusTimetable.Droid\SiriusTimetable.Droid.csproj", "{99BFF500-44D2-4870-AA15-4460E07F4B2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

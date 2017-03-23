@@ -44,7 +44,7 @@
     <Compile Include="ViewModels\TimetableViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Sirius.Timetable.Core\SiriusTimetable.Core.csproj">
+    <ProjectReference Include="..\SiriusTimetable.Core\SiriusTimetable.Core.csproj">
       <Project>{be52eb50-b0da-4689-8964-af0d7c5dee46}</Project>
       <Name>SiriusTimetable.Core</Name>
     </ProjectReference>
