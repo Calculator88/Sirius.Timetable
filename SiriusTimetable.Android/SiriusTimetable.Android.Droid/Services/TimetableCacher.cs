@@ -6,31 +6,23 @@ namespace SiriusTimetable.Droid.Services
 {
 	public class TimetableCacher : ITimetableCacher
 	{
+		private readonly string _cacheLocation;
+
 		/// <summary>
-		/// 
 		/// </summary>
 		/// <param name="cachePath">Путь к кеш папке</param>
 		public TimetableCacher(string cachePath)
 		{
 			_cacheLocation = cachePath;
 		}
-		/// <summary>
-		/// Время, по истечении которого кеш считается устарешим
-		/// </summary>
-		public TimeSpan StalePeriod { get; set; } = TimeSpan.FromHours(4);
-		/// <summary>
-		/// Возвращает имя json файла
-		/// </summary>
-		/// <param name="date">Дата</param>
-		/// <returns></returns>
-		private string GetFileName(DateTime date)
-		{
-			return $"{_cacheLocation}/{date:yyyy-MM-dd}.json";
-		}
-		private readonly string _cacheLocation;
 
 		/// <summary>
-		/// Возвращает true, если кеш устарел, null, если файл не сущетсвует
+		///     Время, по истечении которого кеш считается устарешим
+		/// </summary>
+		public TimeSpan StalePeriod { get; set; } = TimeSpan.FromHours(4);
+
+		/// <summary>
+		///     Возвращает true, если кеш устарел, null, если файл не сущетсвует
 		/// </summary>
 		/// <param name="date"></param>
 		/// <returns></returns>
@@ -53,6 +45,16 @@ namespace SiriusTimetable.Droid.Services
 		{
 			var fileName = GetFileName(dateToCache);
 			File.WriteAllText(fileName, timetableJsonText);
+		}
+
+		/// <summary>
+		///     Возвращает имя json файла
+		/// </summary>
+		/// <param name="date">Дата</param>
+		/// <returns></returns>
+		private string GetFileName(DateTime date)
+		{
+			return $"{_cacheLocation}/{date:yyyy-MM-dd}.json";
 		}
 	}
 }

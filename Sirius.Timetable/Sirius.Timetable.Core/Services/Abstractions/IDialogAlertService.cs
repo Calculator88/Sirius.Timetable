@@ -10,6 +10,6 @@ namespace SiriusTimetable.Core.Services.Abstractions
 	public enum DialogResult
 	{
 		Positive,
-		Negative,
+		Negative
 	}
 }

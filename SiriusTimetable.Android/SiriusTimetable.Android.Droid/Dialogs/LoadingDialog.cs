@@ -7,13 +7,24 @@ namespace SiriusTimetable.Droid.Dialogs
 {
 	public class LoadingDialog : DialogFragment, ILoadingDialogService
 	{
+		public const string LoadingTag = "LoadingDialog";
+		private readonly FragmentManager _manager;
+
 		public LoadingDialog(FragmentManager manager)
 		{
 			_manager = manager;
 		}
 
-		public const string LoadingTag = "LoadingDialog";
-		private readonly FragmentManager _manager;
+		public void Show()
+		{
+			Show(_manager, LoadingTag);
+		}
+
+		public void Hide()
+		{
+			Dismiss();
+		}
+
 		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
 			var v = inflater.Inflate(Resource.Layout.loading, null);
@@ -21,15 +32,6 @@ namespace SiriusTimetable.Droid.Dialogs
 			Cancelable = false;
 			Dialog.SetCanceledOnTouchOutside(false);
 			return v;
-		}
-
-		public void Show()
-		{
-			Show(_manager, LoadingTag);
-		}
-		public void Hide()
-		{
-			Dismiss();
 		}
 	}
 }

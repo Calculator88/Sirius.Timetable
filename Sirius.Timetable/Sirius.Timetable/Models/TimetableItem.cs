@@ -39,10 +39,7 @@ namespace SiriusTimetable.Common.Models
 		public bool IsSelected
 		{
 			get { return _isSelected; }
-			set
-			{
-				SetProperty(ref _isSelected, value);
-			}
+			set { SetProperty(ref _isSelected, value); }
 		}
 
 		public string Start

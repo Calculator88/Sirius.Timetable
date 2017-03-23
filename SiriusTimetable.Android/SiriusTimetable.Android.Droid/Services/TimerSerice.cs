@@ -21,10 +21,7 @@ namespace SiriusTimetable.Droid.Services
 			_timer.Elapsed -= _handler;
 			_action = action;
 
-			_handler = (sender, args) =>
-			{
-				_action.Invoke();
-			};
+			_handler = (sender, args) => { _action.Invoke(); };
 
 			_timer.Elapsed += _handler;
 			_timer.Start();

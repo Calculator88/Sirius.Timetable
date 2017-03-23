@@ -39,8 +39,8 @@ namespace SiriusTimetable.Core.Services
 					if (!String.IsNullOrEmpty(json))
 					{
 						var res = await AlertService.ShowDialog(
-							Resources.GetDialogTitleString(), 
-							Resources.GetDialogCacheIsStaleString(), 
+							Resources.GetDialogTitleString(),
+							Resources.GetDialogCacheIsStaleString(),
 							"Ок", "Отмена");
 						return res == DialogResult.Positive ? Parser.ParseTimetables(json) : null;
 					}
@@ -58,8 +58,8 @@ namespace SiriusTimetable.Core.Services
 			{
 				Debug.WriteLine(ex);
 				await AlertService.ShowDialog(
-					Resources.GetDialogTitleString(), 
-					Resources.GetDialogNoInternetString(), 
+					Resources.GetDialogTitleString(),
+					Resources.GetDialogNoInternetString(),
 					"Ок", null);
 				return null;
 			}

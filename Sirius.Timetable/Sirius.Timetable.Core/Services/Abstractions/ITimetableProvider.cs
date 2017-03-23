@@ -6,6 +6,6 @@ namespace SiriusTimetable.Core.Services.Abstractions
 {
 	public interface ITimetableProvider
 	{
-		Task <Dictionary<string, Timetable.Timetable>> GetTimetables(DateTime date);
+		Task<Dictionary<string, Timetable.Timetable>> GetTimetables(DateTime date);
 	}
 }

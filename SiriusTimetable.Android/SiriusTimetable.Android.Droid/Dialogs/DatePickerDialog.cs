@@ -8,34 +8,25 @@ using SiriusTimetable.Core.Services.Abstractions;
 
 namespace SiriusTimetable.Droid.Dialogs
 {
-	public class DatePickerDialog : DialogFragment, Android.App.DatePickerDialog.IOnDateSetListener, IDatePickerDialogService
+	public class DatePickerDialog : DialogFragment, Android.App.DatePickerDialog.IOnDateSetListener,
+		IDatePickerDialogService
 	{
 		public const string DatePickerTag = "DatePickerDialog";
+
+		private readonly FragmentManager _manager;
+
+		private TaskCompletionSource<DateTime?> _completion;
 
 		public DatePickerDialog(FragmentManager manager)
 		{
 			_manager = manager;
 		}
 
-		private readonly FragmentManager _manager;
-
-		private TaskCompletionSource<DateTime?> _completion;
-
-		public override Dialog OnCreateDialog(Bundle savedInstanceState)
+		public async Task<DateTime?> SelectedDate()
 		{
-			var currently = DateTime.Now;
-			var dialog = new Android.App.DatePickerDialog(Activity,
-				this,
-				currently.Year,
-				currently.Month -1,
-				currently.Day);
-			return dialog;
-		}
-
-		public override void OnDismiss(IDialogInterface dialog)
-		{
-			_completion.TrySetResult(null);
-			base.OnDismiss(dialog);
+			_completion = new TaskCompletionSource<DateTime?>();
+			Show(_manager, DatePickerTag);
+			return await _completion.Task;
 		}
 
 		public void OnDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth)
@@ -44,11 +35,21 @@ namespace SiriusTimetable.Droid.Dialogs
 			_completion.TrySetResult(selectedDate);
 		}
 
-		public async Task<DateTime?> SelectedDate()
+		public override Dialog OnCreateDialog(Bundle savedInstanceState)
 		{
-			_completion = new TaskCompletionSource<DateTime?>();
-			Show(_manager, DatePickerTag);
-			return await _completion.Task;
+			var currently = DateTime.Now;
+			var dialog = new Android.App.DatePickerDialog(Activity,
+				this,
+				currently.Year,
+				currently.Month - 1,
+				currently.Day);
+			return dialog;
+		}
+
+		public override void OnDismiss(IDialogInterface dialog)
+		{
+			_completion.TrySetResult(null);
+			base.OnDismiss(dialog);
 		}
 	}
 }

@@ -13,7 +13,7 @@
     <item name="colorPrimaryDark">#303f9f</item>
     <item name="colorAccent">#ff4081</item>
   </style>
-  <style name="MyTheme.Splash" parent ="Theme.AppCompat.Light.NoActionBar">
+  <style name="MyTheme.Splash" parent="Theme.AppCompat.Light.NoActionBar">
     <item name="android:windowBackground">@drawable/splash_screen</item>
   </style>
 </resources>

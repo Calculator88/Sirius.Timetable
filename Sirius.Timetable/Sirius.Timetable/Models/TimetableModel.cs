@@ -8,6 +8,8 @@ namespace SiriusTimetable.Common.Models
 {
 	public class TimetableModel
 	{
+		private readonly ITimetableProvider _provider;
+
 		public TimetableModel(ITimetableProvider provider = null)
 		{
 			_provider = provider ?? ServiceLocator.GetService<ITimetableProvider>();
@@ -20,6 +22,5 @@ namespace SiriusTimetable.Common.Models
 			var info = new TimetableInfo(dict, date);
 			return info;
 		}
-		private readonly ITimetableProvider _provider;
 	}
 }

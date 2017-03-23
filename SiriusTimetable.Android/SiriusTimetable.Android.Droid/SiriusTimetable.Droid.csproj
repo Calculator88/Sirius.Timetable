@@ -92,7 +92,7 @@
     <Compile Include="Dialogs\DatePickerDialog.cs" />
     <Compile Include="Services\DateTimeService.cs" />
     <Compile Include="Services\DateTimeServiceFake.cs" />
-    <Compile Include="Services\DialogAlertService.cs" />
+    <Compile Include="Dialogs\DialogAlertService.cs" />
     <Compile Include="Services\LocalNotificationService.cs" />
     <Compile Include="Services\ResourceService.cs" />
     <Compile Include="Services\ScheduledAlarmHandler.cs" />
@@ -114,6 +114,9 @@
       <SubType>Designer</SubType>
     </AndroidResource>
     <AndroidResource Include="Resources\layout\TimetableItem.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+    <AndroidResource Include="Resources\layout\DetailsFragment.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>

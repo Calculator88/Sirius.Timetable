@@ -1,19 +1,21 @@
 using System;
 using System.Threading.Tasks;
 using Android.Content;
+using Android.Support.V7.App;
 using SiriusTimetable.Core.Services.Abstractions;
-using AlertDialog = Android.App.AlertDialog;
 
-namespace SiriusTimetable.Droid.Services
+namespace SiriusTimetable.Droid.Dialogs
 {
 	public class DialogAlertService : IDialogAlertService
 	{
+		private readonly Context _context;
+		private TaskCompletionSource<DialogResult> _completion;
+
 		public DialogAlertService(Context context)
 		{
 			_context = context;
 		}
-		private TaskCompletionSource<DialogResult> _completion;
-		private readonly Context _context;
+
 		public async Task<DialogResult> ShowDialog(string title, string message, string positiveButton, string negativeButton)
 		{
 			_completion = new TaskCompletionSource<DialogResult>();

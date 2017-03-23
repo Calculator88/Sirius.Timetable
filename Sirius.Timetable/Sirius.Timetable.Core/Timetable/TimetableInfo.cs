@@ -5,11 +5,29 @@ namespace SiriusTimetable.Core.Timetable
 {
 	public class TimetableInfo
 	{
+		private Dictionary<string, Timetable> _timetable;
+
 		public TimetableInfo(Dictionary<string, Timetable> timetable, DateTime date)
 		{
 			Date = date;
 			Timetable = timetable;
 		}
+
+		public Dictionary<String, List<String>> TeamsLiterPossibleNumbers { get; private set; }
+
+		public Dictionary<string, Timetable> Timetable
+		{
+			get { return _timetable; }
+			set
+			{
+				if (value == null) return;
+				_timetable = value;
+				UpdateInfo();
+			}
+		}
+
+		public Dictionary<string, string> KeywordDictionary { get; private set; }
+		public DateTime Date { get; }
 
 		private void UpdateInfo()
 		{
@@ -28,20 +46,5 @@ namespace SiriusTimetable.Core.Timetable
 				else TeamsLiterPossibleNumbers[liter] = new List<string> {number};
 			}
 		}
-
-		private Dictionary<string, Timetable> _timetable;
-		public Dictionary<String, List<String>> TeamsLiterPossibleNumbers { get; private set; }
-		public Dictionary<string, Timetable> Timetable
-		{
-			get { return _timetable; }
-			set
-			{
-				if (value == null) return;
-				_timetable = value;
-				UpdateInfo();
-			}
-		}
-		public Dictionary<string, string> KeywordDictionary { get; private set; }
-		public DateTime Date { get; }
 	}
 }

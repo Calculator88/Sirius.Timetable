@@ -39,7 +39,7 @@ namespace SiriusTimetable.Droid.Services
 				.SetContentTitle(notification.Title)
 				.SetContentText(notification.BigText)
 				.SetDefaults(NotificationDefaults.All)
-                .SetSmallIcon(Application.Context.ApplicationInfo.Icon)
+				.SetSmallIcon(Application.Context.ApplicationInfo.Icon)
 				.SetStyle(textStyle);
 
 			var nativeNotification = builder.Build();
@@ -49,9 +49,9 @@ namespace SiriusTimetable.Droid.Services
 		private static LocalNotification SerializeFromString(string notificationString)
 		{
 			var xmlSerializer = new XmlSerializer(typeof(LocalNotification));
-			using(var stringReader = new StringReader(notificationString))
+			using (var stringReader = new StringReader(notificationString))
 			{
-				var notification = (LocalNotification)xmlSerializer.Deserialize(stringReader);
+				var notification = (LocalNotification) xmlSerializer.Deserialize(stringReader);
 				return notification;
 			}
 		}

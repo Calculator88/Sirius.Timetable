@@ -12,7 +12,7 @@ namespace SiriusTimetable.Droid.Services
 	public class LocalNotificationService : ILocalNotificationService
 	{
 		/// <summary>
-		/// Notifies the specified notification.
+		///     Notifies the specified notification.
 		/// </summary>
 		/// <param name="notification">The notification.</param>
 		public void Notify(LocalNotification notification)
@@ -22,7 +22,8 @@ namespace SiriusTimetable.Droid.Services
 			var serializedNotification = SerializeNotification(notification);
 			intent.PutExtra(ScheduledAlarmHandler.LocalNotificationKey, serializedNotification);
 
-			var pendingIntent = PendingIntent.GetBroadcast(Application.Context, notification.Id, intent, PendingIntentFlags.CancelCurrent);
+			var pendingIntent = PendingIntent.GetBroadcast(Application.Context, notification.Id, intent,
+				PendingIntentFlags.CancelCurrent);
 			var triggerTime = NotifyTimeInMilliseconds(notification.NotifyTime);
 			var alarmManager = GetAlarmManager();
 
@@ -30,13 +31,14 @@ namespace SiriusTimetable.Droid.Services
 		}
 
 		/// <summary>
-		/// Cancels the specified notification identifier.
+		///     Cancels the specified notification identifier.
 		/// </summary>
 		/// <param name="notificationId">The notification identifier.</param>
 		public void Cancel(int notificationId)
 		{
 			var intent = CreateIntent();
-			var pendingIntent = PendingIntent.GetBroadcast(Application.Context, notificationId, intent, PendingIntentFlags.UpdateCurrent);
+			var pendingIntent = PendingIntent.GetBroadcast(Application.Context, notificationId, intent,
+				PendingIntentFlags.UpdateCurrent);
 
 			var alarmManager = GetAlarmManager();
 			alarmManager.Cancel(pendingIntent);
@@ -65,7 +67,7 @@ namespace SiriusTimetable.Droid.Services
 		private static string SerializeNotification(LocalNotification notification)
 		{
 			var xmlSerializer = new XmlSerializer(notification.GetType());
-			using(var stringWriter = new StringWriter())
+			using (var stringWriter = new StringWriter())
 			{
 				xmlSerializer.Serialize(stringWriter, notification);
 				return stringWriter.ToString();
@@ -75,7 +77,7 @@ namespace SiriusTimetable.Droid.Services
 		private static long NotifyTimeInMilliseconds(DateTime notifyTime)
 		{
 			var utcAlarmTimeInMillis = (notifyTime.ToUniversalTime() - DateTime.UtcNow).TotalMilliseconds;
-			return (long)utcAlarmTimeInMillis;
+			return (long) utcAlarmTimeInMillis;
 		}
 	}
 }

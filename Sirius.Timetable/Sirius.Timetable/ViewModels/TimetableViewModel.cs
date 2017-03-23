@@ -119,7 +119,7 @@ namespace SiriusTimetable.Common.ViewModels
 		{
 			try
 			{
-				if (TimetableInfo != null && TimetableInfo.Date == date.Date) return true;
+				if ((TimetableInfo != null) && (TimetableInfo.Date == date.Date)) return true;
 				var info = await _model.GetTimetableInfo(date);
 				TimetableInfo = info;
 				return true;
@@ -130,20 +130,20 @@ namespace SiriusTimetable.Common.ViewModels
 				await _alertService.ShowDialog("Упс..", "На сервере произошла ошибка :(", "Ок", null);
 				return false;
 			}
-
 		}
+
 		private async Task UpdateTeam(DateTime date, string shortTeam)
 		{
 			if (!await UpdateInfo(date)) return;
 
 			Date = date;
 
-			if(!TimetableInfo.KeywordDictionary.ContainsKey(shortTeam))
+			if (!TimetableInfo.KeywordDictionary.ContainsKey(shortTeam))
 			{
 				await SelectTeamExecute();
 				return;
 			}
-			
+
 			var dateKey = Date.ToString("ddMMyyyy");
 			var timetable = TimetableInfo.Timetable[dateKey];
 			var currentTimetable = timetable.Teams[TimetableInfo.KeywordDictionary[shortTeam]];
@@ -163,9 +163,11 @@ namespace SiriusTimetable.Common.ViewModels
 			_timer.SetHandler(UpdateCurrentAction);
 			UpdateCurrentAction();
 		}
+
 		#endregion
 
 		#region Private Fields
+
 		private TimetableHeader _header;
 		private bool _isBusy;
 		private ObservableCollection<TimetableItem> _timetable;

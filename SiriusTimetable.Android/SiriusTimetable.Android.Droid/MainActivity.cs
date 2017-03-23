@@ -16,21 +16,43 @@ using SiriusTimetable.Core.Services.Abstractions;
 using SiriusTimetable.Droid.Dialogs;
 using SiriusTimetable.Droid.Helpers;
 using SiriusTimetable.Droid.Services;
+using DatePickerDialog = SiriusTimetable.Droid.Dialogs.DatePickerDialog;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
-
 
 namespace SiriusTimetable.Droid
 {
-	[Activity (Label = "Раписание", Theme = "@style/MyTheme", Icon = "@drawable/logo", ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
-	public class MainActivity : AppCompatActivity, View.IOnClickListener
+	[Activity(Label = "Раписание", Theme = "@style/MyTheme", Icon = "@drawable/logo",
+		 ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
+	public class MainActivity : AppCompatActivity, View.IOnClickListener, View.IOnLongClickListener
 	{
-		private LinearLayoutManager _manager;
+		private RecyclerViewAdapter _adapter;
 		private LinearLayout _headerLayout;
-		private TextView _headerText;
 		private TextView _headerSelDate;
+		private TextView _headerText;
+		private LinearLayoutManager _manager;
+		private RecyclerView _recyclerView;
+		private IMenuItem _selectTeamMenuItem;
+		private TimetableViewModel _viewModel;
+
+		public void OnClick(View v)
+		{
+			var id = v.Id;
+			switch (id)
+			{
+				case Resource.Id.header_date:
+					HeaderSelDateOnClick();
+					break;
+			}
+		}
+
+		public bool OnLongClick(View v)
+		{
+			return true;
+		}
+
 		private void RegisterServices()
 		{
-			ServiceLocator.RegisterService<IDatePickerDialogService>(new Dialogs.DatePickerDialog(FragmentManager));
+			ServiceLocator.RegisterService<IDatePickerDialogService>(new DatePickerDialog(FragmentManager));
 			ServiceLocator.RegisterService<IDateTimeService>(new DateTimeServiceFake());
 			ServiceLocator.RegisterService<IDialogAlertService>(new DialogAlertService(this));
 			ServiceLocator.RegisterService<IResourceService>(new ResourceService(Resources));
@@ -41,14 +63,15 @@ namespace SiriusTimetable.Droid
 			ServiceLocator.RegisterService<ITimetableParser>(new TimetableParser());
 			ServiceLocator.RegisterService<ITimetableProvider>(new TimetableProvider());
 			ServiceLocator.RegisterService<ILocalNotificationService>(new LocalNotificationService());
-			ServiceLocator.RegisterService<ISelectTeamDialogService>(new SelectTeamDialog(SupportFragmentManager));
+			ServiceLocator.RegisterService<ISelectTeamDialogService>(new SelectTeamDialog(FragmentManager));
 			ServiceLocator.RegisterService<ILoadingDialogService>(new LoadingDialog(FragmentManager));
 		}
-		protected override void OnCreate (Bundle bundle)
+
+		protected override void OnCreate(Bundle bundle)
 		{
-			base.OnCreate (bundle);
+			base.OnCreate(bundle);
 			Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
-			SetContentView (Resource.Layout.Main);
+			SetContentView(Resource.Layout.Main);
 			_headerLayout = FindViewById<LinearLayout>(Resource.Id.header);
 			_headerText = FindViewById<TextView>(Resource.Id.header_tmName);
 			_headerSelDate = FindViewById<TextView>(Resource.Id.header_date);
@@ -60,7 +83,7 @@ namespace SiriusTimetable.Droid
 			_recyclerView = FindViewById<RecyclerView>(Resource.Id.recyclerView);
 			_manager = new LinearLayoutManager(this);
 			_recyclerView.SetLayoutManager(_manager);
-			_adapter = new RecyclerViewAdapter(null);
+			_adapter = new RecyclerViewAdapter(null, this);
 			_recyclerView.SetAdapter(_adapter);
 			_recyclerView.AddItemDecoration(new DividerItemDecoration(_recyclerView.Context, _manager.Orientation));
 
@@ -79,7 +102,6 @@ namespace SiriusTimetable.Droid
 			_selectTeamMenuItem.SetEnabled(_viewModel.SelectTeamCommand.CanExecute(null));
 		}
 
-		private RecyclerViewAdapter _adapter;
 		private void ViewModelOnPropertyChanged(Object sender, PropertyChangedEventArgs property)
 		{
 			var propName = property.PropertyName;
@@ -123,7 +145,7 @@ namespace SiriusTimetable.Droid
 
 		private void UpdateAdapter(List<TimetableItem> items)
 		{
-			_adapter = new RecyclerViewAdapter(items);
+			_adapter = new RecyclerViewAdapter(items, this);
 			_recyclerView.SetAdapter(_adapter);
 		}
 
@@ -131,9 +153,7 @@ namespace SiriusTimetable.Droid
 		{
 			_viewModel.SelectTeamCommand.Execute(null);
 		}
-		private RecyclerView _recyclerView;
-		private IMenuItem _selectTeamMenuItem;
-		private TimetableViewModel _viewModel;
+
 		public override bool OnOptionsItemSelected(IMenuItem item)
 		{
 			switch (item.ItemId)
@@ -150,17 +170,6 @@ namespace SiriusTimetable.Droid
 			MenuInflater.Inflate(Resource.Menu.MainMenu, menu);
 			_selectTeamMenuItem = menu.FindItem(Resource.Id.btn_selectTeam);
 			return true;
-		}
-
-		public void OnClick(View v)
-		{
-			var id = v.Id;
-			switch (id)
-			{
-				case Resource.Id.header_date:
-					HeaderSelDateOnClick();
-					break;
-			}
 		}
 	}
 }

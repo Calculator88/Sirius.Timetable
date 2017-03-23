@@ -5,12 +5,12 @@ namespace SiriusTimetable.Droid.Services
 {
 	public class SelectedTeamCacher : ISelectedTeamCacher
 	{
+		private readonly string _cacheLocation;
+
 		public SelectedTeamCacher(string cachePath)
 		{
 			_cacheLocation = cachePath;
 		}
-
-		private readonly string _cacheLocation;
 
 		public string Get()
 		{

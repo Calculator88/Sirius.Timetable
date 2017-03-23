@@ -6,12 +6,13 @@ namespace SiriusTimetable.Droid.Services
 {
 	public class ResourceService : IResourceService
 	{
+		private readonly Resources _resources;
+
 		public ResourceService(Resources resources)
 		{
 			_resources = resources;
 		}
 
-		private readonly Resources _resources;
 		public String GetDialogTitleString()
 		{
 			return _resources.GetString(Resource.String.AlertTitle);

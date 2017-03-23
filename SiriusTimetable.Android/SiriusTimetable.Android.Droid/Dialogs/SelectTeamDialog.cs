@@ -1,27 +1,63 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.OS;
-using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
 using SiriusTimetable.Core.Services.Abstractions;
 using SiriusTimetable.Core.Timetable;
-using Button = Android.Widget.Button;
-using View = Android.Views.View;
 
 namespace SiriusTimetable.Droid.Dialogs
 {
-	public class SelectTeamDialog : AppCompatDialogFragment, View.IOnClickListener, ISelectTeamDialogService
+	public class SelectTeamDialog : DialogFragment, View.IOnClickListener, ISelectTeamDialogService
 	{
 		public const string DTag = "SelectTeamDialog";
-		public SelectTeamDialog(Android.Support.V4.App.FragmentManager fragmentManager)
+		private readonly FragmentManager _manager;
+		private TaskCompletionSource<string> _completion;
+		private TimetableInfo _info;
+
+		private List<TextView> _numbers;
+
+		public SelectTeamDialog(FragmentManager fragmentManager)
 		{
 			_manager = fragmentManager;
 		}
-		private TaskCompletionSource<string> _completion;
+
+		private string SelectedDirection { get; set; }
+		private string SelectedGroup { get; set; }
+
+
+		private TextView DirectionName { get; set; }
+		private ImageView[] Images { get; } = new ImageView[4];
+		private TextView GroupName { get; set; }
+		private LinearLayout Groups { get; set; }
+		private Button SelectButton { get; set; }
+
+		public void OnClick(View v)
+		{
+			var id = v.Id;
+			switch (id)
+			{
+				case Resource.Id.btn_select:
+					OnChoose();
+					break;
+				case Resource.Id.btn_close:
+					OnClose();
+					break;
+				case Resource.Id.img_sport:
+				case Resource.Id.img_art:
+				case Resource.Id.img_literature:
+				case Resource.Id.img_science:
+					OnChooseDirection(id);
+					break;
+				default:
+					OnChooseGroup(id);
+					break;
+			}
+		}
 
 		public async Task<string> SelectedTeam(TimetableInfo info)
 		{
@@ -30,8 +66,7 @@ namespace SiriusTimetable.Droid.Dialogs
 			Show(_manager, DTag);
 			return await _completion.Task;
 		}
-		private readonly Android.Support.V4.App.FragmentManager _manager;
-		private TimetableInfo _info;
+
 		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
 			Dialog.SetTitle(Resource.String.ChooseTeam);
@@ -55,35 +90,29 @@ namespace SiriusTimetable.Droid.Dialogs
 
 		private void SetGroupsOpacity(int id)
 		{
-			var count = Groups.ChildCount;
-			for (var i = 0; i < count; ++i)
-			{
-				var item = Groups.GetChildAt(i);
-				item.Alpha = item.Id == id ? 1f : 0.25f;
-			}
+			if (_numbers == null) return;
+			foreach (var number in _numbers)
+				number.Alpha = number.Id == id ? 1 : 0.25f;
 		}
 
 		private string GetDirectionById(int id)
 		{
 			var el = Images.FirstOrDefault(view => view.Id == id);
-			if (el != null) return (string)el.Tag;
+			if (el != null) return (string) el.Tag;
 			return null;
 		}
 
 		private string GetGroupById(int id)
 		{
-			var count = Groups.ChildCount;
-			for (var i = 0; i < count; ++i)
-				if (Groups.GetChildAt(i).Id == id)
-					return (string)Groups.GetChildAt(i).Tag;
-			return null;
+			return _numbers == null
+				? null
+				: (from number in _numbers where number.Id == id select (string) number.Tag).FirstOrDefault();
 		}
-		private string SelectedDirection { get; set; }
-		private string SelectedGroup { get; set; }
+
 		private void OnChooseGroup(int id)
 		{
 			var group = GetGroupById(id);
-			if(SelectedGroup == group)
+			if (SelectedGroup == group)
 				return;
 
 			SetGroupsOpacity(id);
@@ -93,11 +122,12 @@ namespace SiriusTimetable.Droid.Dialogs
 			GroupName.Visibility = ViewStates.Visible;
 			SelectButton.Enabled = true;
 		}
+
 		private void OnChooseDirection(int imageId)
 		{
 			SelectButton.Enabled = false;
 			GroupName.Visibility = ViewStates.Gone;
-			if(SelectedDirection == GetDirectionById(imageId))
+			if (SelectedDirection == GetDirectionById(imageId))
 			{
 				UpdateImageOpacity(-1);
 				DirectionName.Visibility = ViewStates.Gone;
@@ -112,11 +142,25 @@ namespace SiriusTimetable.Droid.Dialogs
 			SelectedDirection = GetDirectionById(imageId);
 			DirectionName.Text = SelectedDirection;
 
-			var numbers = _info.TeamsLiterPossibleNumbers[SelectedDirection[0].ToString()].Select(GetGroupSelector);
+			_numbers = _info.TeamsLiterPossibleNumbers[SelectedDirection[0].ToString()].Select(GetGroupSelector).ToList();
 			Groups.RemoveAllViews();
-			foreach(var item in numbers) Groups.AddView(item, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent));
-
+			var lays = new List<LinearLayout>();
+			for (var i = 0; i < _numbers.Count; ++i)
+			{
+				if (((i + 1)%11 == 0) || (i == 0))
+				{
+					var lay = new LinearLayout(Application.Context) {Orientation = Orientation.Horizontal};
+					lay.SetGravity(GravityFlags.Center);
+					lays.Add(lay);
+				}
+				lays[(i + 1)/11].AddView(_numbers[i],
+					new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent));
+			}
+			foreach (var layout in lays)
+				Groups.AddView(layout,
+					new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent));
 			Groups.Visibility = ViewStates.Visible;
+
 			DirectionName.Visibility = ViewStates.Visible;
 		}
 
@@ -134,35 +178,6 @@ namespace SiriusTimetable.Droid.Dialogs
 			selecter.SetTextColor(Color.Black);
 			selecter.SetOnClickListener(this);
 			return selecter;
-		}
-
-
-		private TextView DirectionName { get; set; }
-		private ImageView[] Images { get; } = new ImageView[4];
-		private TextView GroupName { get; set; }
-		private LinearLayout Groups { get; set; }
-		private Button SelectButton { get; set; }
-		public void OnClick(View v)
-		{
-			var id = v.Id;
-			switch (id)
-			{
-				case Resource.Id.btn_select:
-					OnChoose();
-					break;
-				case Resource.Id.btn_close:
-					OnClose();
-					break;
-				case Resource.Id.img_sport:
-				case Resource.Id.img_art:
-				case Resource.Id.img_literature:
-				case Resource.Id.img_science:
-					OnChooseDirection(id);
-					break;
-				default:
-					OnChooseGroup(id);
-					break;
-			}
 		}
 
 		private void UpdateImageOpacity(int id)
