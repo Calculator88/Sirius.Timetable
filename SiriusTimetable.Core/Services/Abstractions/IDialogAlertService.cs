@@ -2,6 +2,6 @@
 {
 	public interface IDialogAlertService
 	{
-		void ShowDialog(string title, string message, string positiveButton, string negativeButton, string tag);
+		void ShowAlert(string title, string message, string positiveButton, string negativeButton, string tag);
 	}
 }

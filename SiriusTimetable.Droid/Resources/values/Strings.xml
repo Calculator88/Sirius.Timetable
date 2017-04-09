@@ -14,7 +14,9 @@
   <string name="TxtLiterature">Литертура</string>
   <string name="TxtLoading">Загрузка...</string>
   <string name="TagTimetableFragment">TimetableFragment</string>
+  <string name="TagDetailsFragment">DetailsFragment</string>
   <string name="TagSelectTeamDialog">SelectTeamDialog</string>
   <string name="TagDatePickerDialog">DatePickerDialog</string>
   <string name="TagLoadingDialog">LoadingDialog</string>
+  <string name="ActivityHasBusAlertString">Внимание! Для этого события есть автобус</string>
 </resources>

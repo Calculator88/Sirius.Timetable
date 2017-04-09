@@ -2,7 +2,7 @@
 {
 	public interface ISelectedTeamCacher
 	{
-		string Get();
-		void Cache(string team);
+		string GetTeam();
+		void CacheTeam(string team);
 	}
 }

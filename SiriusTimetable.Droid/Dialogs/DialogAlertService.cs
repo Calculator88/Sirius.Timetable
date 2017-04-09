@@ -40,9 +40,14 @@ namespace SiriusTimetable.Droid.Dialogs
 
 		#region Fragment lifecycle
 
+		public override void OnCreate(Bundle savedInstanceState)
+		{
+			base.OnCreate(savedInstanceState);
+			_listener = Activity as IDialogAlertResultListener;
+			if (_listener == null) throw new Exception($"{Activity} must implement {typeof(IDialogAlertResultListener)}");
+		}
 		public override Dialog OnCreateDialog(Bundle savedInstanceState)
 		{
-			_listener = Activity as IDialogAlertResultListener;
 			if(savedInstanceState != null)
 			{
 				_title = savedInstanceState.GetString(TitleTag);

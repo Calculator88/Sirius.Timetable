@@ -34,11 +34,11 @@ namespace SiriusTimetable.Droid.Dialogs
 
 		#region Fragment lifecycle
 
-		public override void OnAttach(Context context)
+		public override void OnCreate(Bundle savedInstanceState)
 		{
-			base.OnAttach(context);
+			base.OnCreate(savedInstanceState);
 			_listener = Activity as ISelectTeamDialogResultListener;
-			if (_listener == null) throw new Exception("Activity must be inherited from SelectTeamDialog.ISelectTeamDialogResultListener");
+			if (_listener == null) throw new Exception($"{Activity} must implement {typeof(ISelectTeamDialogResultListener)}");
 		}
 		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{

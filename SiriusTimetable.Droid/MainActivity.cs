@@ -93,6 +93,10 @@ namespace SiriusTimetable.Droid
 		public void ItemSelected(TimetableItem item)
 		{
 			var intent = new Intent(this, typeof(DetailsActivity));
+			intent.PutExtra("TITLE", item.Title);
+			intent.PutExtra("PLACE", item.Place);
+			intent.PutExtra("BUSTO", item.BusTo);
+			intent.PutExtra("BUSFROM", item.BusFrom);
 			StartActivity(intent);
 		}
 		public async void OnDateSet(DatePicker view, int year, int month, int dayOfMonth)
@@ -102,29 +106,29 @@ namespace SiriusTimetable.Droid
 		}
 		public async void SelectTeamOnChoose(string result)
 		{
-			ServiceLocator.GetService<ILoadingDialogService>().Show();
+			ServiceLocator.GetService<ILoadingDialogService>().ShowLoadingFragment();
 			await _viewModel.UpdateTeam(_viewModel.Date, result);
-			ServiceLocator.GetService<ILoadingDialogService>().Hide();
+			ServiceLocator.GetService<ILoadingDialogService>().HideLoadingFragment();
 		}
 
 		#endregion
 
 		#region Service methods
 
-		public void Show()
+		public void ShowLoadingFragment()
 		{
 			_loading.Show(FragmentManager, Resources.GetString(Resource.String.TagLoadingDialog));
 		}
-		public void Hide()
+		public void HideLoadingFragment()
 		{
 			_loading.Dismiss();
 		}
-		public void ShowDialog()
+		public void ShowSelectTeamDialog()
 		{
 			new SelectTeamDialog()
 				.Show(FragmentManager, Resources.GetString(Resource.String.TagSelectTeamDialog));
 		}
-		public void ShowDialog(string title, string message, string positiveButton, string negativeButton, string tag)
+		public void ShowAlert(string title, string message, string positiveButton, string negativeButton, string tag)
 		{
 			new DialogAlertService(title, message, positiveButton, negativeButton)
 				.Show(FragmentManager, tag);
@@ -190,15 +194,15 @@ namespace SiriusTimetable.Droid
 		}
 		private async void SelectTeam()
 		{
-			ServiceLocator.GetService<ILoadingDialogService>().Show();
+			ServiceLocator.GetService<ILoadingDialogService>().ShowLoadingFragment();
 			await Task.Delay(1000);
 			if(!await _viewModel.UpdateInfo(_viewModel.Date))
 			{
-				ServiceLocator.GetService<ILoadingDialogService>().Hide();
+				ServiceLocator.GetService<ILoadingDialogService>().HideLoadingFragment();
 				return;
 			}
-			ServiceLocator.GetService<ILoadingDialogService>().Hide();
-			ServiceLocator.GetService<ISelectTeamDialogService>().ShowDialog();
+			ServiceLocator.GetService<ILoadingDialogService>().HideLoadingFragment();
+			ServiceLocator.GetService<ISelectTeamDialogService>().ShowSelectTeamDialog();
 		}
 
 		#endregion

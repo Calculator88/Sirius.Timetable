@@ -107,7 +107,7 @@ namespace SiriusTimetable.Common.ViewModels
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex.Message);
-				ServiceLocator.GetService<IDialogAlertService>().ShowDialog("Упс..", "На сервере произошла ошибка :(", "Ок", null, "SError");
+				ServiceLocator.GetService<IDialogAlertService>().ShowAlert("Упс..", "На сервере произошла ошибка :(", "Ок", null, "SError");
 				return false;
 			}
 		}
@@ -120,7 +120,7 @@ namespace SiriusTimetable.Common.ViewModels
 
 			if (!TimetableInfo.KeywordDictionary.ContainsKey(shortTeam))
 			{
-				ServiceLocator.GetService<ISelectTeamDialogService>().ShowDialog();
+				ServiceLocator.GetService<ISelectTeamDialogService>().ShowSelectTeamDialog();
 				return;
 			}
 

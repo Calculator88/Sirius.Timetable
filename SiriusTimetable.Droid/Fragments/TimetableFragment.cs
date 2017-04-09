@@ -26,11 +26,11 @@ namespace SiriusTimetable.Droid.Fragments
 
 		#region Fragment lifecycle
 
-		public override void OnAttach(Context context)
+		public override void OnCreate(Bundle savedInstanceState)
 		{
-			base.OnAttach(context);
+			base.OnCreate(savedInstanceState);
 			_listener = Activity as IOnItemSelected;
-			if (_listener == null) throw new Exception("Activity must be inherited from TimetableFragment.IOnItemSelected interface");
+			if(_listener == null) throw new Exception($"{Activity} must implement {typeof(IOnItemSelected)}");
 		}
 		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{

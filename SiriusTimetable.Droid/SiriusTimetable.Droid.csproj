@@ -98,6 +98,7 @@
     <Compile Include="Dialogs\DatePickerDialog.cs" />
     <Compile Include="Dialogs\LoadingDialog.cs" />
     <Compile Include="Dialogs\SelectTeamDialog.cs" />
+    <Compile Include="Fragments\DetailsFragment.cs" />
     <Compile Include="Fragments\TimetableFragment.cs" />
     <Compile Include="Helpers\RecyclerViewAdapter.cs" />
     <Compile Include="MainActivity.cs" />

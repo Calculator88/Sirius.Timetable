@@ -39,7 +39,7 @@ namespace SiriusTimetable.Core.Services
 					Debug.WriteLine(ex.Message);
 					if (!String.IsNullOrEmpty(_json))
 					{
-						ServiceLocator.GetService<IDialogAlertService>().ShowDialog(
+						ServiceLocator.GetService<IDialogAlertService>().ShowAlert(
 							ServiceLocator.GetService<IResourceService>().GetDialogTitleString(),
 							ServiceLocator.GetService<IResourceService>().GetDialogCacheIsStaleString(),
 							"Ок", "Отмена", "StaleCache");
@@ -59,7 +59,7 @@ namespace SiriusTimetable.Core.Services
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex.Message);
-				ServiceLocator.GetService<IDialogAlertService>().ShowDialog(
+				ServiceLocator.GetService<IDialogAlertService>().ShowAlert(
 					ServiceLocator.GetService<IResourceService>().GetDialogTitleString(),
 					ServiceLocator.GetService<IResourceService>().GetDialogNoInternetString(),
 					"Ок", null, "NoInternet");

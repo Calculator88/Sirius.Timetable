@@ -1,7 +1,6 @@
 using Android.App;
 using Android.OS;
 using Android.Views;
-using SiriusTimetable.Core.Services.Abstractions;
 
 namespace SiriusTimetable.Droid.Dialogs
 {

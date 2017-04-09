@@ -2,7 +2,7 @@
 {
 	public interface ILoadingDialogService
 	{
-		void Show();
-		void Hide();
+		void ShowLoadingFragment();
+		void HideLoadingFragment();
 	}
 }
