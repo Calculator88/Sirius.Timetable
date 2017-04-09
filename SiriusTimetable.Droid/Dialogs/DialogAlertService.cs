@@ -1,50 +1,89 @@
 using System;
-using System.Threading.Tasks;
+using Android.App;
 using Android.Content;
-using Android.Support.V7.App;
-using SiriusTimetable.Core.Services.Abstractions;
+using Android.OS;
 
 namespace SiriusTimetable.Droid.Dialogs
 {
-	public class DialogAlertService : IDialogAlertService
+	public class DialogAlertService : DialogFragment
 	{
-		private readonly Context _context;
-		private TaskCompletionSource<DialogResult> _completion;
+		#region Private fields
 
-		public DialogAlertService(Context context)
+		private string _title;
+		private string _message;
+		private string _positiveButton;
+		private string _negativeButton;
+		private const string TitleTag = "TITLE";
+		private const string MessageTag = "MESSAGE";
+		private const string PositiveButtonTag = "POSITIVEBUTTON";
+		private const string NegativeButtonTag = "NEGATIVEBUTTON";
+		private IDialogAlertResultListener _listener;
+
+		#endregion
+
+		#region Constructors
+
+		public DialogAlertService()
 		{
-			_context = context;
+
 		}
 
-		public async Task<DialogResult> ShowDialog(string title, string message, string positiveButton, string negativeButton)
+		public DialogAlertService(string title, string message, string positiveButton, string negativeButton)
 		{
-			_completion = new TaskCompletionSource<DialogResult>();
-			BuildDialog(title, message, positiveButton, negativeButton).Show();
-			return await _completion.Task;
+			_title = title;
+			_message = message;
+			_positiveButton = positiveButton;
+			_negativeButton = negativeButton;
 		}
 
-		private AlertDialog BuildDialog(string title, string message, string positiveButton, string negativeButton)
+		#endregion
+
+		#region Fragment lifecycle
+
+		public override Dialog OnCreateDialog(Bundle savedInstanceState)
 		{
-			var builder = new AlertDialog.Builder(_context)
-				.SetTitle(title)
-				.SetMessage(message)
-				.SetPositiveButton(positiveButton, PositiveButtonOnClick);
-			if (!String.IsNullOrEmpty(negativeButton))
-				builder.SetNegativeButton(negativeButton, NegativeButtonOnClick);
+			_listener = Activity as IDialogAlertResultListener;
+			if(savedInstanceState != null)
+			{
+				_title = savedInstanceState.GetString(TitleTag);
+				_message = savedInstanceState.GetString(MessageTag);
+				_positiveButton = savedInstanceState.GetString(PositiveButtonTag);
+				_negativeButton = savedInstanceState.GetString(NegativeButtonTag);
+			}
+			var builder = new AlertDialog.Builder(Activity)
+				.SetTitle(_title)
+				.SetMessage(_message)
+				.SetPositiveButton(_positiveButton, (sender, args) => { _listener.OnAlertPositiveButtonClick(Tag); });
+			if(!String.IsNullOrEmpty(_negativeButton))
+				builder.SetNegativeButton(_negativeButton, (sender, args) => { _listener.OnAlertNegativeButtonClick(Tag); });
 			var dialog = builder.Create();
-			dialog.CancelEvent += (sender, args) => { _completion.TrySetResult(DialogResult.Negative); };
-			dialog.DismissEvent += (sender, args) => { _completion.TrySetResult(DialogResult.Negative); };
+			dialog.SetCanceledOnTouchOutside(true);
 			return dialog;
 		}
-
-		private void NegativeButtonOnClick(Object sender, DialogClickEventArgs dialogClickEventArgs)
+		public override void OnCancel(IDialogInterface dialog)
 		{
-			_completion.TrySetResult(DialogResult.Negative);
+			base.OnCancel(dialog);
+			_listener.OnAlertNegativeButtonClick(Tag);
+		}
+		public override void OnSaveInstanceState(Bundle outState)
+		{
+			base.OnSaveInstanceState(outState);
+			outState.PutString(TitleTag, _title);
+			outState.PutString(MessageTag, _message);
+			outState.PutString(PositiveButtonTag, _positiveButton);
+			outState.PutString(NegativeButtonTag, _negativeButton);
 		}
 
-		private void PositiveButtonOnClick(Object sender, DialogClickEventArgs dialogClickEventArgs)
+		#endregion
+
+		#region Interaction interfaces
+
+		public interface IDialogAlertResultListener
 		{
-			_completion.TrySetResult(DialogResult.Positive);
+			void OnAlertPositiveButtonClick(string tag);
+			void OnAlertNegativeButtonClick(string tag);
 		}
+
+		#endregion
 	}
 }

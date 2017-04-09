@@ -7,5 +7,7 @@ namespace SiriusTimetable.Core.Services.Abstractions
 	public interface ITimetableProvider
 	{
 		Task<Dictionary<string, Timetable.Timetable>> GetTimetables(DateTime date);
+		void StaleDialogSetOnPositive();
+		void StaleDialogSetOnNegative();
 	}
 }

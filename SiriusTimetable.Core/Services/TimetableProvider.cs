@@ -8,41 +8,42 @@ namespace SiriusTimetable.Core.Services
 {
 	public class TimetableProvider : ITimetableProvider
 	{
-		public ITimetableDownloader Downloader { get; set; } = ServiceLocator.GetService<ITimetableDownloader>();
-		public ITimetableCacher Cacher { get; set; } = ServiceLocator.GetService<ITimetableCacher>();
-		public ITimetableParser Parser { get; set; } = ServiceLocator.GetService<ITimetableParser>();
-		public IDialogAlertService AlertService { get; set; } = ServiceLocator.GetService<IDialogAlertService>();
-		public IResourceService Resources { get; set; } = ServiceLocator.GetService<IResourceService>();
-
+		private TaskCompletionSource<Dictionary<String, Timetable.Timetable>> _completion;
+		private string _json;
 		public async Task<Dictionary<String, Timetable.Timetable>> GetTimetables(DateTime date)
 		{
-			var cacheState = Cacher.IsStale(date);
-			var json = Cacher.Get(date);
+			_completion = new TaskCompletionSource<Dictionary<String, Timetable.Timetable>>();
+			var cacheState = ServiceLocator.GetService<ITimetableCacher>().IsStale(date);
+			_json = ServiceLocator.GetService<ITimetableCacher>().Get(date);
 			//Если кеш существует и актуален
 			if (cacheState.HasValue && !cacheState.Value)
 			{
-				if (!String.IsNullOrEmpty(json))
-					return Parser.ParseTimetables(json);
+				if (!String.IsNullOrEmpty(_json))
+				{
+					_completion.TrySetResult(ServiceLocator.GetService<ITimetableParser>().ParseTimetables(_json));
+					return await _completion.Task;
+				}
 			}
 			//Если кеш существует, но не актуален
 			else if (cacheState.HasValue)
 			{
 				try
 				{
-					var jsonText = await Downloader.GetJsonString(date);
-					Cacher.Cache(jsonText, date);
-					return Parser.ParseTimetables(jsonText);
+					var jsonText = await ServiceLocator.GetService<ITimetableDownloader>().GetJsonString(date);
+					ServiceLocator.GetService<ITimetableCacher>().Cache(jsonText, date);
+					_completion.TrySetResult(ServiceLocator.GetService<ITimetableParser>().ParseTimetables(jsonText));
+					return await _completion.Task;
 				}
 				catch (Exception ex)
 				{
 					Debug.WriteLine(ex.Message);
-					if (!String.IsNullOrEmpty(json))
+					if (!String.IsNullOrEmpty(_json))
 					{
-						var res = await AlertService.ShowDialog(
-							Resources.GetDialogTitleString(),
-							Resources.GetDialogCacheIsStaleString(),
-							"Ок", "Отмена");
-						return res == DialogResult.Positive ? Parser.ParseTimetables(json) : null;
+						ServiceLocator.GetService<IDialogAlertService>().ShowDialog(
+							ServiceLocator.GetService<IResourceService>().GetDialogTitleString(),
+							ServiceLocator.GetService<IResourceService>().GetDialogCacheIsStaleString(),
+							"Ок", "Отмена", "StaleCache");
+						return await _completion.Task;
 					}
 				}
 			}
@@ -50,19 +51,30 @@ namespace SiriusTimetable.Core.Services
 			//Если нет кеша
 			try
 			{
-				var jsonText = await Downloader.GetJsonString(date);
-				Cacher.Cache(jsonText, date);
-				return Parser.ParseTimetables(jsonText);
+				var jsonText = await ServiceLocator.GetService<ITimetableDownloader>().GetJsonString(date);
+				ServiceLocator.GetService<ITimetableCacher>().Cache(jsonText, date);
+				_completion.TrySetResult(ServiceLocator.GetService<ITimetableParser>().ParseTimetables(jsonText));
+				return await _completion.Task;
 			}
 			catch (Exception ex)
 			{
-				Debug.WriteLine(ex);
-				await AlertService.ShowDialog(
-					Resources.GetDialogTitleString(),
-					Resources.GetDialogNoInternetString(),
-					"Ок", null);
-				return null;
+				Debug.WriteLine(ex.Message);
+				ServiceLocator.GetService<IDialogAlertService>().ShowDialog(
+					ServiceLocator.GetService<IResourceService>().GetDialogTitleString(),
+					ServiceLocator.GetService<IResourceService>().GetDialogNoInternetString(),
+					"Ок", null, "NoInternet");
+				_completion.TrySetResult(null);
+				return await _completion.Task;
 			}
+		}
+
+		public void StaleDialogSetOnPositive()
+		{
+			_completion.TrySetResult(ServiceLocator.GetService<ITimetableParser>().ParseTimetables(_json));
+		}
+		public void StaleDialogSetOnNegative()
+		{
+			_completion.TrySetResult(null);
 		}
 	}
 }

@@ -10,16 +10,18 @@ using SiriusTimetable.Common.Models;
 
 namespace SiriusTimetable.Droid.Helpers
 {
-	public class RecyclerViewAdapter : RecyclerView.Adapter, View.IOnClickListener
+	public class RecyclerViewAdapter : RecyclerView.Adapter, View.IOnClickListener,  View.IOnLongClickListener
 	{
 		private readonly List<TimetableItem> _activities;
 
-		private readonly View.IOnLongClickListener _listener;
+		private readonly IItemClickListener _clickListener;
+		private readonly IItemLongClickListener _longClickListener;
 
-		public RecyclerViewAdapter(List<TimetableItem> activities, View.IOnLongClickListener listener)
+		public RecyclerViewAdapter(List<TimetableItem> activities, IItemClickListener clickListener, IItemLongClickListener longClickListener)
 		{
 			_activities = activities;
-			_listener = listener;
+			_clickListener = clickListener;
+			_longClickListener = longClickListener;
 		}
 
 		public override int ItemCount => _activities?.Count ?? 0;
@@ -27,7 +29,8 @@ namespace SiriusTimetable.Droid.Helpers
 		public void OnClick(View v)
 		{
 			var tag = (Holder) v.Tag;
-			_activities[tag.LayoutPosition].IsSelected = !_activities[tag.LayoutPosition].IsSelected;
+			var el = _activities[tag.LayoutPosition];
+			_clickListener?.ItemClick(el);
 		}
 
 		public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
@@ -71,7 +74,7 @@ namespace SiriusTimetable.Droid.Helpers
 		public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, Int32 viewType)
 		{
 			var view = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.TimetableItem, parent, false);
-			var holder = new Holder(view, this, _listener)
+			var holder = new Holder(view, this, this)
 			{
 				Title = view.FindViewById<TextView>(Resource.Id.TextTitle),
 				BeginTime = view.FindViewById<TextView>(Resource.Id.TextStart),
@@ -111,6 +114,24 @@ namespace SiriusTimetable.Droid.Helpers
 			public LinearLayout MainLayout { get; set; }
 			public TextView Dash { get; set; }
 			public LinearLayout Bus { get; set; }
+		}
+
+		public bool OnLongClick(View v)
+		{
+			if (_longClickListener == null) return false;
+
+			var holder = (Holder) v.Tag;
+			var el = _activities[holder.LayoutPosition];
+			_longClickListener.ItemLongClick(el);
+			return true;
+		}
+		public interface IItemClickListener
+		{
+			void ItemClick(TimetableItem item);
+		}
+		public interface IItemLongClickListener
+		{
+			void ItemLongClick(TimetableItem item);
 		}
 	}
 }

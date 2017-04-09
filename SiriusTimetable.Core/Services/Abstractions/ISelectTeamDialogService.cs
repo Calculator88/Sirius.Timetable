@@ -5,6 +5,6 @@ namespace SiriusTimetable.Core.Services.Abstractions
 {
 	public interface ISelectTeamDialogService
 	{
-		Task<string> SelectedTeam(TimetableInfo info);
+		void ShowDialog();
 	}
 }
