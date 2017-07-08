@@ -4,18 +4,85 @@
   android:padding="3dip"
   android:layout_width="match_parent"
   android:layout_height="match_parent">
-  <TextView
-    android:layout_margin="2dip"
+  <LinearLayout
     android:layout_height="wrap_content"
-    android:layout_width="match_parent"
-    android:textSize="18dip"
-    android:id="@+id/ActivityTitleView"/>
-  <TextView
-    android:layout_margin="2dip"
+    android:layout_width="wrap_content"
+    android:orientation="horizontal"
+    android:id="@+id/ActivityTimeContainer"
+    android:padding="5dip">
+    <LinearLayout
+      android:layout_height="wrap_content"
+      android:layout_width="match_parent"
+      android:padding="5dip"
+      android:orientation="vertical">
+      <TextView
+        android:textStyle="bold|italic"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/Begin"/>
+      <TextView
+        android:padding="5dip"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/ActivityBeginTime"/>
+    </LinearLayout>
+    <LinearLayout
+      android:layout_height="wrap_content"
+      android:layout_width="match_parent"
+      android:padding="5dip"
+      android:orientation="vertical">
+      <TextView
+        android:textStyle="bold|italic"
+        android:padding="5dip"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/End"/>
+      <TextView
+        android:padding="5dip"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:id="@+id/ActivityEndTime"/>
+    </LinearLayout>
+  </LinearLayout>
+  <LinearLayout
     android:layout_height="wrap_content"
-    android:layout_width="match_parent"
-    android:textSize="18dip"
-    android:id="@+id/ActivityPlaceView"/>
+    android:layout_width="wrap_content"
+    android:orientation="vertical"
+    android:id="@+id/ActivityTitleContainer"
+    android:padding="5dip">
+    <TextView
+      android:padding="5dip"
+      android:textStyle="bold|italic"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/Activity"/>
+    <TextView
+      android:padding="5dip"
+      android:layout_height="wrap_content"
+      android:layout_width="match_parent"
+      android:textSize="18dip"
+      android:id="@+id/ActivityTitleView"/>
+  </LinearLayout>
+  <LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:id="@+id/ActivityPlaceContainer"
+    android:padding="5dip">
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textStyle="bold|italic"
+      android:padding="5dip"
+      android:text="@string/Place"/>
+    <TextView
+      android:layout_margin="2dip"
+      android:layout_height="wrap_content"
+      android:layout_width="match_parent"
+      android:textSize="18dip"
+      android:padding="5dip"
+      android:id="@+id/ActivityPlaceView"/>
+  </LinearLayout>
   <LinearLayout
     android:layout_height="wrap_content"
     android:orientation="vertical"

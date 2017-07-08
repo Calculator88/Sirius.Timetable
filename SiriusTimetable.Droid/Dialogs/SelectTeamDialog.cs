@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Android.App;
-using Android.Content;
 using Android.Graphics;
 using Android.OS;
 using Android.Views;
@@ -19,16 +17,18 @@ namespace SiriusTimetable.Droid.Dialogs
 
 		private const string TeamTag = "TEAM";
 		private const string DirectionTag = "DIRECTION";
-		private TimetableInfo _info;
-		private ISelectTeamDialogResultListener _listener;
-		private List<TextView> _numbers;
+
 		private string _selectedDirection;
 		private string _selectedGroup;
-		private TextView _directionName;
-		private readonly ImageView[] _images = new ImageView[4];
+		private TimetableInfo _info;
+		private ISelectTeamDialogResultListener _listener;
+
+		private List<TextView> _numbers;
+		private readonly ImageView[] _images = new ImageView[5];
 		private TextView _groupName;
 		private LinearLayout _groups;
 		private Button _selectButton;
+		private TextView _directionName;
 
 		#endregion
 
@@ -38,7 +38,11 @@ namespace SiriusTimetable.Droid.Dialogs
 		{
 			base.OnCreate(savedInstanceState);
 			_listener = Activity as ISelectTeamDialogResultListener;
-			if (_listener == null) throw new Exception($"{Activity} must implement {typeof(ISelectTeamDialogResultListener)}");
+			_info = ServiceLocator.GetService<TimetableViewModel>().TimetableInfo;
+
+			var dataExists = _info.ShortLongTeamNameDictionary != null && 
+				(_info.DirectionPossibleNumbers != null || _info.UnknownPossibleTeams != null);
+			if(!dataExists) Dismiss();
 		}
 		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
@@ -47,21 +51,40 @@ namespace SiriusTimetable.Droid.Dialogs
 
 			var v = inflater.Inflate(Resource.Layout.SelectTeamDialog, null);
 			_groups = v.FindViewById<LinearLayout>(Resource.Id.lay_groups);
+
 			_images[0] = v.FindViewById<ImageView>(Resource.Id.img_science);
+			if(!_info.DirectionPossibleNumbers.ContainsKey(TimetableDirection.Science) || _info.DirectionPossibleNumbers[TimetableDirection.Science].Count == 0)
+				_images[0].Visibility = ViewStates.Gone;
+
 			_images[1] = v.FindViewById<ImageView>(Resource.Id.img_sport);
+			if(!_info.DirectionPossibleNumbers.ContainsKey(TimetableDirection.Sport) || _info.DirectionPossibleNumbers[TimetableDirection.Sport].Count == 0)
+				_images[1].Visibility = ViewStates.Gone;
+			
 			_images[2] = v.FindViewById<ImageView>(Resource.Id.img_art);
+			if(!_info.DirectionPossibleNumbers.ContainsKey(TimetableDirection.Art) || _info.DirectionPossibleNumbers[TimetableDirection.Art].Count == 0)
+				_images[2].Visibility = ViewStates.Gone;
+
 			_images[3] = v.FindViewById<ImageView>(Resource.Id.img_literature);
+			if(!_info.DirectionPossibleNumbers.ContainsKey(TimetableDirection.Literature) || _info.DirectionPossibleNumbers[TimetableDirection.Literature].Count == 0)
+				_images[3].Visibility = ViewStates.Gone;
+
+			_images[4] = v.FindViewById<ImageView>(Resource.Id.img_unknown);
+			if(_info.UnknownPossibleTeams == null || _info.UnknownPossibleTeams.Count == 0)
+				_images[4].Visibility = ViewStates.Gone;
+
 			_groupName = v.FindViewById<TextView>(Resource.Id.group_name);
 			_directionName = v.FindViewById<TextView>(Resource.Id.dir_name);
 			_selectButton = v.FindViewById<Button>(Resource.Id.btn_select);
 			_selectButton.SetOnClickListener(this);
 			v.FindViewById<Button>(Resource.Id.btn_close).SetOnClickListener(this);
+
 			_images[0].SetOnClickListener(this);
 			_images[1].SetOnClickListener(this);
 			_images[2].SetOnClickListener(this);
 			_images[3].SetOnClickListener(this);
+			_images[4].SetOnClickListener(this);
+			
 
-			_info = ServiceLocator.GetService<TimetableViewModel>().TimetableInfo;
 
 			if(savedInstanceState == null) return v;
 
@@ -111,7 +134,11 @@ namespace SiriusTimetable.Droid.Dialogs
 			SetGroupsOpacity(id);
 			_selectedGroup = group;
 
-			_groupName.Text = _info.KeywordDictionary[_selectedDirection[0] + _selectedGroup];
+			if(_selectedDirection == Resources.GetString(Resource.String.TxtUnknown))
+				_groupName.Text = _info.ShortLongTeamNameDictionary[group];
+			else
+				_groupName.Text = _info.ShortLongTeamNameDictionary[_selectedDirection[0] + _selectedGroup];
+
 			_groupName.Visibility = ViewStates.Visible;
 			_selectButton.Enabled = true;
 		}
@@ -119,6 +146,7 @@ namespace SiriusTimetable.Droid.Dialogs
 		{
 			_selectButton.Enabled = false;
 			_groupName.Visibility = ViewStates.Gone;
+
 			if(_selectedDirection == GetDirectionById(imageId))
 			{
 				UpdateImageOpacity(-1);
@@ -133,26 +161,21 @@ namespace SiriusTimetable.Droid.Dialogs
 			UpdateImageOpacity(imageId);
 			_selectedDirection = GetDirectionById(imageId);
 			_directionName.Text = _selectedDirection;
+			_selectedGroup = null;
 
-			_numbers = _info.TeamsLiterPossibleNumbers[_selectedDirection[0].ToString()].Select(GetGroupSelector).ToList();
+			if(_selectedDirection == Resources.GetString(Resource.String.TxtUnknown))
+				_numbers = _info.UnknownPossibleTeams.Select(GetGroupSelector).ToList();
+			else
+				_numbers = _info.DirectionPossibleNumbers[TimetableInfo.GetDirection(_selectedDirection[0].ToString())]
+					.Select(item => item.ToString("00"))
+					.Select(GetGroupSelector).ToList();
+
 			_groups.RemoveAllViews();
-			var lays = new List<LinearLayout>();
-			for(var i = 0; i < _numbers.Count; ++i)
-			{
-				if(((i + 1) % 11 == 0) || (i == 0))
-				{
-					var lay = new LinearLayout(Application.Context) {Orientation = Orientation.Horizontal};
-					lay.SetGravity(GravityFlags.Center);
-					lays.Add(lay);
-				}
-				lays[(i + 1) / 11].AddView(_numbers[i],
-					new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent));
-			}
-			foreach(var layout in lays)
-				_groups.AddView(layout,
-					new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent));
-			_groups.Visibility = ViewStates.Visible;
 
+			foreach(var item in _numbers)
+				_groups.AddView(item, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent));
+
+			_groups.Visibility = ViewStates.Visible;
 			_directionName.Visibility = ViewStates.Visible;
 		}
 		private TextView GetGroupSelector(string text)
@@ -168,6 +191,12 @@ namespace SiriusTimetable.Droid.Dialogs
 			selecter.SetPadding(4, 0, 4, 0);
 			selecter.SetTextColor(Color.Black);
 			selecter.SetOnClickListener(this);
+
+			var attrs = new[]{ Android.Resource.Attribute.SelectableItemBackground};
+			var ta = Activity.ObtainStyledAttributes(attrs);
+			var selectedItemDrawable = ta.GetDrawable(0);
+			ta.Recycle();
+			selecter.SetBackgroundDrawable(selectedItemDrawable);
 			return selecter;
 		}
 		private void UpdateImageOpacity(int id)
@@ -177,7 +206,10 @@ namespace SiriusTimetable.Droid.Dialogs
 		}
 		private void OnChoose()
 		{
-			_listener.SelectTeamOnChoose(_selectedDirection[0] + _selectedGroup);
+			if(_selectedDirection == Resources.GetString(Resource.String.TxtUnknown))
+				_listener.SelectTeamOnChoose(_selectedGroup);
+			else
+				_listener.SelectTeamOnChoose(_selectedDirection[0] + _selectedGroup);
 			Dismiss();
 		}
 		private void OnClose()
@@ -218,6 +250,7 @@ namespace SiriusTimetable.Droid.Dialogs
 				case Resource.Id.img_art:
 				case Resource.Id.img_literature:
 				case Resource.Id.img_science:
+				case Resource.Id.img_unknown:
 					OnChooseDirection(id);
 					break;
 				default:

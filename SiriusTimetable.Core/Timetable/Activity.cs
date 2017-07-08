@@ -10,12 +10,12 @@ namespace SiriusTimetable.Core.Timetable
 		/// <summary>
 		///     Время начала события
 		/// </summary>
-		public DateTime Start { get; set; }
+		public DateTime? Start { get; set; }
 
 		/// <summary>
-		///     Время конца события, null - если нет
+		///     Время конца события
 		/// </summary>
-		public DateTime End { get; set; }
+		public DateTime? End { get; set; }
 
 		/// <summary>
 		///     Название и описание события

@@ -40,29 +40,47 @@ namespace SiriusTimetable.Droid.Helpers
 
 
 			mHolder.Title.Text = _activities[position].Title;
-			mHolder.Title.SetTextSize(ComplexUnitType.Pt, 10);
-			mHolder.Title.SetMaxLines(_activities[position].IsSelected ? 100 : 2);
+			mHolder.Title.SetTextSize(ComplexUnitType.Pt, 8);
 
-			mHolder.BeginTime.Text = _activities[position].Start;
-			mHolder.BeginTime.SetTextSize(ComplexUnitType.Pt, 10);
+			if(!_activities[position].Start.HasValue)
+			{
+				mHolder.Times.Visibility = ViewStates.Gone;
+			}
+			else
+			{
+				mHolder.Times.Visibility = ViewStates.Visible;
 
-			mHolder.EndTime.Text = _activities[position].End;
-			mHolder.EndTime.SetTextSize(ComplexUnitType.Pt, 10);
+				mHolder.BeginTime.Text = _activities[position].Start.Value.ToString("HH:mm");
+				mHolder.BeginTime.SetTextSize(ComplexUnitType.Pt, 8);
 
-			mHolder.Bus.Visibility = _activities[position].IsBus ? ViewStates.Visible : ViewStates.Gone;
+				mHolder.EndTime.Text = _activities[position].End.Value.ToString("HH:mm");
+				mHolder.EndTime.SetTextSize(ComplexUnitType.Pt, 10);
+			}
 
-			mHolder.BusFrom.Text = _activities[position].BusFrom;
-			mHolder.BusFrom.SetTextSize(ComplexUnitType.Pt, 8.5f);
+			if(!_activities[position].BusTo.HasValue)
+			{
+				mHolder.Bus.Visibility = ViewStates.Gone;
+			}
+			else
+			{
+				mHolder.BusFrom.Text = _activities[position].BusFrom.Value.ToString("HH:mm");
+				mHolder.BusFrom.SetTextSize(ComplexUnitType.Pt, 6.5f);
 
-			mHolder.BusTo.Text = _activities[position].BusTo;
-			mHolder.BusTo.SetTextSize(ComplexUnitType.Pt, 8.5f);
+				mHolder.BusTo.Text = _activities[position].BusTo.Value.ToString("HH:mm");
+				mHolder.BusTo.SetTextSize(ComplexUnitType.Pt, 6.5f);
+			}
 
-			mHolder.Place.Visibility = _activities[position].IsPlace ? ViewStates.Visible : ViewStates.Gone;
-			mHolder.Place.Text = _activities[position].Place;
-			mHolder.Place.SetTextSize(ComplexUnitType.Pt, 8.5f);
+			if(_activities[position].Place == "Никакого")
+			{
+				mHolder.Place.Visibility = ViewStates.Gone;
+			}
+			else
+			{
+				mHolder.Place.Text = _activities[position].Place;
+				mHolder.Place.SetTextSize(ComplexUnitType.Pt, 6.5f);
+			}
 
-			mHolder.Colored.SetBackgroundColor(new Color(_activities[position].Color));
-			mHolder.DetaiLayout.Visibility = _activities[position].IsSelected ? ViewStates.Visible : ViewStates.Gone;
+			mHolder.DetaiLayout.Visibility =  ViewStates.Visible;
 		}
 
 		private void OnPropertyChanged(Object sender, PropertyChangedEventArgs propertyChangedEventArgs)
@@ -86,7 +104,8 @@ namespace SiriusTimetable.Droid.Helpers
 				Dash = view.FindViewById<TextView>(Resource.Id.TextDash),
 				Bus = view.FindViewById<LinearLayout>(Resource.Id.Bus),
 				MainLayout = view.FindViewById<LinearLayout>(Resource.Id.Ground),
-				Colored = view.FindViewById<LinearLayout>(Resource.Id.ColoredGround)
+				Colored = view.FindViewById<LinearLayout>(Resource.Id.ColoredGround),
+				Times = view.FindViewById<LinearLayout>(Resource.Id.Times)				
 			};
 			view.Tag = holder;
 			return holder;
@@ -114,6 +133,7 @@ namespace SiriusTimetable.Droid.Helpers
 			public LinearLayout MainLayout { get; set; }
 			public TextView Dash { get; set; }
 			public LinearLayout Bus { get; set; }
+			public LinearLayout Times { get; set; }
 		}
 
 		public bool OnLongClick(View v)

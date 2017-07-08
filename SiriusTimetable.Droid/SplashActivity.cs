@@ -20,16 +20,16 @@ namespace SiriusTimetable.Droid
 		}
 		private void RegisterServices()
 		{
-			ServiceLocator.RegisterService<IDateTimeService>(new DateTimeServiceFake());
+			ServiceLocator.RegisterService<IDateTimeService>(new DateTimeService());
 			ServiceLocator.RegisterService<IResourceService>(new ResourceService(Resources));
 			ServiceLocator.RegisterService<ISelectedTeamCacher>(new SelectedTeamCacher(CacheDir.Path));
-			ServiceLocator.RegisterService<ITimerService>(new TimerSerice());
-			ServiceLocator.RegisterService<ITimetableCacher>(new TimetableCacher(CacheDir.Path));
-			ServiceLocator.RegisterService<ITimetableDownloader>(new TimetableDownloaderFake());
-			ServiceLocator.RegisterService<ITimetableParser>(new TimetableParser());
+			ServiceLocator.RegisterService<ITimerService>(new TimerService());
+			ServiceLocator.RegisterService<ICacher>(new Cacher(CacheDir.Path));
+			ServiceLocator.RegisterService<ITimetableDownloader>(new TimetableDownloaderTesting());
+			ServiceLocator.RegisterService<IJsonParser>(new JsonParser());
 			ServiceLocator.RegisterService<ITimetableProvider>(new TimetableProvider());
 			ServiceLocator.RegisterService<ILocalNotificationService>(new LocalNotificationService());
-			ServiceLocator.RegisterService(new TimetableViewModel());
+			ServiceLocator.RegisterService(new TimetableViewModel(ServiceLocator.GetService<IDateTimeService>().GetCurrentTime()));
 		}
 	}
 }

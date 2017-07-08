@@ -17,7 +17,7 @@ namespace SiriusTimetable.Droid.Dialogs
 		public override Dialog OnCreateDialog(Bundle savedInstanceState)
 		{
 			var currently = DateTime.Now;
-			var dialog = new Android.App.DatePickerDialog(Activity, _listener,
+			var dialog = new Android.App.DatePickerDialog(Activity, Resource.Style.datepickerdialog, _listener,
 				currently.Year,
 				currently.Month - 1,
 				currently.Day);

@@ -14,5 +14,7 @@
     android:layout_width="wrap_content"
     android:text="@string/TxtLoading"
     android:gravity="center"
-    android:layout_margin="10dip" />
+    android:layout_marginTop="10dip"
+    android:layout_marginBottom="10dip"
+    android:layout_marginRight="10dip"/>
 </LinearLayout>

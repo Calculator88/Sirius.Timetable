@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
 using Android.Support.V7.App;
@@ -15,20 +13,20 @@ using SiriusTimetable.Core.Services.Abstractions;
 using SiriusTimetable.Droid.Dialogs;
 using SiriusTimetable.Droid.Fragments;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
+using SiriusTimetable.Core.Timetable;
 
 namespace SiriusTimetable.Droid
 {
 	public class MainActivity : AppCompatActivity, View.IOnClickListener, TimetableFragment.IOnItemSelected, ISelectTeamDialogService, 
-		SelectTeamDialog.ISelectTeamDialogResultListener, ILoadingDialogService, Android.App.DatePickerDialog.IOnDateSetListener, IDialogAlertService,
+		SelectTeamDialog.ISelectTeamDialogResultListener, ILoadingDialogService, Android.App.DatePickerDialog.IOnDateSetListener,
 		DialogAlertService.IDialogAlertResultListener
 	{
 		#region Private fields
 
-		private LinearLayout _headerLayout;
 		private TextView _headerSelDate;
 		private TextView _headerText;
 		private TimetableViewModel _viewModel;
-		private LoadingDialog _loading;
+		private TimetableInfo _tempInfo;
 
 		#endregion
 
@@ -40,12 +38,7 @@ namespace SiriusTimetable.Droid
 			Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
 			SetContentView(Resource.Layout.Main);
 
-			FragmentManager.BeginTransaction()
-				.Replace(Resource.Id.TimetableFragment, new TimetableFragment(),
-					Resources.GetString(Resource.String.TagTimetableFragment))
-				.Commit();
 
-			_headerLayout = FindViewById<LinearLayout>(Resource.Id.header);
 			_headerText = FindViewById<TextView>(Resource.Id.header_tmName);
 			_headerSelDate = FindViewById<TextView>(Resource.Id.header_date);
 			_headerSelDate.SetOnClickListener(this);
@@ -54,13 +47,13 @@ namespace SiriusTimetable.Droid
 			RegisterServices();
 			_viewModel = ServiceLocator.GetService<TimetableViewModel>();
 			_viewModel.PropertyChanged += ViewModelOnPropertyChanged;
-			_loading = new LoadingDialog();
-			UpdateHeader();
+
+			UpdateVMLinks();
 		}
 		protected override void OnDestroy()
 		{
-			base.OnDestroy();
 			_viewModel.PropertyChanged -= ViewModelOnPropertyChanged;
+			base.OnDestroy();
 		}
 		public override bool OnCreateOptionsMenu(IMenu menu)
 		{
@@ -84,31 +77,50 @@ namespace SiriusTimetable.Droid
 
 		public void OnAlertNegativeButtonClick(string tag)
 		{
-			_viewModel.DialogOnNegativeButtonClick(tag);
+			switch(tag)
+			{
+				case "SC":
+					_tempInfo = null;
+					break;
+				default:
+					break;
+			}
 		}
 		public void OnAlertPositiveButtonClick(string tag)
 		{
-			_viewModel.DialogOnPositiveButtonClick(tag);
+			switch(tag)
+			{
+				case "SC":
+					_viewModel.TimetableInfo = _tempInfo;
+					_tempInfo = null;
+					ShowSelectTeamDialog();
+					break;
+				default:
+					break;
+			}
 		}
 		public void ItemSelected(TimetableItem item)
 		{
-			var intent = new Intent(this, typeof(DetailsActivity));
-			intent.PutExtra("TITLE", item.Title);
-			intent.PutExtra("PLACE", item.Place);
-			intent.PutExtra("BUSTO", item.BusTo);
-			intent.PutExtra("BUSFROM", item.BusFrom);
-			StartActivity(intent);
+			//var intent = new Intent(this, typeof(DetailsActivity));
+			//var args = new Bundle();
+			//TODO
+			//args.PutString("TITLE", item.Title);
+			//args.PutString("PLACE", item.Place);
+			//args.PutString("BUSTO", item.BusTo);
+			//args.PutString("BUSFROM", item.BusFrom);
+			//args.PutString("BEGINTIME", item.Start);
+			//args.PutString("ENDTIME", item.End);
+			//intent.PutExtra("ARGS", args);
+			//StartActivity(intent);
 		}
-		public async void OnDateSet(DatePicker view, int year, int month, int dayOfMonth)
+		public void OnDateSet(DatePicker view, int year, int month, int dayOfMonth)
 		{
 			var selectedDate = new DateTime(year, month + 1, dayOfMonth);
-			await _viewModel.UpdateTeam(selectedDate, _viewModel.ShortTeam);
+			_viewModel.Date = selectedDate;
 		}
-		public async void SelectTeamOnChoose(string result)
+		public void SelectTeamOnChoose(string result)
 		{
-			ServiceLocator.GetService<ILoadingDialogService>().ShowLoadingFragment();
-			await _viewModel.UpdateTeam(_viewModel.Date, result);
-			ServiceLocator.GetService<ILoadingDialogService>().HideLoadingFragment();
+			_viewModel.UpdateSchedule(result);
 		}
 
 		#endregion
@@ -117,28 +129,29 @@ namespace SiriusTimetable.Droid
 
 		public void ShowLoadingFragment()
 		{
-			_loading.Show(FragmentManager, Resources.GetString(Resource.String.TagLoadingDialog));
+			var fragment = FragmentManager.FindFragmentByTag<LoadingDialog>(Resources.GetString(Resource.String.TagLoadingDialog));
+			if (fragment != null) return;
+
+			new LoadingDialog().Show(FragmentManager, Resources.GetString(Resource.String.TagLoadingDialog));
+			FragmentManager.ExecutePendingTransactions();
 		}
 		public void HideLoadingFragment()
 		{
-			_loading.Dismiss();
+			var fragment = FragmentManager.FindFragmentByTag<LoadingDialog>(Resources.GetString(Resource.String.TagLoadingDialog));
+			fragment?.Dismiss();
+			FragmentManager.ExecutePendingTransactions();
 		}
 		public void ShowSelectTeamDialog()
 		{
 			new SelectTeamDialog()
 				.Show(FragmentManager, Resources.GetString(Resource.String.TagSelectTeamDialog));
 		}
-		public void ShowAlert(string title, string message, string positiveButton, string negativeButton, string tag)
-		{
-			new DialogAlertService(title, message, positiveButton, negativeButton)
-				.Show(FragmentManager, tag);
-		}
 
 		#endregion
 
 		#region Private methods
 
-		private void HeaderSelDateOnClick()
+		private void HeaderSelectDateOnClick()
 		{
 			new DatePickerDialog().Show(FragmentManager, Resources.GetString(Resource.String.TagDatePickerDialog));
 		}
@@ -146,7 +159,6 @@ namespace SiriusTimetable.Droid
 		{
 			ServiceLocator.RegisterService<ISelectTeamDialogService>(this);
 			ServiceLocator.RegisterService<ILoadingDialogService>(this);
-			ServiceLocator.RegisterService<IDialogAlertService>(this);
 		}
 		private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs property)
 		{
@@ -154,57 +166,103 @@ namespace SiriusTimetable.Droid
 			switch(propName)
 			{
 				case nameof(_viewModel.Timetable):
-					UpdateAdapter(_viewModel.Timetable.ToList());
+					VMOnTimetableChanged();
 					break;
-				case nameof(_viewModel.Header):
-					UpdateHeader();
+				case nameof(_viewModel.Date):
+					VMOnDateChanged();
+					break;
+				case nameof(_viewModel.TeamName):
+					VMOnTeamNameChanged();
+					break;
+				case nameof(_viewModel.ShortTeam):
+					VMOnShortNameChanged();
 					break;
 			}
 		}
-		private void UpdateHeader()
+		private void VMOnTimetableChanged()
 		{
-			if(_viewModel.Header == null)
+			if(_viewModel.Timetable == null)
 			{
-				_headerLayout.Visibility = ViewStates.Gone;
-				return;
-			}
+				var fragment = FragmentManager.FindFragmentByTag<TimetableFragmentFiller>(Resources.GetString(Resource.String.TagTimetableFragment));
+				if(fragment == null) return;
 
-			_headerLayout.Visibility = ViewStates.Visible;
-			_viewModel.Header.PropertyChanged += HeaderOnPropertyChanged;
-			_headerText.Text = _viewModel.Header.Team;
-			_headerSelDate.Text = _viewModel.Header.Date;
-		}
-		private void HeaderOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
-		{
-			var propName = propertyChangedEventArgs.PropertyName;
-			switch(propName)
+				FragmentManager.BeginTransaction()
+					.Replace(Resource.Id.TimetableFragment, new TimetableFragmentFiller(),
+					Resources.GetString(Resource.String.TagTimetableFragmentFiller))
+					.Commit();
+			}
+			else
 			{
-				case nameof(_viewModel.Header.Team):
-					_headerText.Text = _viewModel.Header.Team;
-					break;
-				case nameof(_viewModel.Header.Date):
-					_headerSelDate.Text = _viewModel.Header.Date;
-					break;
+				var fragment = FragmentManager.FindFragmentByTag<TimetableFragment>(Resources.GetString(Resource.String.TagTimetableFragment));
+				if(fragment == null)
+				{
+					FragmentManager.BeginTransaction()
+						.Replace(Resource.Id.TimetableFragment,
+							new TimetableFragment(),
+							Resources.GetString(Resource.String.TagTimetableFragment))
+						.Commit();
+				}
 			}
 		}
-		private void UpdateAdapter(List<TimetableItem> items)
+		private void VMOnDateChanged()
 		{
-			var fragment = FragmentManager.FindFragmentByTag<TimetableFragment>(Resources.GetString(Resource.String.TagTimetableFragment));
-			fragment?.SetItems(items);
+			_headerSelDate.Text = $"{_viewModel.Date:D}";
+		}
+		private void VMOnTeamNameChanged()
+		{
+			_headerText.Visibility = _viewModel.TeamName == null ? ViewStates.Gone : ViewStates.Visible;
+			_headerText.Text = _viewModel.TeamName;
+		}
+		private void VMOnShortNameChanged()
+		{
+			//TODO
+		}
+		private void UpdateVMLinks()
+		{
+			VMOnDateChanged();
+			VMOnShortNameChanged();
+			VMOnTeamNameChanged();
+			VMOnTimetableChanged();
 		}
 		private async void SelectTeam()
 		{
-			ServiceLocator.GetService<ILoadingDialogService>().ShowLoadingFragment();
-			await Task.Delay(1000);
-			if(!await _viewModel.UpdateInfo(_viewModel.Date))
+			ShowLoadingFragment();
+
+			var info = await ServiceLocator.GetService<ITimetableProvider>().GetTimetableInfo(_viewModel.Date);
+			var infoOk = info.Build();
+
+			HideLoadingFragment();
+
+			if (!infoOk)
 			{
-				ServiceLocator.GetService<ILoadingDialogService>().HideLoadingFragment();
+				new DialogAlertService(
+					Resources.GetString(Resource.String.AlertTitle),
+					Resources.GetString(Resource.String.AlertNoInternetMessage),
+					Resources.GetString(Android.Resource.String.Ok), null)
+					.Show(FragmentManager, "ALERT");
 				return;
 			}
-			ServiceLocator.GetService<ILoadingDialogService>().HideLoadingFragment();
-			ServiceLocator.GetService<ISelectTeamDialogService>().ShowSelectTeamDialog();
-		}
 
+			var dateNow = ServiceLocator.GetService<IDateTimeService>().GetCurrentTime();
+			if (String.IsNullOrEmpty(info.DownloadedJson) && 
+				info.TimetableCacheInfo.Exists && 
+				(dateNow - info.TimetableCacheInfo.CreationTime > TimeSpan.FromHours(4)))
+			{
+				_tempInfo = info;
+				new DialogAlertService(
+					Resources.GetString(Resource.String.AlertTitle),
+					Resources.GetString(Resource.String.AlertStaleCacheMessage),
+					Resources.GetString(Android.Resource.String.Yes),
+					Resources.GetString(Android.Resource.String.No))
+					.Show(FragmentManager, "SC");
+				return;
+			}
+
+			_viewModel.TimetableInfo = info;
+
+			ShowSelectTeamDialog();
+		}
+		
 		#endregion
 
 		#region Public methods
@@ -215,7 +273,7 @@ namespace SiriusTimetable.Droid
 			switch(id)
 			{
 				case Resource.Id.header_date:
-					HeaderSelDateOnClick();
+					HeaderSelectDateOnClick();
 					break;
 			}
 		}

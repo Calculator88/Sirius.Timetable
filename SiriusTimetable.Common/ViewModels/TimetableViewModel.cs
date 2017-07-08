@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using SiriusTimetable.Common.Helpers;
 using SiriusTimetable.Common.Models;
-using SiriusTimetable.Core.Services;
-using SiriusTimetable.Core.Services.Abstractions;
 using SiriusTimetable.Core.Timetable;
 
 namespace SiriusTimetable.Common.ViewModels
@@ -15,36 +11,45 @@ namespace SiriusTimetable.Common.ViewModels
 	{
 		#region Private fields
 
-		private TimetableHeader _header;
-		private bool _isBusy;
 		private ObservableCollection<TimetableItem> _timetable;
-		private TimetableModel _model;
+		private TimetableInfo _info;
+		private DateTime _date;
+		private string _teamName;
+		private string _shortTeam;
 
 		#endregion
 
 		#region Constructors
 
-		public TimetableViewModel()
+		public TimetableViewModel(DateTime defaultDate)
 		{
-			Init();
+			Date = defaultDate;
 		}
+
 		#endregion
 
 		#region Public properties
 
-		public TimetableInfo TimetableInfo { get; private set; }
-		public string ShortTeam { get; set; }
-		public TimetableHeader Header
+		public TimetableInfo TimetableInfo
 		{
-			get { return _header; }
-			set { SetProperty(ref _header, value); }
+			get { return _info; }
+			set { SetProperty(ref _info, value); }
 		}
-		public bool IsBusy
+		public string ShortTeam
 		{
-			get { return _isBusy; }
-			set { SetProperty(ref _isBusy, value); }
+			get { return _shortTeam; }
+			set { SetProperty(ref _shortTeam, value); }
 		}
-		public DateTime Date { get; set; }
+		public string TeamName
+		{
+			get { return _teamName; }
+			set { SetProperty(ref _teamName, value); }
+		}
+		public DateTime Date
+		{
+			get { return _date; }
+			set { SetProperty(ref _date, value); }
+		}
 		public ObservableCollection<TimetableItem> Timetable
 		{
 			get { return _timetable; }
@@ -55,92 +60,40 @@ namespace SiriusTimetable.Common.ViewModels
 
 		#region Private methods
 
-		private void Init()
-		{
-			_model = new TimetableModel();
-			Date = ServiceLocator.GetService<IDateTimeService>().GetCurrentTime().Date;
-		}
-		private void UpdateCurrentAction()
-		{
-			var time = ServiceLocator.GetService<IDateTimeService>().GetCurrentTime();
-			foreach(var item in Timetable)
-			{
-				var startTime = Date.AddHours(item.Parent.Start.Hour).AddMinutes(item.Parent.Start.Minute);
-				var endTime = Date.AddHours(item.Parent.End.Hour).AddMinutes(item.Parent.End.Minute);
-				if((startTime <= time) && (time <= endTime))
-					item.Color = 0x10ff007b;
-				else if(endTime < time)
-					item.Color = 0x79CBCBCB;
-				else
-					item.Color = 0x00000000;
-			}
-		}
 
 		#endregion
 
 		#region Public methods
 
-		public void DialogOnPositiveButtonClick(string tag)
+		public bool UpdateSchedule(string team)
 		{
-			if(tag == "StaleCache")
-			{
-				ServiceLocator.GetService<ITimetableProvider>().StaleDialogSetOnPositive();
-			}
-		}
+			//checking data
+			var dataExists =
+				TimetableInfo.Timetable != null &&
+				TimetableInfo.ShortLongTeamNameDictionary != null;
 
-		public void DialogOnNegativeButtonClick(string tag)
-		{
-			if(tag == "StaleCache")
-			{
-				ServiceLocator.GetService<ITimetableProvider>().StaleDialogSetOnNegative();
-			}
-		}
-		public async Task<bool> UpdateInfo(DateTime date)
-		{
+			if(!dataExists) return false;
+
+			//updating data
 			try
 			{
-				if ((TimetableInfo != null) && (TimetableInfo.Date == date.Date)) return true;
-				var info = await _model.GetTimetableInfo(date);
-				TimetableInfo = info;
+				var timetableAll = TimetableInfo.Timetable;
+				var timetable = timetableAll[team];
+
+				Timetable = new ObservableCollection<TimetableItem>(timetable.Select(arg => new TimetableItem(arg)));
+				TeamName = TimetableInfo.ShortLongTeamNameDictionary[team];
+				ShortTeam = team;
+				Date = TimetableInfo.Date;
 				return true;
 			}
-			catch (Exception ex)
+			catch
 			{
-				Debug.WriteLine(ex.Message);
-				ServiceLocator.GetService<IDialogAlertService>().ShowAlert("Упс..", "На сервере произошла ошибка :(", "Ок", null, "SError");
+				//discard all values
+				Timetable = null;
+				TeamName = null;
+				ShortTeam = null;
 				return false;
 			}
-		}
-
-		public async Task UpdateTeam(DateTime date, string shortTeam)
-		{
-			if (!await UpdateInfo(date)) return;
-
-			Date = date;
-
-			if (!TimetableInfo.KeywordDictionary.ContainsKey(shortTeam))
-			{
-				ServiceLocator.GetService<ISelectTeamDialogService>().ShowSelectTeamDialog();
-				return;
-			}
-
-			var dateKey = Date.ToString("ddMMyyyy");
-			var timetable = TimetableInfo.Timetable[dateKey];
-			var currentTimetable = timetable.Teams[TimetableInfo.KeywordDictionary[shortTeam]];
-			var collection = currentTimetable.Select(activity => new TimetableItem(activity));
-			Timetable = new ObservableCollection<TimetableItem>(collection);
-
-			Header = new TimetableHeader
-			{
-				Date = $"{Date:D}",
-				Team = TimetableInfo.KeywordDictionary[shortTeam],
-				IsLoaded = true,
-			};
-
-			ShortTeam = shortTeam;
-
-			ServiceLocator.GetService<ITimerService>().SetHandler(UpdateCurrentAction);
-			UpdateCurrentAction();
 		}
 
 		#endregion

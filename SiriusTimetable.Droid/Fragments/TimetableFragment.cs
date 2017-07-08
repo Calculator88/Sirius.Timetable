@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Android.App;
-using Android.Content;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
 using SiriusTimetable.Common.Models;
 using SiriusTimetable.Common.ViewModels;
-using SiriusTimetable.Core.Services;
 using SiriusTimetable.Droid.Helpers;
+using System.ComponentModel;
+using System.Linq;
 
 namespace SiriusTimetable.Droid.Fragments
 {
@@ -21,6 +20,7 @@ namespace SiriusTimetable.Droid.Fragments
 		private LinearLayoutManager _manager;
 		private RecyclerViewAdapter _adapter;
 		private IOnItemSelected _listener;
+		private TimetableViewModel _viewModel;
 
 		#endregion
 
@@ -30,7 +30,6 @@ namespace SiriusTimetable.Droid.Fragments
 		{
 			base.OnCreate(savedInstanceState);
 			_listener = Activity as IOnItemSelected;
-			if(_listener == null) throw new Exception($"{Activity} must implement {typeof(IOnItemSelected)}");
 		}
 		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
@@ -42,11 +41,15 @@ namespace SiriusTimetable.Droid.Fragments
 			_recyclerView.SetLayoutManager(_manager);
 			_recyclerView.AddItemDecoration(new DividerItemDecoration(_recyclerView.Context, _manager.Orientation));
 
-			var vm = ServiceLocator.GetService<TimetableViewModel>();
-			if (vm.Timetable != null)
-				SetItems(vm.Timetable.ToList());
+			_viewModel.PropertyChanged += _viewModelOnPropertyChanged;
+			UpdateVMLinks();
 
 			return v;
+		}
+		public override void OnDestroy()
+		{
+			_viewModel.PropertyChanged -= _viewModelOnPropertyChanged;
+			base.OnDestroy();
 		}
 
 		#endregion
@@ -55,11 +58,38 @@ namespace SiriusTimetable.Droid.Fragments
 
 		public void ItemClick(TimetableItem item)
 		{
-			_listener.ItemSelected(item);
+			_listener?.ItemSelected(item);
 		}
 		public void ItemLongClick(TimetableItem item)
 		{
-			_listener.ItemSelected(item);
+			_listener?.ItemSelected(item);
+		}
+
+		#endregion
+
+		#region Private methods
+
+		private void _viewModelOnPropertyChanged(Object sender, PropertyChangedEventArgs e)
+		{
+			var propName = e.PropertyName;
+			switch(propName)
+			{
+				case nameof(_viewModel.Timetable):
+					VMOnTimetableChanged();
+					break;
+				default:
+					break;
+			}
+		}
+
+		private void VMOnTimetableChanged()
+		{
+			SetItems(_viewModel.Timetable.ToList());
+		}
+
+		private void UpdateVMLinks()
+		{
+			throw new NotImplementedException();
 		}
 
 		#endregion
@@ -80,6 +110,12 @@ namespace SiriusTimetable.Droid.Fragments
 			_adapter = new RecyclerViewAdapter(items, this, this);
 			_recyclerView.SetAdapter(_adapter);
 		}
+
+		#endregion
+
+		#region Public fields
+
+		public static readonly string LoadFromVMTag =  "LOADFROMVM";
 
 		#endregion
 	}

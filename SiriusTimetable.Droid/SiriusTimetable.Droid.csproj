@@ -43,11 +43,7 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\netstandard1.3\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.5.0.0-beta06\lib\monoandroid23\NLog.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\netstandard1.3\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -100,6 +96,7 @@
     <Compile Include="Dialogs\SelectTeamDialog.cs" />
     <Compile Include="Fragments\DetailsFragment.cs" />
     <Compile Include="Fragments\TimetableFragment.cs" />
+    <Compile Include="Fragments\TimetableFragmentFiller.cs" />
     <Compile Include="Helpers\RecyclerViewAdapter.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
@@ -108,24 +105,19 @@
     <Compile Include="Services\DateTimeServiceFake.cs" />
     <Compile Include="Dialogs\DialogAlertService.cs" />
     <Compile Include="Services\LocalNotificationService.cs" />
-    <Compile Include="Services\LogService.cs" />
     <Compile Include="Services\ResourceService.cs" />
     <Compile Include="Services\ScheduledAlarmHandler.cs" />
     <Compile Include="Services\SelectedTeamCacher.cs" />
-    <Compile Include="Services\TimerSerice.cs" />
-    <Compile Include="Services\TimetableCacher.cs" />
+    <Compile Include="Services\TimerService.cs" />
+    <Compile Include="Services\Cacher.cs" />
+    <Compile Include="Services\TimetableDownloaderTesting.cs" />
     <Compile Include="Services\TimetableDownloader.cs" />
     <Compile Include="Services\TimetableDownloaderFake.cs" />
     <Compile Include="SplashActivity.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\NLog.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </Content>
-    <None Include="NLog.xsd">
-      <SubType>Designer</SubType>
-    </None>
+    <AndroidResource Include="Resources\values\colors.xml" />
+    <AndroidResource Include="Resources\drawable\unknown.png" />
     <None Include="packages.config" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
@@ -151,6 +143,9 @@
       <SubType>Designer</SubType>
     </AndroidResource>
     <AndroidResource Include="Resources\layout-land\Main.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+    <AndroidResource Include="Resources\layout\TimetableFragmentFiller.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>
@@ -208,6 +203,7 @@
     <AndroidResource Include="Resources\drawable\sport.png" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Assets\" />
     <Folder Include="Resources\drawable-hdpi\" />
     <Folder Include="Resources\drawable-mdpi\" />
     <Folder Include="Resources\drawable-xhdpi\" />

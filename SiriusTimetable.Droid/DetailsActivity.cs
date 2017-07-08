@@ -20,12 +20,7 @@ namespace SiriusTimetable.Droid
 			SupportActionBar.SetDisplayHomeAsUpEnabled(true);
 
 
-			var details = new DetailsFragment();
-			details.SetData(
-				Intent.GetStringExtra("TITLE"),
-				Intent.GetStringExtra("PLACE"),
-				Intent.GetStringExtra("BUSTO"),
-				Intent.GetStringExtra("BUSFROM"));
+			var details = new DetailsFragment {Arguments = Intent.GetBundleExtra("ARGS")};
 
 			FragmentManager.BeginTransaction()
 				.Replace(Resource.Id.DetailsFragment, details,

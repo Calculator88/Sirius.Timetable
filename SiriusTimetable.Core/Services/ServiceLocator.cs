@@ -14,6 +14,8 @@ namespace SiriusTimetable.Core.Services
 
 		public static T GetService<T>()
 		{
+			if (!Services.ContainsKey(typeof(T)))
+				throw new Exception($"{typeof(T)} is not registered");
 			return (T) Services[typeof(T)];
 		}
 	}
