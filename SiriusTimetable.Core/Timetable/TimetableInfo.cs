@@ -54,8 +54,7 @@ namespace SiriusTimetable.Core.Timetable
 				{
 					if(!TimetableCacheInfo.Exists) return false;
 
-					var timetable = ServiceLocator.GetService<IJsonParser>().ParseJson<object>(TimetableCacheInfo.Content);
-					var rawTimetable = (Dictionary<String, Timetable>)timetable;
+					var rawTimetable = ServiceLocator.GetService<IJsonParser>().ParseJson<Dictionary<String, Timetable>>(TimetableCacheInfo.Content);
 
 					var date = Date.ToString("yyyyMMdd");
 					if(!rawTimetable.ContainsKey(date)) return false;
@@ -64,8 +63,7 @@ namespace SiriusTimetable.Core.Timetable
 				}
 				else
 				{
-					var timetable = ServiceLocator.GetService<IJsonParser>().ParseJson<object>(DownloadedJson);
-					var rawTimetable = (Dictionary<String, Timetable>)timetable;
+					var rawTimetable = ServiceLocator.GetService<IJsonParser>().ParseJson<Dictionary<String, Timetable>>(DownloadedJson);
 
 					var date = Date.ToString("yyyyMMdd");
 					if(!rawTimetable.ContainsKey(date)) return false;
@@ -74,7 +72,7 @@ namespace SiriusTimetable.Core.Timetable
 				}
 				return true;
 			}
-			catch(Exception ex)
+			catch
 			{
 				return false;
 			}
@@ -112,7 +110,7 @@ namespace SiriusTimetable.Core.Timetable
 						var group = Convert.ToInt32(matches[i].Groups[3].Value);					   //Пример такой ситуации - "Н16, Н17 Big Data"
 
 						timetable[teamName] = timetableNode.Value;
-						if(directionPossibleNumbers.ContainsKey(direction))
+						if(!directionPossibleNumbers.ContainsKey(direction))
 							directionPossibleNumbers[direction] = new List<int>();
 						directionPossibleNumbers[direction].Add(group);
 						shortLongTeamNameDictionary[direction + group.ToString("00")] = teamName;
@@ -136,16 +134,16 @@ namespace SiriusTimetable.Core.Timetable
 
 			return true;
 		}
-		private int ComparingActivities(Activity act1, Activity act2)
+		private static int ComparingActivities(Activity act1, Activity act2)
 		{
 			if (act1.Start == act2.Start)
 			{
 				if(act1.End == act2.End) return 0;
-				if(act1.End < act2.End) return 1;
-				else return -1;
+				if(act1.End < act2.End) return -1;
+				return 1;
 			}
-			if(act1.Start < act2.Start) return 1;
-			return -1;
+			if(act1.Start < act2.Start) return -1;
+			return 1;
 		}
 		public static TimetableDirection GetDirection(string group)
 		{
@@ -161,7 +159,7 @@ namespace SiriusTimetable.Core.Timetable
 					return TimetableDirection.Literature;
 			}
 		}
-		private Regex _regx;
+		private readonly Regex _regx;
 	}
 	public enum TimetableDirection
 	{

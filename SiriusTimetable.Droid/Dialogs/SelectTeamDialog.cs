@@ -137,7 +137,7 @@ namespace SiriusTimetable.Droid.Dialogs
 			if(_selectedDirection == Resources.GetString(Resource.String.TxtUnknown))
 				_groupName.Text = _info.ShortLongTeamNameDictionary[group];
 			else
-				_groupName.Text = _info.ShortLongTeamNameDictionary[_selectedDirection[0] + _selectedGroup];
+				_groupName.Text = _info.ShortLongTeamNameDictionary[TimetableInfo.GetDirection(_selectedDirection[0].ToString()) + _selectedGroup];
 
 			_groupName.Visibility = ViewStates.Visible;
 			_selectButton.Enabled = true;
@@ -209,7 +209,7 @@ namespace SiriusTimetable.Droid.Dialogs
 			if(_selectedDirection == Resources.GetString(Resource.String.TxtUnknown))
 				_listener.SelectTeamOnChoose(_selectedGroup);
 			else
-				_listener.SelectTeamOnChoose(_selectedDirection[0] + _selectedGroup);
+				_listener.SelectTeamOnChoose(TimetableInfo.GetDirection(_selectedDirection[0].ToString()) + _selectedGroup);
 			Dismiss();
 		}
 		private void OnClose()

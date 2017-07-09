@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SiriusTimetable.Core.Services.Abstractions;
 
-namespace SiriusTimetable.Core.Services
+namespace SiriusTimetable.Droid.Services
 {
 	public class JsonParser : IJsonParser
 	{

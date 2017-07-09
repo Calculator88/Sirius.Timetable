@@ -9,6 +9,7 @@ using SiriusTimetable.Common.ViewModels;
 using SiriusTimetable.Droid.Helpers;
 using System.ComponentModel;
 using System.Linq;
+using SiriusTimetable.Core.Services;
 
 namespace SiriusTimetable.Droid.Fragments
 {
@@ -41,6 +42,7 @@ namespace SiriusTimetable.Droid.Fragments
 			_recyclerView.SetLayoutManager(_manager);
 			_recyclerView.AddItemDecoration(new DividerItemDecoration(_recyclerView.Context, _manager.Orientation));
 
+			_viewModel = ServiceLocator.GetService<TimetableViewModel>();
 			_viewModel.PropertyChanged += _viewModelOnPropertyChanged;
 			UpdateVMLinks();
 
@@ -89,7 +91,7 @@ namespace SiriusTimetable.Droid.Fragments
 
 		private void UpdateVMLinks()
 		{
-			throw new NotImplementedException();
+			VMOnTimetableChanged();
 		}
 
 		#endregion

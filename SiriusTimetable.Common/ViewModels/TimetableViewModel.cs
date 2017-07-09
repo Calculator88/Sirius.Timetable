@@ -78,7 +78,7 @@ namespace SiriusTimetable.Common.ViewModels
 			try
 			{
 				var timetableAll = TimetableInfo.Timetable;
-				var timetable = timetableAll[team];
+				var timetable = timetableAll[TimetableInfo.ShortLongTeamNameDictionary[team]];
 
 				Timetable = new ObservableCollection<TimetableItem>(timetable.Select(arg => new TimetableItem(arg)));
 				TeamName = TimetableInfo.ShortLongTeamNameDictionary[team];

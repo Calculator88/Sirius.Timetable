@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Util;
 using Android.Views;
@@ -41,6 +40,7 @@ namespace SiriusTimetable.Droid.Helpers
 
 			mHolder.Title.Text = _activities[position].Title;
 			mHolder.Title.SetTextSize(ComplexUnitType.Pt, 8);
+			mHolder.Title.SetMaxLines(2);
 
 			if(!_activities[position].Start.HasValue)
 			{
@@ -54,7 +54,7 @@ namespace SiriusTimetable.Droid.Helpers
 				mHolder.BeginTime.SetTextSize(ComplexUnitType.Pt, 8);
 
 				mHolder.EndTime.Text = _activities[position].End.Value.ToString("HH:mm");
-				mHolder.EndTime.SetTextSize(ComplexUnitType.Pt, 10);
+				mHolder.EndTime.SetTextSize(ComplexUnitType.Pt, 8);
 			}
 
 			if(!_activities[position].BusTo.HasValue)

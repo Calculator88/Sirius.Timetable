@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using SiriusTimetable.Core.Services.Abstractions;
+using System.Text;
 
 namespace SiriusTimetable.Droid.Services
 {
@@ -16,7 +17,9 @@ namespace SiriusTimetable.Droid.Services
 		public async Task<String> GetJsonString(DateTime date)
 		{
 			var str = GetUrl(date);
-			var result = await new WebClient().DownloadStringTaskAsync(new Uri(str));
+			var client = new WebClient();
+			client.Encoding = Encoding.UTF8;
+			var result = await client.DownloadStringTaskAsync(new Uri(str));
 			return result;
 		}
 	}

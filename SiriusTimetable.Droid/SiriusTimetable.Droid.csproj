@@ -104,6 +104,7 @@
     <Compile Include="Services\DateTimeService.cs" />
     <Compile Include="Services\DateTimeServiceFake.cs" />
     <Compile Include="Dialogs\DialogAlertService.cs" />
+    <Compile Include="Services\JsonParser.cs" />
     <Compile Include="Services\LocalNotificationService.cs" />
     <Compile Include="Services\ResourceService.cs" />
     <Compile Include="Services\ScheduledAlarmHandler.cs" />

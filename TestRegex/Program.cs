@@ -10,17 +10,10 @@ namespace TestRegex
 	{
 		static void Main(string[] args)
 		{
-			var regx = new Regex(@"(\b([НИЛС])(\d+)\b)|(\b\w+[\w\s\W]*$)", RegexOptions.Compiled);
-			var str = Console.ReadLine();
-			var matches = regx.Matches(str);
-
-			if(matches.Count == 1)
-				Console.WriteLine(matches[0].Value);
-
-			for (var i = 0; i < matches.Count - 1; ++i)
+			var str = "Start";
+			foreach(var item in str)
 			{
-				Console.WriteLine(matches[i].Value + ' ' + matches[matches.Count - 1].Value);
-				Console.WriteLine(matches[i].Groups[2].Value + ' ' + matches[i].Groups[3].Value);
+				Console.Write((int)item); Console.Write(' ');
 			}
 		}
 	}
