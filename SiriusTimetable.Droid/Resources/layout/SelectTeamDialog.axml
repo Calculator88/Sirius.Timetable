@@ -8,7 +8,7 @@
               android:animateLayoutChanges="true">
   <HorizontalScrollView
     android:scrollbars="none"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
     <LinearLayout
@@ -74,6 +74,7 @@
         android:alpha="0.25" />
     </LinearLayout>
   </HorizontalScrollView>
+  
   <TextView
     android:id="@+id/dir_name"
     android:layout_height="wrap_content"
@@ -81,9 +82,10 @@
     android:gravity="center"
     android:visibility="gone"
     android:padding="3dip" />
+  
   <HorizontalScrollView
   android:scrollbars="none"
-  android:layout_width="match_parent"
+  android:layout_width="wrap_content"
   android:layout_height="wrap_content">
     <LinearLayout
     android:layout_marginLeft="5dip"

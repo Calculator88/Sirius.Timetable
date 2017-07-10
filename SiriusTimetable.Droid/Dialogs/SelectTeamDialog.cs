@@ -78,7 +78,7 @@ namespace SiriusTimetable.Droid.Dialogs
 			_selectButton.SetOnClickListener(this);
 			v.FindViewById<Button>(Resource.Id.btn_close).SetOnClickListener(this);
 
-			_images[0].SetOnClickListener(this);
+			_images[0].SetOnClickListener(this);   
 			_images[1].SetOnClickListener(this);
 			_images[2].SetOnClickListener(this);
 			_images[3].SetOnClickListener(this);
@@ -192,7 +192,7 @@ namespace SiriusTimetable.Droid.Dialogs
 			selecter.SetTextColor(Color.Black);
 			selecter.SetOnClickListener(this);
 
-			var attrs = new[]{ Android.Resource.Attribute.SelectableItemBackground};
+			var attrs = new[]{ Android.Resource.Attribute.SelectableItemBackgroundBorderless};
 			var ta = Activity.ObtainStyledAttributes(attrs);
 			var selectedItemDrawable = ta.GetDrawable(0);
 			ta.Recycle();

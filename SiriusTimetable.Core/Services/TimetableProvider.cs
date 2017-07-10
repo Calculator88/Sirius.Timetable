@@ -21,7 +21,7 @@ namespace SiriusTimetable.Core.Services
 				info.DownloadedJson = null;
 			}
 
-			var fileNameTimetable = Path.Combine(ServiceLocator.GetService<ICacher>().CacheDirectory, $"/{date:ddMMyyyy}.json");
+			var fileNameTimetable = ServiceLocator.GetService<ICacher>().CacheDirectory + $"{date:ddMMyyyy}.json";
 			info.TimetableCacheInfo = new CacheInfo
 			{
 				Exists = ServiceLocator.GetService<ICacher>().Exists(fileNameTimetable),

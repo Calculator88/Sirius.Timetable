@@ -68,6 +68,8 @@ namespace SiriusTimetable.Core.Timetable
 					var date = Date.ToString("yyyyMMdd");
 					if(!rawTimetable.ContainsKey(date)) return false;
 
+					ServiceLocator.GetService<ICacher>().Cache(TimetableCacheInfo.CacheFileName, DownloadedJson);
+
 					UpdateData(rawTimetable);
 				}
 				return true;
@@ -79,7 +81,7 @@ namespace SiriusTimetable.Core.Timetable
 		}
 
 
-		private bool UpdateData(Dictionary<String, Timetable> rawTimetable)
+		private void UpdateData(Dictionary<String, Timetable> rawTimetable)
 		{
 			var shortLongTeamNameDictionary = new Dictionary<String, String>();
 			var timetable = new Dictionary<String, List<Activity>>();
@@ -93,7 +95,7 @@ namespace SiriusTimetable.Core.Timetable
 				timetableNode.Value.Sort(ComparingActivities);										  //Отсортировать ативности по вермени началу события
 
 				var matches = _regx.Matches(timetableNode.Key);
-				if(matches.Count == 0) return false;												  //Если ни одного совпадения по шаблону нет,
+				if(matches.Count == 0) return;												  //Если ни одного совпадения по шаблону нет,
 																									  //то хрен знает, что делать. Расходимся
 				if (matches.Count == 1)
 				{                                                                                     //Единственное совпадение. Это значит, что это и есть
@@ -131,8 +133,6 @@ namespace SiriusTimetable.Core.Timetable
 			ShortLongTeamNameDictionary = new ReadOnlyDictionary<String, String>(shortLongTeamNameDictionary);
 			DirectionPossibleNumbers = new ReadOnlyDictionary<TimetableDirection, List<int>>(directionPossibleNumbers);
 			UnknownPossibleTeams = new ReadOnlyCollection<string>(unknownPossibleTeams);
-
-			return true;
 		}
 		private static int ComparingActivities(Activity act1, Activity act2)
 		{

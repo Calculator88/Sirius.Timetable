@@ -14,8 +14,7 @@ namespace SiriusTimetable.Droid.Services
 
 		public string Get(string path)
 		{
-			if(!Exists(path)) return null;
-			return File.ReadAllText(path);
+			return !Exists(path) ? null : File.ReadAllText(path);
 		}
 
 		public void Cache(string path, string content)

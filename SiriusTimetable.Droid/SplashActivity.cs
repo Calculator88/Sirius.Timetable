@@ -22,7 +22,7 @@ namespace SiriusTimetable.Droid
 		{
 			ServiceLocator.RegisterService<IDateTimeService>(new DateTimeService());
 			ServiceLocator.RegisterService<IResourceService>(new ResourceService(Resources));
-			ServiceLocator.RegisterService<ISelectedTeamCacher>(new SelectedTeamCacher(CacheDir.Path));
+			//ServiceLocator.RegisterService<ISelectedTeamCacher>(new SelectedTeamCacher(CacheDir.Path));
 			ServiceLocator.RegisterService<ITimerService>(new TimerService());
 			ServiceLocator.RegisterService<ICacher>(new Cacher(CacheDir.Path));
 			ServiceLocator.RegisterService<ITimetableDownloader>(new TimetableDownloaderTesting());
