@@ -5,7 +5,6 @@ namespace SiriusTimetable.Common.Models
 {
 	public class TimetableHeader : ObservableObject
 	{
-		private AsyncCommand _choseDate;
 		private string _date;
 		private bool _isLoaded;
 		private string _team;
@@ -26,12 +25,6 @@ namespace SiriusTimetable.Common.Models
 		{
 			get { return _isLoaded; }
 			set { SetProperty(ref _isLoaded, value); }
-		}
-
-		public AsyncCommand SelectDateCommand
-		{
-			get { return _choseDate; }
-			set { SetProperty(ref _choseDate, value); }
 		}
 	}
 }

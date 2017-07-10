@@ -35,40 +35,27 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\Abstractions\IDatePickerDialogService.cs" />
     <Compile Include="Services\Abstractions\IDateTimeService.cs" />
-    <Compile Include="Services\Abstractions\IDialogAlertService.cs" />
     <Compile Include="Services\Abstractions\ILocalNotificationService.cs" />
     <Compile Include="Services\Abstractions\IResourceService.cs" />
     <Compile Include="Services\Abstractions\ISelectedTeamCacher.cs" />
     <Compile Include="Services\Abstractions\ISelectTeamDialogService.cs" />
     <Compile Include="Services\Abstractions\ITimerService.cs" />
     <Compile Include="Services\Abstractions\ITimetableDownloader.cs" />
-    <Compile Include="Services\Abstractions\ITimetableParser.cs" />
+    <Compile Include="Services\Abstractions\IJsonParser.cs" />
     <Compile Include="Services\Abstractions\ITimetableProvider.cs" />
     <Compile Include="Services\Abstractions\ILoadingDialogService.cs" />
     <Compile Include="Services\LocalNotification.cs" />
     <Compile Include="Services\ServiceLocator.cs" />
-    <Compile Include="Services\TimetableParser.cs" />
     <Compile Include="Services\TimetableProvider.cs" />
     <Compile Include="Timetable\Activity.cs" />
+    <Compile Include="Timetable\CacheInfo.cs" />
     <Compile Include="Timetable\Timetable.cs" />
-    <Compile Include="Services\Abstractions\ITimetableCacher.cs" />
+    <Compile Include="Services\Abstractions\ICacher.cs" />
     <Compile Include="Timetable\TimetableInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

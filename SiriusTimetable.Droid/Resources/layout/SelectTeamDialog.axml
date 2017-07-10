@@ -2,56 +2,79 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
+              android:gravity="center_horizontal"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:animateLayoutChanges="true">
-  <LinearLayout
-    android:gravity="center_horizontal"
-    android:orientation="horizontal"
-    android:layout_height="wrap_content"
-    android:layout_width="match_parent">
-    <ImageView
-      android:src="@drawable/science"
-      android:id="@+id/img_science"
-      android:layout_height="55dip"
-      android:layout_width="55dip"
-      android:layout_marginRight="10dip"
-      android:layout_marginLeft="10dip"
-      android:layout_marginTop="5dip"
-      android:layout_marginBottom="5dip"
-      android:tag="@string/TxtScience"
-      android:alpha="0.25" />
-    <ImageView
-      android:src="@drawable/sport"
-      android:id="@+id/img_sport"
-      android:layout_height="55dip"
-      android:layout_width="55dip"
-      android:layout_marginTop="5dip"
-      android:layout_marginBottom="5dip"
-      android:layout_marginRight="10dip"
-      android:tag="@string/TxtSport"
-      android:alpha="0.25" />
-    <ImageView
-      android:src="@drawable/art"
-      android:id="@+id/img_art"
-      android:layout_height="55dip"
-      android:layout_width="55dip"
-      android:layout_marginRight="10dip"
-      android:layout_marginTop="5dip"
-      android:layout_marginBottom="5dip"
-      android:tag="@string/TxtArt"
-      android:alpha="0.25" />
-    <ImageView
-      android:src="@drawable/literature"
-      android:id="@+id/img_literature"
-      android:layout_height="55dip"
-      android:layout_width="55dip"
-      android:layout_marginTop="5dip"
-      android:layout_marginBottom="5dip"
-      android:layout_marginRight="10dip"
-      android:tag="@string/TxtLiterature"
-      android:alpha="0.25" />
-  </LinearLayout>
+  <HorizontalScrollView
+    android:scrollbars="none"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+      android:gravity="center_horizontal"
+      android:orientation="horizontal"
+      android:layout_height="wrap_content"
+      android:layout_width="match_parent">
+      <ImageView
+        android:src="@drawable/science"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:id="@+id/img_science"
+        android:layout_height="55dip"
+        android:layout_width="55dip"
+        android:layout_marginRight="10dip"
+        android:layout_marginLeft="10dip"
+        android:layout_marginTop="5dip"
+        android:layout_marginBottom="5dip"
+        android:tag="@string/TxtScience"
+        android:alpha="0.25" />
+      <ImageView
+        android:src="@drawable/sport"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:id="@+id/img_sport"
+        android:layout_height="55dip"
+        android:layout_width="55dip"
+        android:layout_marginTop="5dip"
+        android:layout_marginBottom="5dip"
+        android:layout_marginRight="10dip"
+        android:tag="@string/TxtSport"
+        android:alpha="0.25" />
+      <ImageView
+        android:src="@drawable/art"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:id="@+id/img_art"
+        android:layout_height="55dip"
+        android:layout_width="55dip"
+        android:layout_marginRight="10dip"
+        android:layout_marginTop="5dip"
+        android:layout_marginBottom="5dip"
+        android:tag="@string/TxtArt"
+        android:alpha="0.25" />
+      <ImageView
+        android:src="@drawable/literature"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:id="@+id/img_literature"
+        android:layout_height="55dip"
+        android:layout_width="55dip"
+        android:layout_marginTop="5dip"
+        android:layout_marginBottom="5dip"
+        android:layout_marginRight="10dip"
+        android:tag="@string/TxtLiterature"
+        android:alpha="0.25" />
+      <ImageView
+        android:src="@drawable/unknown"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:id="@+id/img_unknown"
+        android:layout_height="55dip"
+        android:layout_width="55dip"
+        android:layout_marginTop="5dip"
+        android:layout_marginBottom="5dip"
+        android:layout_marginRight="10dip"
+        android:tag="@string/TxtUnknown"
+        android:alpha="0.25" />
+    </LinearLayout>
+  </HorizontalScrollView>
+  
   <TextView
     android:id="@+id/dir_name"
     android:layout_height="wrap_content"
@@ -59,17 +82,20 @@
     android:gravity="center"
     android:visibility="gone"
     android:padding="3dip" />
-  <LinearLayout
+  
+  <HorizontalScrollView
+  android:scrollbars="none"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content">
+    <LinearLayout
     android:layout_marginLeft="5dip"
     android:layout_marginRight="5dip"
     android:id="@+id/lay_groups"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:layout_gravity="center"
-    android:gravity="center"
+    android:orientation="horizontal"
     android:visibility="gone" />
-
+  </HorizontalScrollView>
   <TextView
     android:id="@+id/group_name"
     android:layout_height="wrap_content"

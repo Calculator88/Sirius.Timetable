@@ -6,10 +6,10 @@ namespace SiriusTimetable.Common.Helpers
 {
 	public class AsyncCommand : ObservableObject, ICommand
 	{
-		private readonly Func<Task> _asyncExecutor;
+		private readonly Func<object, Task> _asyncExecutor;
 		private bool _canExecute;
 
-		public AsyncCommand(Func<Task> asyncExecutor)
+		public AsyncCommand(Func<object, Task> asyncExecutor)
 		{
 			_asyncExecutor = asyncExecutor;
 		}
@@ -32,10 +32,9 @@ namespace SiriusTimetable.Common.Helpers
 		public async void Execute(object parameter)
 		{
 			IsExecuting = true;
-			await _asyncExecutor();
+			await _asyncExecutor(parameter);
 			IsExecuting = false;
 		}
-
 
 		public event EventHandler CanExecuteChanged;
 	}

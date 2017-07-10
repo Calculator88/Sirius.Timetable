@@ -1,27 +1,29 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+﻿<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:animateLayoutChanges="true"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
-  <android.support.v7.widget.Toolbar
-    android:id="@+id/toolbar"
-    android:layout_width="match_parent"
-    android:layout_height="?attr/actionBarSize"
-    android:background="?attr/colorPrimary"
-    android:elevation="4dp"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-    app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+  <include layout="@layout/toolbar"/>
   <LinearLayout
-    android:layout_height="?attr/actionBarSize"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:background="?attr/colorPrimary"
-    android:visibility="gone"
-    android:elevation="4dp"
-    android:id="@+id/header">
+    android:elevation="4dp">
+    <TextView
+      android:layout_height="wrap_content"
+      android:layout_width="wrap_content"
+      android:layout_gravity="center"
+      android:gravity="center"
+      android:paddingRight="5dip"
+      android:paddingLeft="5dip"
+      android:paddingBottom="4dip"
+      android:background="?attr/selectableItemBackgroundBorderless"
+      android:textColor="#FFFFFF"
+      android:textSize="16dip"
+      android:clickable="true"
+      android:id="@+id/header_date" />
     <TextView
       android:layout_height="wrap_content"
       android:singleLine="true"
@@ -30,22 +32,14 @@
       android:gravity="end"
       android:paddingRight="5dip"
       android:paddingLeft="5dip"
+      android:layout_marginBottom="2dip"
+      android:visibility="gone"
       android:textSize="16dip"
       android:id="@+id/header_tmName" />
-    <TextView
-      android:layout_height="wrap_content"
-      android:layout_width="match_parent"
-      android:gravity="end"
-      android:paddingRight="5dip"
-      android:paddingLeft="5dip"
-      android:textColor="#FFFFFF"
-      android:textSize="16dip"
-      android:clickable="true"
-      android:id="@+id/header_date" />
   </LinearLayout>
-  <android.support.v7.widget.RecyclerView
-    android:id="@+id/recyclerView"
-    android:scrollbars="vertical"
+  <FrameLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent"
+    android:id="@+id/TimetableFragment">
+  </FrameLayout>
 </LinearLayout>

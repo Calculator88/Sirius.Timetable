@@ -12,13 +12,13 @@ namespace SiriusTimetable.Droid.Services
 			_cacheLocation = cachePath;
 		}
 
-		public string Get()
+		public string GetTeam()
 		{
 			var fileName = Path.Combine(_cacheLocation, "savedTeam");
 			return File.Exists(fileName) ? File.ReadAllText(fileName) : null;
 		}
 
-		public void Cache(string team)
+		public void CacheTeam(string team)
 		{
 			var fileName = Path.Combine(_cacheLocation, "savedTeam");
 			File.WriteAllText(fileName, team);

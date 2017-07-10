@@ -4,13 +4,13 @@ using SiriusTimetable.Core.Services.Abstractions;
 
 namespace SiriusTimetable.Droid.Services
 {
-	public class TimerSerice : ITimerService
+	public class TimerService : ITimerService
 	{
 		private readonly Timer _timer;
 		private Action _action;
 		private ElapsedEventHandler _handler;
 
-		public TimerSerice()
+		public TimerService()
 		{
 			_timer = new Timer {Interval = 60000};
 		}

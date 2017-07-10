@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SiriusTimetable.Core.Timetable;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -6,6 +7,6 @@ namespace SiriusTimetable.Core.Services.Abstractions
 {
 	public interface ITimetableProvider
 	{
-		Task<Dictionary<string, Timetable.Timetable>> GetTimetables(DateTime date);
+		Task<TimetableInfo> GetTimetableInfo(DateTime date);
 	}
 }

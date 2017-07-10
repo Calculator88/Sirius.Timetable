@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-  <string name="app_name">SiriusTimetable.Android.Droid</string>
+  <string name="app_name">Раписание Сириус</string>
   <string name="AlertTitle">Произошла ошибка при загруке данных</string>
-  <string name="AlertNoInternetMessage">Убедитесь, что вы подключены к сети Сириуса (sirius_free) и повторите попытку</string>
+  <string name="AlertNoInternetMessage">Убедитесь, что вы подключены к сети Сириуса и повторите попытку</string>
   <string name="AlertStaleCacheMessage">На устройсве есть сохраненная копия расписания. Вы хотите загрузить ее (возможно, она не актуальна)?</string>
   <string name="ChooseTeam">Выберите команду</string>
   <string name="Choose">Выбрать</string>
@@ -12,5 +12,20 @@
   <string name="TxtSport">Спорт</string>
   <string name="TxtArt">Искусство</string>
   <string name="TxtLiterature">Литертура</string>
+  <string name="TxtUnknown">Неизвестно</string>
   <string name="TxtLoading">Загрузка...</string>
+  <string name="TagTimetableFragment">TimetableFragment</string>
+  <string name="TagDetailsFragment">DetailsFragment</string>
+  <string name="TagSelectTeamDialog">SelectTeamDialog</string>
+  <string name="TagDatePickerDialog">DatePickerDialog</string>
+  <string name="TagLoadingDialog">LoadingDialog</string>
+  <string name="ActivityHasBusAlertString">Внимание! Для этого события есть автобус</string>
+  <string name="TimetableFillerText">Чтобы посмотреть расписание выбирите дату и нажмите \"Выбрать\"</string>
+  <string name="TagTimetableFragmentFiller">TimetableFiller</string>
+  <string name="End">Окончание</string>
+  <string name="BusTo">Автобус туда</string>
+  <string name="BusFrom">Автобус обратно</string>
+  <string name="Activity">Событие</string>
+  <string name="Place">Место</string>
+  <string name="Begin">Начало</string>
 </resources>
