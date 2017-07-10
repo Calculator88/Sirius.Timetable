@@ -4,7 +4,7 @@ using Android.OS;
 
 namespace SiriusTimetable.Droid.Dialogs
 {
-	public class DatePickerDialog : DialogFragment
+	public class DatePickerDialog : Android.Support.V4.App.DialogFragment
 	{
 		private Android.App.DatePickerDialog.IOnDateSetListener _listener;
 
@@ -14,6 +14,7 @@ namespace SiriusTimetable.Droid.Dialogs
 			_listener = Activity as Android.App.DatePickerDialog.IOnDateSetListener;
 			if (_listener == null) throw new Exception($"{Activity} must implement {typeof(Android.App.DatePickerDialog.IOnDateSetListener)}");
 		}
+
 		public override Dialog OnCreateDialog(Bundle savedInstanceState)
 		{
 			var currently = DateTime.Now;

@@ -19,7 +19,7 @@
       android:paddingRight="5dip"
       android:paddingLeft="5dip"
       android:paddingBottom="4dip"
-      android:background="?attr/selectableItemBackgroundBorderless"
+      android:background="?attr/selectableItemBackground"
       android:textColor="#FFFFFF"
       android:textSize="16dip"
       android:clickable="true"

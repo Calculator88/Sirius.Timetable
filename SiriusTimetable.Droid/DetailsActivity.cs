@@ -22,7 +22,7 @@ namespace SiriusTimetable.Droid
 
 			var details = new DetailsFragment {Arguments = Intent.GetBundleExtra("ARGS")};
 
-			FragmentManager.BeginTransaction()
+			SupportFragmentManager.BeginTransaction()
 				.Replace(Resource.Id.DetailsFragment, details,
 					Resources.GetString(Resource.String.TagDetailsFragment))
 				.Commit();

@@ -1,11 +1,11 @@
 using System;
-using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.App;
 
 namespace SiriusTimetable.Droid.Dialogs
 {
-	public class DialogAlertService : DialogFragment
+	public class DialogAlertService : Android.Support.V4.App.DialogFragment
 	{
 		#region Private fields
 

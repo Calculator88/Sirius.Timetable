@@ -83,19 +83,16 @@
     android:visibility="gone"
     android:padding="3dip" />
   
-  <HorizontalScrollView
-  android:scrollbars="none"
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content">
     <LinearLayout
     android:layout_marginLeft="5dip"
     android:layout_marginRight="5dip"
     android:id="@+id/lay_groups"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
     android:visibility="gone" />
-  </HorizontalScrollView>
+  
   <TextView
     android:id="@+id/group_name"
     android:layout_height="wrap_content"
