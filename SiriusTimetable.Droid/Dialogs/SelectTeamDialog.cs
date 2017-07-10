@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Android.App;
 using Android.Graphics;
 using Android.OS;
 using Android.Views;
@@ -8,6 +7,7 @@ using Android.Widget;
 using SiriusTimetable.Common.ViewModels;
 using SiriusTimetable.Core.Services;
 using SiriusTimetable.Core.Timetable;
+using Android.Support.V4.App;
 
 namespace SiriusTimetable.Droid.Dialogs
 {
@@ -49,7 +49,8 @@ namespace SiriusTimetable.Droid.Dialogs
 			Dialog.SetTitle(Resource.String.ChooseTeam);
 			Dialog.SetCanceledOnTouchOutside(true);
 
-			var v = inflater.Inflate(Resource.Layout.SelectTeamDialog, null);
+			var v = inflater.Inflate(Resource.Layout.SelectTeamDialog, null, false);
+			
 			_groups = v.FindViewById<LinearLayout>(Resource.Id.lay_groups);
 
 			_images[0] = v.FindViewById<ImageView>(Resource.Id.img_science);
@@ -59,7 +60,7 @@ namespace SiriusTimetable.Droid.Dialogs
 			_images[1] = v.FindViewById<ImageView>(Resource.Id.img_sport);
 			if(!_info.DirectionPossibleNumbers.ContainsKey(TimetableDirection.Sport) || _info.DirectionPossibleNumbers[TimetableDirection.Sport].Count == 0)
 				_images[1].Visibility = ViewStates.Gone;
-			
+
 			_images[2] = v.FindViewById<ImageView>(Resource.Id.img_art);
 			if(!_info.DirectionPossibleNumbers.ContainsKey(TimetableDirection.Art) || _info.DirectionPossibleNumbers[TimetableDirection.Art].Count == 0)
 				_images[2].Visibility = ViewStates.Gone;
@@ -172,15 +173,24 @@ namespace SiriusTimetable.Droid.Dialogs
 
 			_groups.RemoveAllViews();
 
-			foreach(var item in _numbers)
-				_groups.AddView(item, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent));
+			for(var it = 0; it < _numbers.Count; )
+			{
+				var lay = new LinearLayout(Context);
+				lay.SetGravity(GravityFlags.CenterHorizontal);				
+				for(var summSumb = 0; summSumb < 19 && it < _numbers.Count; ++it)
+				{
+					lay.AddView(_numbers[it], new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent));
+					summSumb += _numbers[it].Text.Length;
+				}
+				_groups.AddView(lay, ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.WrapContent);
+			}
 
 			_groups.Visibility = ViewStates.Visible;
 			_directionName.Visibility = ViewStates.Visible;
 		}
 		private TextView GetGroupSelector(string text)
 		{
-			var selecter = new TextView(Application.Context)
+			var selecter = new TextView(Context)
 			{
 				Text = text,
 				Tag = text,
@@ -192,7 +202,7 @@ namespace SiriusTimetable.Droid.Dialogs
 			selecter.SetTextColor(Color.Black);
 			selecter.SetOnClickListener(this);
 
-			var attrs = new[]{ Android.Resource.Attribute.SelectableItemBackgroundBorderless};
+			var attrs = new[]{ Android.Resource.Attribute.SelectableItemBackground};
 			var ta = Activity.ObtainStyledAttributes(attrs);
 			var selectedItemDrawable = ta.GetDrawable(0);
 			ta.Recycle();

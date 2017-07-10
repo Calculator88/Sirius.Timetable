@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using Android.Content;
 using Android.OS;
 using Android.Support.V7.App;
 using Android.Views;
@@ -117,6 +115,8 @@ namespace SiriusTimetable.Droid
 		{
 			var selectedDate = new DateTime(year, month + 1, dayOfMonth);
 			_viewModel.Date = selectedDate;
+			if(_viewModel.Date.Date != _viewModel.TimetableInfo?.Date.Date)
+				SelectTeam();
 		}
 		public void SelectTeamOnChoose(string result)
 		{
@@ -129,22 +129,22 @@ namespace SiriusTimetable.Droid
 
 		public void ShowLoadingFragment()
 		{
-			var fragment = FragmentManager.FindFragmentByTag<LoadingDialog>(Resources.GetString(Resource.String.TagLoadingDialog));
+			var fragment = (LoadingDialog)SupportFragmentManager.FindFragmentByTag(Resources.GetString(Resource.String.TagLoadingDialog));
 			if (fragment != null) return;
 
-			new LoadingDialog().Show(FragmentManager, Resources.GetString(Resource.String.TagLoadingDialog));
+			new LoadingDialog().Show(SupportFragmentManager, Resources.GetString(Resource.String.TagLoadingDialog));
 			FragmentManager.ExecutePendingTransactions();
 		}
 		public void HideLoadingFragment()
 		{
-			var fragment = FragmentManager.FindFragmentByTag<LoadingDialog>(Resources.GetString(Resource.String.TagLoadingDialog));
+			var fragment = (LoadingDialog)SupportFragmentManager.FindFragmentByTag(Resources.GetString(Resource.String.TagLoadingDialog));
 			fragment?.Dismiss();
 			FragmentManager.ExecutePendingTransactions();
 		}
 		public void ShowSelectTeamDialog()
 		{
 			new SelectTeamDialog()
-				.Show(FragmentManager, Resources.GetString(Resource.String.TagSelectTeamDialog));
+				.Show(SupportFragmentManager, Resources.GetString(Resource.String.TagSelectTeamDialog));
 		}
 
 		#endregion
@@ -153,7 +153,7 @@ namespace SiriusTimetable.Droid
 
 		private void HeaderSelectDateOnClick()
 		{
-			new DatePickerDialog().Show(FragmentManager, Resources.GetString(Resource.String.TagDatePickerDialog));
+			new DatePickerDialog().Show(SupportFragmentManager, Resources.GetString(Resource.String.TagDatePickerDialog));
 		}
 		private void RegisterServices()
 		{
@@ -183,20 +183,20 @@ namespace SiriusTimetable.Droid
 		{
 			if(_viewModel.Timetable == null)
 			{
-				var fragment = FragmentManager.FindFragmentByTag<TimetableFragmentFiller>(Resources.GetString(Resource.String.TagTimetableFragment));
+				var fragment = (TimetableFragmentFiller)SupportFragmentManager.FindFragmentByTag(Resources.GetString(Resource.String.TagTimetableFragment));
 				if(fragment == null) return;
 
-				FragmentManager.BeginTransaction()
+				SupportFragmentManager.BeginTransaction()
 					.Replace(Resource.Id.TimetableFragment, new TimetableFragmentFiller(),
 					Resources.GetString(Resource.String.TagTimetableFragmentFiller))
 					.Commit();
 			}
 			else
 			{
-				var fragment = FragmentManager.FindFragmentByTag<TimetableFragment>(Resources.GetString(Resource.String.TagTimetableFragment));
+				var fragment = (TimetableFragment)SupportFragmentManager.FindFragmentByTag(Resources.GetString(Resource.String.TagTimetableFragment));
 				if(fragment == null)
 				{
-					FragmentManager.BeginTransaction()
+					SupportFragmentManager.BeginTransaction()
 						.Replace(Resource.Id.TimetableFragment,
 							new TimetableFragment(),
 							Resources.GetString(Resource.String.TagTimetableFragment))
@@ -226,6 +226,12 @@ namespace SiriusTimetable.Droid
 		}
 		private async void SelectTeam()
 		{
+			if (_viewModel.Date.Date == _viewModel.TimetableInfo?.Date.Date)
+			{
+				ShowSelectTeamDialog();
+				return;
+			}
+
 			ShowLoadingFragment();
 
 			var info = await ServiceLocator.GetService<ITimetableProvider>().GetTimetableInfo(_viewModel.Date);
@@ -239,7 +245,7 @@ namespace SiriusTimetable.Droid
 					Resources.GetString(Resource.String.AlertTitle),
 					Resources.GetString(Resource.String.AlertNoInternetMessage),
 					Resources.GetString(Android.Resource.String.Ok), null)
-					.Show(FragmentManager, "ALERT");
+					.Show(SupportFragmentManager, "ALERT");
 				return;
 			}
 
@@ -254,7 +260,7 @@ namespace SiriusTimetable.Droid
 					Resources.GetString(Resource.String.AlertStaleCacheMessage),
 					Resources.GetString(Android.Resource.String.Yes),
 					Resources.GetString(Android.Resource.String.No))
-					.Show(FragmentManager, "SC");
+					.Show(SupportFragmentManager, "SC");
 				return;
 			}
 
