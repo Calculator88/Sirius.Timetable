@@ -1,10 +1,9 @@
 using Android.OS;
-using Android.Support.V4.App;
 using Android.Views;
 
 namespace SiriusTimetable.Droid.Dialogs
 {
-	public class LoadingDialog : DialogFragment
+	public class LoadingDialog : Android.Support.V7.App.AppCompatDialogFragment
 	{
 		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{

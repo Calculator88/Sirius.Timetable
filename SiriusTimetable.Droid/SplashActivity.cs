@@ -1,3 +1,4 @@
+using System;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -15,7 +16,18 @@ namespace SiriusTimetable.Droid
 		{
 			base.OnCreate(savedInstanceState);
 			RegisterServices();
-			StartActivity(new Intent(Application.Context, typeof(MainActivity)));
+
+			var intent = new Intent(Application.Context, typeof(MainActivity));
+			var team = ServiceLocator.GetService<ICacher>().Get(ServiceLocator.GetService<ICacher>().CacheDirectory + MainActivity.CACHEDTEAMNAME);
+			var shortTeam = ServiceLocator.GetService<ICacher>().Get(ServiceLocator.GetService<ICacher>().CacheDirectory + MainActivity.CACHEDSHORTTEAM);
+			if(!String.IsNullOrEmpty(team))
+			{
+				intent.PutExtra(MainActivity.ISTEAMCACHED, true);
+				intent.PutExtra(MainActivity.CACHEDTEAMNAME, team);
+				intent.PutExtra(MainActivity.CACHEDSHORTTEAM, shortTeam);
+			}
+
+			StartActivity(intent);
 			Finish();
 		}
 		private void RegisterServices()

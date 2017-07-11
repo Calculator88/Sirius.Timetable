@@ -7,11 +7,11 @@ using Android.Widget;
 using SiriusTimetable.Common.ViewModels;
 using SiriusTimetable.Core.Services;
 using SiriusTimetable.Core.Timetable;
-using Android.Support.V4.App;
+using Android.Support.V7.App;
 
 namespace SiriusTimetable.Droid.Dialogs
 {
-	public class SelectTeamDialog : DialogFragment, View.IOnClickListener
+	public class SelectTeamDialog : AppCompatDialogFragment, View.IOnClickListener
 	{
 		#region Private fields
 
@@ -46,7 +46,6 @@ namespace SiriusTimetable.Droid.Dialogs
 		}
 		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
-			Dialog.SetTitle(Resource.String.ChooseTeam);
 			Dialog.SetCanceledOnTouchOutside(true);
 
 			var v = inflater.Inflate(Resource.Layout.SelectTeamDialog, null, false);
