@@ -4,7 +4,7 @@ using Android.OS;
 
 namespace SiriusTimetable.Droid.Dialogs
 {
-	public class DatePickerDialog : Android.Support.V4.App.DialogFragment
+	public class DatePickerDialog : Android.Support.V7.App.AppCompatDialogFragment
 	{
 		private Android.App.DatePickerDialog.IOnDateSetListener _listener;
 
@@ -12,7 +12,6 @@ namespace SiriusTimetable.Droid.Dialogs
 		{
 			base.OnCreate(savedInstanceState);
 			_listener = Activity as Android.App.DatePickerDialog.IOnDateSetListener;
-			if (_listener == null) throw new Exception($"{Activity} must implement {typeof(Android.App.DatePickerDialog.IOnDateSetListener)}");
 		}
 
 		public override Dialog OnCreateDialog(Bundle savedInstanceState)
@@ -22,6 +21,7 @@ namespace SiriusTimetable.Droid.Dialogs
 				currently.Year,
 				currently.Month - 1,
 				currently.Day);
+		
 			return dialog;
 		}
 	}

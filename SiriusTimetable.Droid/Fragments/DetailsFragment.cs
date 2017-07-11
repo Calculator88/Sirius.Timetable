@@ -48,7 +48,7 @@ namespace SiriusTimetable.Droid.Fragments
 			_beginTimeTextView = v.FindViewById<TextView>(Resource.Id.ActivityBeginTime);
 			_endTimeTextView = v.FindViewById<TextView>(Resource.Id.ActivityEndTime);
 			_placeContainer = v.FindViewById<LinearLayout>(Resource.Id.ActivityPlaceContainer);
-
+																		  
 			_title = Arguments?.GetString(TitleTextTag) ?? savedInstanceState.GetString(TitleTextTag);
 			_place = Arguments?.GetString(PlaceTextTag) ?? savedInstanceState.GetString(PlaceTextTag);
 			_beginTime = Arguments?.GetString(BeginTimeTag) ?? savedInstanceState.GetString(BeginTimeTag);
@@ -64,7 +64,6 @@ namespace SiriusTimetable.Droid.Fragments
 			_busToTextView.Text = _busTo;
 			_busFromTextView.Text = _busFrom;
 			_busContainer.Visibility = String.IsNullOrEmpty(_busTo) ? ViewStates.Gone : ViewStates.Visible;
-
 			return v;
 		}
 		public override void OnSaveInstanceState(Bundle outState)

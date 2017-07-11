@@ -5,7 +5,7 @@ using Android.App;
 
 namespace SiriusTimetable.Droid.Dialogs
 {
-	public class DialogAlertService : Android.Support.V4.App.DialogFragment
+	public class DialogAlertService : Android.Support.V7.App.AppCompatDialogFragment
 	{
 		#region Private fields
 
@@ -44,7 +44,6 @@ namespace SiriusTimetable.Droid.Dialogs
 		{
 			base.OnCreate(savedInstanceState);
 			_listener = Activity as IDialogAlertResultListener;
-			if (_listener == null) throw new Exception($"{Activity} must implement {typeof(IDialogAlertResultListener)}");
 		}
 		public override Dialog OnCreateDialog(Bundle savedInstanceState)
 		{
@@ -55,7 +54,7 @@ namespace SiriusTimetable.Droid.Dialogs
 				_positiveButton = savedInstanceState.GetString(PositiveButtonTag);
 				_negativeButton = savedInstanceState.GetString(NegativeButtonTag);
 			}
-			var builder = new AlertDialog.Builder(Activity)
+			var builder = new Android.Support.V7.App.AlertDialog.Builder(Activity)
 				.SetTitle(_title)
 				.SetMessage(_message)
 				.SetPositiveButton(_positiveButton, (sender, args) => { _listener.OnAlertPositiveButtonClick(Tag); });
