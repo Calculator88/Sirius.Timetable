@@ -13,6 +13,7 @@ using SiriusTimetable.Droid.Fragments;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 using SiriusTimetable.Core.Timetable;
 using System.Threading.Tasks;
+using Android.Content;
 
 namespace SiriusTimetable.Droid
 {
@@ -125,17 +126,16 @@ namespace SiriusTimetable.Droid
 		}
 		public void ItemSelected(TimetableItem item)
 		{
-			//var intent = new Intent(this, typeof(DetailsActivity));
-			//var args = new Bundle();
-			//TODO
-			//args.PutString("TITLE", item.Title);
-			//args.PutString("PLACE", item.Place);
-			//args.PutString("BUSTO", item.BusTo);
-			//args.PutString("BUSFROM", item.BusFrom);
-			//args.PutString("BEGINTIME", item.Start);
-			//args.PutString("ENDTIME", item.End);
-			//intent.PutExtra("ARGS", args);
-			//StartActivity(intent);
+			var intent = new Intent(this, typeof(DetailsActivity));
+			var args = new Bundle();
+
+			args.PutString(DetailsFragment.TitleTextTag, item.Title);
+			args.PutString(DetailsFragment.PlaceTextTag, item.Place);
+			args.PutString(DetailsFragment.BeginTimeTag, item.Start?.ToString("HH:mm"));
+			args.PutString(DetailsFragment.EndTimeTag, item.End?.ToString("HH:mm"));
+			intent.PutExtra("ARGS", args);
+
+			StartActivity(intent);
 		}
 		public void OnDateSet(DatePicker view, int year, int month, int dayOfMonth)
 		{
@@ -172,15 +172,15 @@ namespace SiriusTimetable.Droid
 			new SelectTeamDialog()
 				.Show(SupportFragmentManager, Resources.GetString(Resource.String.TagSelectTeamDialog));
 		}
+		private void ShowDatePicker()
+		{
+			new DatePickerDialog(_viewModel.Date).Show(SupportFragmentManager, Resources.GetString(Resource.String.TagDatePickerDialog));
+		}
 
 		#endregion
 
 		#region Private methods
 
-		private void HeaderSelectDateOnClick()
-		{
-			new DatePickerDialog().Show(SupportFragmentManager, Resources.GetString(Resource.String.TagDatePickerDialog));
-		}
 		private void RegisterServices()
 		{
 			ServiceLocator.RegisterService<ISelectTeamDialogService>(this);
@@ -308,7 +308,7 @@ namespace SiriusTimetable.Droid
 			switch(id)
 			{
 				case Resource.Id.header_date:
-					HeaderSelectDateOnClick();
+					ShowDatePicker();
 					break;
 			}
 		}

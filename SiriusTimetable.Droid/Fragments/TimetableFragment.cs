@@ -64,7 +64,6 @@ namespace SiriusTimetable.Droid.Fragments
 		}
 		public void ItemLongClick(TimetableItem item)
 		{
-			_listener?.ItemSelected(item);
 		}
 
 		#endregion
