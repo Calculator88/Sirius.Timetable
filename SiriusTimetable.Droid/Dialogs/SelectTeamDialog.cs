@@ -8,10 +8,11 @@ using SiriusTimetable.Common.ViewModels;
 using SiriusTimetable.Core.Services;
 using SiriusTimetable.Core.Timetable;
 using Android.Support.V7.App;
+using Android.Views.Animations;
 
 namespace SiriusTimetable.Droid.Dialogs
 {
-	public class SelectTeamDialog : AppCompatDialogFragment, View.IOnClickListener
+	public class SelectTeamDialog : AppCompatDialogFragment, View.IOnClickListener , ViewSwitcher.IViewFactory
 	{
 		#region Private fields
 
@@ -25,10 +26,10 @@ namespace SiriusTimetable.Droid.Dialogs
 
 		private List<TextView> _numbers;
 		private readonly ImageView[] _images = new ImageView[5];
-		private TextView _groupName;
+		private TextSwitcher _groupName;
 		private LinearLayout _groups;
 		private Button _selectButton;
-		private TextView _directionName;
+		private TextSwitcher _directionName;
 
 		#endregion
 
@@ -72,11 +73,31 @@ namespace SiriusTimetable.Droid.Dialogs
 			if(_info.UnknownPossibleTeams == null || _info.UnknownPossibleTeams.Count == 0)
 				_images[4].Visibility = ViewStates.Gone;
 
-			_groupName = v.FindViewById<TextView>(Resource.Id.group_name);
-			_directionName = v.FindViewById<TextView>(Resource.Id.dir_name);
+			_groupName = v.FindViewById<TextSwitcher>(Resource.Id.group_name);
+			_groupName.SetFactory(this);
+
+			_directionName = v.FindViewById<TextSwitcher>(Resource.Id.dir_name);
+			_directionName.SetFactory(this);
+
 			_selectButton = v.FindViewById<Button>(Resource.Id.btn_select);
 			_selectButton.SetOnClickListener(this);
+
 			v.FindViewById<Button>(Resource.Id.btn_close).SetOnClickListener(this);
+
+			var inSlideAnimation = AnimationUtils.LoadAnimation(Context, Android.Resource.Animation.SlideInLeft);
+			var outSlideAnimation = AnimationUtils.LoadAnimation(Context, Android.Resource.Animation.SlideOutRight);
+			var inFadeAnimation = AnimationUtils.LoadAnimation(Context, Android.Resource.Animation.FadeIn);
+			var outFadeAnimation = AnimationUtils.LoadAnimation(Context, Android.Resource.Animation.FadeOut);
+
+			inSlideAnimation.Duration = 80;
+			outSlideAnimation.Duration = 80;
+			inFadeAnimation.Duration = 150;
+			outFadeAnimation.Duration = 150;
+
+			_groupName.InAnimation = inSlideAnimation;
+			_groupName.OutAnimation = outSlideAnimation;
+			_directionName.InAnimation = inFadeAnimation;
+			_directionName.OutAnimation = outFadeAnimation;
 
 			_images[0].SetOnClickListener(this);   
 			_images[1].SetOnClickListener(this);
@@ -84,8 +105,6 @@ namespace SiriusTimetable.Droid.Dialogs
 			_images[3].SetOnClickListener(this);
 			_images[4].SetOnClickListener(this);
 			
-
-
 			if(savedInstanceState == null) return v;
 
 			var dir = savedInstanceState.GetInt(DirectionTag);
@@ -135,9 +154,13 @@ namespace SiriusTimetable.Droid.Dialogs
 			_selectedGroup = group;
 
 			if(_selectedDirection == Resources.GetString(Resource.String.TxtUnknown))
-				_groupName.Text = _info.ShortLongTeamNameDictionary[group];
+			{
+				_groupName.SetText(_info.ShortLongTeamNameDictionary[group]);
+			}
 			else
-				_groupName.Text = _info.ShortLongTeamNameDictionary[TimetableInfo.GetDirection(_selectedDirection[0].ToString()) + _selectedGroup];
+			{
+				_groupName.SetText(_info.ShortLongTeamNameDictionary[TimetableInfo.GetDirection(_selectedDirection[0].ToString()) + _selectedGroup]);
+			}
 
 			_groupName.Visibility = ViewStates.Visible;
 			_selectButton.Enabled = true;
@@ -160,7 +183,7 @@ namespace SiriusTimetable.Droid.Dialogs
 
 			UpdateImageOpacity(imageId);
 			_selectedDirection = GetDirectionById(imageId);
-			_directionName.Text = _selectedDirection;
+			_directionName.SetText(_selectedDirection);
 			_selectedGroup = null;
 
 			if(_selectedDirection == Resources.GetString(Resource.String.TxtUnknown))
@@ -266,6 +289,14 @@ namespace SiriusTimetable.Droid.Dialogs
 					OnChooseGroup(id);
 					break;
 			}
+		}
+
+		public View MakeView()
+		{
+			var textView = new TextView(Context);
+			textView.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Center;
+			textView.SetLines(2);
+			return textView;
 		}
 
 		#endregion

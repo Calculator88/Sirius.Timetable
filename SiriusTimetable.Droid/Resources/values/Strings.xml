@@ -20,7 +20,7 @@
   <string name="TagDatePickerDialog">DatePickerDialog</string>
   <string name="TagLoadingDialog">LoadingDialog</string>
   <string name="ActivityHasBusAlertString">Внимание! Для этого события есть автобус</string>
-  <string name="TimetableFillerText">Чтобы посмотреть расписание выбирите дату и нажмите \"Выбрать\"</string>
+  <string name="TimetableFillerText">Чтобы посмотреть расписание, выбирите дату и нажмите \"Выбрать\"</string>
   <string name="TagTimetableFragmentFiller">TimetableFiller</string>
   <string name="End">Время окончания события:</string>
   <string name="BusTo">Автобус туда</string>

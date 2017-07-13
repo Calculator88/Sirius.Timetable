@@ -1,4 +1,4 @@
-using System;
+Ôªøusing System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Android.Support.V7.Widget;
@@ -56,31 +56,6 @@ namespace SiriusTimetable.Droid.Helpers
 				mHolder.EndTime.Text = _activities[position].End.Value.ToString("HH:mm");
 				mHolder.EndTime.SetTextSize(ComplexUnitType.Pt, 8);
 			}
-
-			if(!_activities[position].BusTo.HasValue)
-			{
-				mHolder.Bus.Visibility = ViewStates.Gone;
-			}
-			else
-			{
-				mHolder.BusFrom.Text = _activities[position].BusFrom.Value.ToString("HH:mm");
-				mHolder.BusFrom.SetTextSize(ComplexUnitType.Pt, 6.5f);
-
-				mHolder.BusTo.Text = _activities[position].BusTo.Value.ToString("HH:mm");
-				mHolder.BusTo.SetTextSize(ComplexUnitType.Pt, 6.5f);
-			}
-
-			if(_activities[position].Place == "ÕËÍ‡ÍÓ„Ó")
-			{
-				mHolder.Place.Visibility = ViewStates.Gone;
-			}
-			else
-			{
-				mHolder.Place.Text = _activities[position].Place;
-				mHolder.Place.SetTextSize(ComplexUnitType.Pt, 6.5f);
-			}
-
-			mHolder.DetaiLayout.Visibility =  ViewStates.Visible;
 		}
 
 		private void OnPropertyChanged(Object sender, PropertyChangedEventArgs propertyChangedEventArgs)
@@ -97,14 +72,6 @@ namespace SiriusTimetable.Droid.Helpers
 				Title = view.FindViewById<TextView>(Resource.Id.TextTitle),
 				BeginTime = view.FindViewById<TextView>(Resource.Id.TextStart),
 				EndTime = view.FindViewById<TextView>(Resource.Id.TextEnd),
-				BusFrom = view.FindViewById<TextView>(Resource.Id.TextBusFrom),
-				BusTo = view.FindViewById<TextView>(Resource.Id.TextBusTo),
-				DetaiLayout = view.FindViewById<LinearLayout>(Resource.Id.DetailLine),
-				Place = view.FindViewById<TextView>(Resource.Id.TextPlace),
-				Dash = view.FindViewById<TextView>(Resource.Id.TextDash),
-				Bus = view.FindViewById<LinearLayout>(Resource.Id.Bus),
-				MainLayout = view.FindViewById<LinearLayout>(Resource.Id.Ground),
-				Colored = view.FindViewById<LinearLayout>(Resource.Id.ColoredGround),
 				Times = view.FindViewById<LinearLayout>(Resource.Id.Times)				
 			};
 			view.Tag = holder;
@@ -122,17 +89,9 @@ namespace SiriusTimetable.Droid.Helpers
 			}
 
 			public View View { get; set; }
-			public LinearLayout DetaiLayout { get; set; }
-			public LinearLayout Colored { get; set; }
 			public TextView BeginTime { get; set; }
 			public TextView EndTime { get; set; }
 			public TextView Title { get; set; }
-			public TextView Place { get; set; }
-			public TextView BusTo { get; set; }
-			public TextView BusFrom { get; set; }
-			public LinearLayout MainLayout { get; set; }
-			public TextView Dash { get; set; }
-			public LinearLayout Bus { get; set; }
 			public LinearLayout Times { get; set; }
 		}
 

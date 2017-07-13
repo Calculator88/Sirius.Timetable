@@ -8,116 +8,36 @@
               android:background="?attr/selectableItemBackground"
               android:id="@+id/Ground">
   <LinearLayout
-    android:orientation="vertical"
-    android:id="@+id/ColoredGround"
+    android:orientation="horizontal"
+    android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    <!--MAINLINE-->
+    android:padding="3dip">
     <LinearLayout
-      android:id="@+id/MainLine"
+      android:id="@+id/Times"
+      android:padding="3dip"
       android:orientation="horizontal"
+      android:layout_gravity="center_vertical"
       android:layout_height="wrap_content"
-      android:layout_width="match_parent"
-      android:padding="3dip">
-      <!--TIMES-->
-      <LinearLayout
-        android:id="@+id/Times"
-        android:padding="3dip"
-        android:orientation="horizontal"
-        android:layout_gravity="center_vertical"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="3dip"
-        android:layout_width="wrap_content">
-        <TextView
-          android:id="@+id/TextStart"
-          android:layout_height="wrap_content"
-          android:layout_width="wrap_content" />
-        <TextView
-          android:text=" - "
-          android:id="@+id/TextDash"
-          android:layout_height="wrap_content"
-          android:layout_width="wrap_content" />
-        <TextView
-          android:id="@+id/TextEnd"
-          android:layout_height="wrap_content"
-          android:layout_width="wrap_content" />
-      </LinearLayout>
-      <!--ENDTIMES-->
+      android:layout_marginRight="3dip"
+      android:layout_width="wrap_content">
       <TextView
-        android:id="@+id/TextTitle"
+        android:id="@+id/TextStart"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:ellipsize="end" />
-    </LinearLayout> <!--ENDMAINLINE-->
-    <!--DETAILLINE-->
-    <LinearLayout
-      android:id="@+id/DetailLine"
-      android:orientation="vertical"
-      android:layout_height="wrap_content"
-      android:layout_width="match_parent">
-      <LinearLayout
-        android:orientation="horizontal"
+        android:layout_width="wrap_content" />
+      <TextView
+        android:text=" - "
+        android:id="@+id/TextDash"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent">
-        <!--BUSSES-->
-        <LinearLayout
-          android:orientation="horizontal"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:padding="5dip"
-          android:id="@+id/Bus">
-          <!--BUSIMAGES-->
-          <LinearLayout
-            android:orientation="vertical"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content">
-            <ImageView
-              android:layout_width="20dip"
-              android:layout_height="20dip"
-              android:src="@drawable/busto"
-              android:id="@+id/DetailHelp1"
-              android:scaleType="fitCenter"
-              android:layout_marginRight="5dip" />
-            <ImageView
-              android:layout_width="20dip"
-              android:layout_height="20dip"
-              android:src="@drawable/busfrom"
-              android:scaleType="fitCenter"
-              android:id="@+id/DetailHelp2"
-              android:layout_marginRight="5dip" />
-          </LinearLayout>
-          <!--ENDBUSIMAGES-->
-          <!--BUSTIMES-->
-          <LinearLayout
-            android:orientation="vertical"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content">
-            <TextView
-              android:id="@+id/TextBusTo"
-              android:layout_height="wrap_content"
-              android:layout_width="match_parent"
-              android:gravity="right"
-              android:textStyle="italic" />
-            <TextView
-              android:id="@+id/TextBusFrom"
-              android:layout_height="wrap_content"
-              android:layout_width="match_parent"
-              android:gravity="right"
-              android:textStyle="italic" />
-          </LinearLayout>
-          <!--ENDBUSTIMES-->
-        </LinearLayout>
-        <!--ENDBUSSES-->
-        <TextView
-          android:padding="5dip"
-          android:id="@+id/TextPlace"
-          android:layout_height="wrap_content"
-          android:layout_width="match_parent"
-          android:gravity="right"
-          android:textStyle="italic" />
-      </LinearLayout>
+        android:layout_width="wrap_content" />
+      <TextView
+        android:id="@+id/TextEnd"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content" />
     </LinearLayout>
+    <TextView
+      android:id="@+id/TextTitle"
+      android:layout_height="wrap_content"
+      android:layout_width="wrap_content"
+      android:ellipsize="end" />
   </LinearLayout>
-  <!--ENDDETAILLINE-->
 </LinearLayout>

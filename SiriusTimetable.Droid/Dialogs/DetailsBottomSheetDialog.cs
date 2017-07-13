@@ -1,13 +1,13 @@
-using System;
-using Android.OS;
+﻿using System;
 using Android.Views;
+using Android.Support.Design.Widget;
 using Android.Widget;
-using Android.Support.V4.App;
 using Android.Text;
+using Android.OS;
 
-namespace SiriusTimetable.Droid.Fragments
+namespace SiriusTimetable.Droid.Dialogs
 {
-	public class DetailsFragment : Fragment
+	public class DetailsBottomSheetDialog : BottomSheetDialogFragment
 	{
 		#region Private fields
 
@@ -30,8 +30,6 @@ namespace SiriusTimetable.Droid.Fragments
 
 		#endregion
 
-		#region Fragment lifecycle
-
 		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
 			var v = inflater.Inflate(Resource.Layout.DetailsFragment, container, false);
@@ -39,7 +37,7 @@ namespace SiriusTimetable.Droid.Fragments
 			_placeTextView = v.FindViewById<TextView>(Resource.Id.DetailsActivityPlace);
 			_beginTimeTextView = v.FindViewById<TextView>(Resource.Id.DetailsActivityBeginTime);
 			_endTimeTextView = v.FindViewById<TextView>(Resource.Id.DetailsActivityEndTime);
-																		  
+
 			_title = Arguments?.GetString(TitleTextTag) ?? savedInstanceState.GetString(TitleTextTag);
 			_place = Arguments?.GetString(PlaceTextTag) ?? savedInstanceState.GetString(PlaceTextTag);
 			_beginTime = Arguments?.GetString(BeginTimeTag) ?? savedInstanceState.GetString(BeginTimeTag);
@@ -47,22 +45,24 @@ namespace SiriusTimetable.Droid.Fragments
 
 			_titleTextView.SetText(Html.FromHtml(_title), TextView.BufferType.Spannable);
 
-			if(String.IsNullOrEmpty(_place))
-				_placeTextView.Visibility = ViewStates.Gone;
-			_placeTextView.SetText(Html.FromHtml($"<b><i>{Resources.GetString(Resource.String.Place)} </i></b><span>{_place}</span>"), 
+			if(String.IsNullOrEmpty(_place) || _place == "Никакого")
+				_placeTextView.SetText(Html.FromHtml($"<b><i>{Resources.GetString(Resource.String.Place)} </i></b><i>Нет</i>"),
+					TextView.BufferType.Spannable);
+			else _placeTextView.SetText(Html.FromHtml($"<b><i>{Resources.GetString(Resource.String.Place)} </i></b><span>{_place}</span>"),
 				TextView.BufferType.Spannable);
 
 			if(String.IsNullOrEmpty(_beginTime))
 				_beginTimeTextView.Visibility = ViewStates.Gone;
-			_beginTimeTextView.SetText(Html.FromHtml($"<b><i>{Resources.GetString(Resource.String.Begin)} </i></b><span>{_beginTime}</span>"), 
+			else _beginTimeTextView.SetText(Html.FromHtml($"<b><i>{Resources.GetString(Resource.String.Begin)} </i></b><span>{_beginTime}</span>"),
 				TextView.BufferType.Spannable);
 
 			if(String.IsNullOrEmpty(_endTime))
 				_endTimeTextView.Visibility = ViewStates.Gone;
-			_endTimeTextView.SetText(Html.FromHtml($"<b><i>{Resources.GetString(Resource.String.End)} </i></b><span>{_endTime}</span>"), 
+			else _endTimeTextView.SetText(Html.FromHtml($"<b><i>{Resources.GetString(Resource.String.End)} </i></b><span>{_endTime}</span>"),
 				TextView.BufferType.Spannable);
 
 			return v;
+
 		}
 		public override void OnSaveInstanceState(Bundle outState)
 		{
@@ -72,7 +72,5 @@ namespace SiriusTimetable.Droid.Fragments
 			outState.PutString(BeginTimeTag, _beginTime);
 			outState.PutString(EndTimeTag, _endTime);
 		}
-
-		#endregion
 	}
 }

@@ -85,7 +85,8 @@ namespace SiriusTimetable.Droid.Fragments
 
 		private void VMOnTimetableChanged()
 		{
-			SetItems(_viewModel.Timetable.ToList());
+			if(_viewModel.Timetable != null)
+				SetItems(_viewModel.Timetable.ToList());
 		}
 
 		private void UpdateVMLinks()

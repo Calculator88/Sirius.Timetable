@@ -1,45 +1,47 @@
-﻿<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical"
-              android:animateLayoutChanges="true"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
-  <include layout="@layout/toolbar"/>
-  <LinearLayout
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:background="?attr/colorPrimary"
-    android:elevation="4dp">
-    <TextView
+﻿  <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:orientation="vertical"
+                android:animateLayoutChanges="true"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+    <include layout="@layout/toolbar"/>
+    <LinearLayout
       android:layout_height="wrap_content"
-      android:layout_width="wrap_content"
-      android:layout_gravity="center"
-      android:gravity="center"
-      android:paddingRight="5dip"
-      android:paddingLeft="5dip"
-      android:paddingBottom="4dip"
-      android:background="?attr/selectableItemBackground"
-      android:textColor="#FFFFFF"
-      android:textSize="16dip"
-      android:clickable="true"
-      android:id="@+id/header_date" />
-    <TextView
-      android:layout_height="wrap_content"
-      android:singleLine="true"
+      android:orientation="vertical"
       android:layout_width="match_parent"
-      android:textColor="#FFFFFF"
-      android:gravity="end"
-      android:paddingRight="5dip"
-      android:paddingLeft="5dip"
-      android:layout_marginBottom="2dip"
-      android:visibility="gone"
-      android:textSize="16dip"
-      android:id="@+id/header_tmName" />
+      android:background="?attr/colorPrimary"
+      android:elevation="4dp">
+      <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:paddingRight="5dip"
+        android:paddingLeft="5dip"
+        android:paddingBottom="4dip"
+        android:background="?attr/selectableItemBackground"
+        android:textColor="#FFFFFF"
+        android:textSize="16dip"
+        android:clickable="true"
+        android:id="@+id/header_date" />
+      <TextView
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:layout_width="match_parent"
+        android:textColor="#FFFFFF"
+        android:gravity="end"
+        android:paddingRight="5dip"
+        android:paddingLeft="5dip"
+        android:layout_marginBottom="2dip"
+        android:visibility="gone"
+        android:textSize="16dip"
+        android:id="@+id/header_tmName" />
+    </LinearLayout>
+    <FrameLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:id="@+id/TimetableFragment">
+    </FrameLayout>
   </LinearLayout>
-  <FrameLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/TimetableFragment">
-  </FrameLayout>
-</LinearLayout>
