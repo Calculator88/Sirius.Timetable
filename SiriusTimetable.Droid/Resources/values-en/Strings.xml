@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">Sirius schedule</string>
+  <string name="main_title">Timetable</string>
+  <string name="AlertTitle">An error occured while loading data</string>
+  <string name="AlertNoInternetMessage">Make sure you are connected to the internet and try again</string>
+  <string name="AlertStaleCacheMessage">There is cached version of timetable. Do you want to load it? (Perhaps it is stale)</string>
+  <string name="ChooseTeam">Choose team</string>
+  <string name="Choose">Choose</string>
+  <string name="Close">Close</string>
+  <string name="TxtScience">Science</string>
+  <string name="TxtSport">Sport</string>
+  <string name="TxtArt">Art</string>
+  <string name="TxtLiterature">Literature</string>
+  <string name="TxtUnknown">Unknown</string>
+  <string name="TxtLoading">Loading...</string>
+  <string name="TagTimetableFragment">TimetableFragment</string>
+  <string name="TagDetailsFragment">DetailsFragment</string>
+  <string name="TagSelectTeamDialog">SelectTeamDialog</string>
+  <string name="TagDatePickerDialog">DatePickerDialog</string>
+  <string name="TagLoadingDialog">LoadingDialog</string>
+  <string name="ActivityHasBusAlertString">Attention! There is a bus for this event</string>
+  <string name="TimetableFillerText">Select date and tap \"Choose\" to watch a timetable</string>
+  <string name="TagTimetableFragmentFiller">TimetableFiller</string>
+  <string name="End">Event ends</string>
+  <string name="BusTo">Bus to</string>
+  <string name="BusFrom">Bus from</string>
+  <string name="Activity">Event</string>
+  <string name="Place">Place of the event</string>
+  <string name="Begin">Event starts</string>
+  <string name="PlaceNone">None</string>
+</resources>

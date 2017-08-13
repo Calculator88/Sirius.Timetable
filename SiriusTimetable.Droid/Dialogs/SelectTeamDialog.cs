@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
@@ -8,7 +9,9 @@ using SiriusTimetable.Common.ViewModels;
 using SiriusTimetable.Core.Services;
 using SiriusTimetable.Core.Timetable;
 using Android.Support.V7.App;
+using Android.Util;
 using Android.Views.Animations;
+using SiriusTimetable.Droid.Helpers;
 
 namespace SiriusTimetable.Droid.Dialogs
 {
@@ -16,16 +19,13 @@ namespace SiriusTimetable.Droid.Dialogs
 	{
 		#region Private fields
 
-		private const string TeamTag = "TEAM";
-		private const string DirectionTag = "DIRECTION";
-
 		private string _selectedDirection;
 		private string _selectedGroup;
 		private TimetableInfo _info;
 		private ISelectTeamDialogResultListener _listener;
 
 		private List<TextView> _numbers;
-		private readonly ImageView[] _images = new ImageView[5];
+		private List<FrameLayout> _directions;
 		private TextSwitcher _groupName;
 		private LinearLayout _groups;
 		private Button _selectButton;
@@ -49,29 +49,73 @@ namespace SiriusTimetable.Droid.Dialogs
 		{
 			Dialog.SetCanceledOnTouchOutside(true);
 
-			var v = inflater.Inflate(Resource.Layout.SelectTeamDialog, null, false);
+			var v = inflater.Inflate(Resource.Layout.SelectTeamDialog, container, false);
 			
 			_groups = v.FindViewById<LinearLayout>(Resource.Id.lay_groups);
+			
+			var directionsLayout = v.FindViewById<LinearLayout>(Resource.Id.directionContainer);
+			_directions = new List<FrameLayout>();
+			foreach (var direction in _info.DirectionPossibleNumbers.Keys)
+			{
+				var frame = new FrameLayout(Context)
+				{
+					Alpha = 0.25f,
+					Clickable = true,
+					Tag = new[] { direction, direction },	  //short tag, full tag
+					Id = -3
+				};
+				frame.SetOnClickListener(this);
+				frame.SetBackgroundDrawable(GetRippleBackground());
 
-			_images[0] = v.FindViewById<ImageView>(Resource.Id.img_science);
-			if(!_info.DirectionPossibleNumbers.ContainsKey(TimetableDirection.Science) || _info.DirectionPossibleNumbers[TimetableDirection.Science].Count == 0)
-				_images[0].Visibility = ViewStates.Gone;
+				var picture = new ImageView(Context);
+				picture.SetImageResource(Resource.Drawable.img_background);
+				var size = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 55, Resources.DisplayMetrics);
+				frame.AddView(picture, new FrameLayout.LayoutParams(size, size));
 
-			_images[1] = v.FindViewById<ImageView>(Resource.Id.img_sport);
-			if(!_info.DirectionPossibleNumbers.ContainsKey(TimetableDirection.Sport) || _info.DirectionPossibleNumbers[TimetableDirection.Sport].Count == 0)
-				_images[1].Visibility = ViewStates.Gone;
+				var text = new TextView(Context)
+				{
+					Text = direction,
+					Gravity = GravityFlags.Center
+				};
+				text.SetTextSize(ComplexUnitType.Dip, 20);
+				frame.AddView(text, new FrameLayout.LayoutParams(size, size));
 
-			_images[2] = v.FindViewById<ImageView>(Resource.Id.img_art);
-			if(!_info.DirectionPossibleNumbers.ContainsKey(TimetableDirection.Art) || _info.DirectionPossibleNumbers[TimetableDirection.Art].Count == 0)
-				_images[2].Visibility = ViewStates.Gone;
+				_directions.Add(frame);
+				directionsLayout.AddView(frame,
+					new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent)
+					{
+						LeftMargin = 5,
+						RightMargin = 5
+					});
+			}
+			if (_info.UnknownPossibleTeams.Count != 0)
+			{
+				var frame = new FrameLayout(Context)
+				{
+					Clickable = true,
+					Alpha = 0.25f,
+					Tag = new[] { "", "Неизвестно" },
+					Id = -3
+				};
+				frame.SetOnClickListener(this);
+				frame.SetBackgroundDrawable(GetRippleBackground());
 
-			_images[3] = v.FindViewById<ImageView>(Resource.Id.img_literature);
-			if(!_info.DirectionPossibleNumbers.ContainsKey(TimetableDirection.Literature) || _info.DirectionPossibleNumbers[TimetableDirection.Literature].Count == 0)
-				_images[3].Visibility = ViewStates.Gone;
+				var dip = new DipConverter(Context);
 
-			_images[4] = v.FindViewById<ImageView>(Resource.Id.img_unknown);
-			if(_info.UnknownPossibleTeams == null || _info.UnknownPossibleTeams.Count == 0)
-				_images[4].Visibility = ViewStates.Gone;
+				var picture = new ImageView(Context);
+				picture.SetImageResource(Resource.Drawable.unknown);
+
+				frame.AddView(picture, new FrameLayout.LayoutParams(dip.ToDip(55), dip.ToDip(55)));
+
+				_directions.Add(frame);
+				directionsLayout.AddView(frame,
+					new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent)
+					{
+						LeftMargin = dip.ToDip(10),
+						RightMargin = dip.ToDip(10)
+					});
+			}
+			ObtainDirections();
 
 			_groupName = v.FindViewById<TextSwitcher>(Resource.Id.group_name);
 			_groupName.SetFactory(this);
@@ -98,81 +142,63 @@ namespace SiriusTimetable.Droid.Dialogs
 			_groupName.OutAnimation = outSlideAnimation;
 			_directionName.InAnimation = inFadeAnimation;
 			_directionName.OutAnimation = outFadeAnimation;
-
-			_images[0].SetOnClickListener(this);   
-			_images[1].SetOnClickListener(this);
-			_images[2].SetOnClickListener(this);
-			_images[3].SetOnClickListener(this);
-			_images[4].SetOnClickListener(this);
 			
-			if(savedInstanceState == null) return v;
-
-			var dir = savedInstanceState.GetInt(DirectionTag);
-			OnClick(new View(Activity) { Id = dir });
-
-			var team = savedInstanceState.GetInt(TeamTag);
-			OnClick(new View(Activity) { Id = team });
-
 			return v;
 		}
-		public override void OnSaveInstanceState(Bundle outState)
+		private void ObtainDirections()
 		{
-			base.OnSaveInstanceState(outState);
-			outState.PutInt(DirectionTag, DirectionToId(_selectedDirection));
-			outState.PutInt(TeamTag, TeamToId(_selectedGroup));
+			foreach (var frameLayout in _directions)
+			{
+				var tags = (string[]) frameLayout.Tag;
+				switch (tags[0])
+				{
+					case "Н":
+						tags[1] = "Наука";
+						((ImageView) frameLayout.GetChildAt(0)).SetImageResource(Resource.Drawable.science);
+						frameLayout.RemoveViewAt(1);
+						frameLayout.Tag = tags;
+						break;
+					case "Л":
+						tags[1] = "Литература";
+						((ImageView)frameLayout.GetChildAt(0)).SetImageResource(Resource.Drawable.literature);
+						frameLayout.RemoveViewAt(1);
+						frameLayout.Tag = tags;
+						break;
+					case "И":
+						tags[1] = "Искусство";
+						((ImageView)frameLayout.GetChildAt(0)).SetImageResource(Resource.Drawable.art);
+						frameLayout.RemoveViewAt(1);
+						frameLayout.Tag = tags;
+						break;
+					case "С":
+						tags[1] = "Спорт";
+						((ImageView)frameLayout.GetChildAt(0)).SetImageResource(Resource.Drawable.sport);
+						frameLayout.RemoveViewAt(1);
+						frameLayout.Tag = tags;
+						break;
+				}
+			}
 		}
-
 		#endregion
 
 		#region Private methods
 
-		private void SetGroupsOpacity(int id)
+		private void SetGroupsOpacity(string tag)
 		{
 			if(_numbers == null) return;
 			foreach(var number in _numbers)
-				number.Alpha = number.Id == id ? 1 : 0.25f;
+				number.Alpha = (string)number.Tag == tag ? 1 : 0.25f;
 		}
-		private string GetDirectionById(int id)
+		private void OnChooseDirection(string[] tags)
 		{
-			var el = _images.FirstOrDefault(view => view.Id == id);
-			if(el != null) return (string)el.Tag;
-			return null;
-		}
-		private string GetGroupById(int id)
-		{
-			return _numbers == null
-				? null
-				: (from number in _numbers where number.Id == id select (string)number.Tag).FirstOrDefault();
-		}
-		private void OnChooseGroup(int id)
-		{
-			var group = GetGroupById(id);
-			if(_selectedGroup == group)
-				return;
+			if (tags == null) return;
 
-			SetGroupsOpacity(id);
-			_selectedGroup = group;
-
-			if(_selectedDirection == Resources.GetString(Resource.String.TxtUnknown))
-			{
-				_groupName.SetText(_info.ShortLongTeamNameDictionary[group]);
-			}
-			else
-			{
-				_groupName.SetText(_info.ShortLongTeamNameDictionary[TimetableInfo.GetDirection(_selectedDirection[0].ToString()) + _selectedGroup]);
-			}
-
-			_groupName.Visibility = ViewStates.Visible;
-			_selectButton.Enabled = true;
-		}
-		private void OnChooseDirection(int imageId)
-		{
 			_selectButton.Enabled = false;
 			_groupName.Visibility = ViewStates.Gone;
 
-			if(_selectedDirection == GetDirectionById(imageId))
+			if(_selectedDirection == tags[0])
 			{
-				UpdateImageOpacity(-1);
+				UpdateImageOpacity(null);
 				_directionName.Visibility = ViewStates.Gone;
 				_groups.Visibility = ViewStates.Gone;
 				_selectButton.Enabled = false;
@@ -181,15 +207,15 @@ namespace SiriusTimetable.Droid.Dialogs
 				return;
 			}
 
-			UpdateImageOpacity(imageId);
-			_selectedDirection = GetDirectionById(imageId);
-			_directionName.SetText(_selectedDirection);
+			UpdateImageOpacity(tags);
+			_selectedDirection = tags[0];
+			_directionName.SetText(tags[1]);
 			_selectedGroup = null;
 
-			if(_selectedDirection == Resources.GetString(Resource.String.TxtUnknown))
+			if(_selectedDirection == "")
 				_numbers = _info.UnknownPossibleTeams.Select(GetGroupSelector).ToList();
 			else
-				_numbers = _info.DirectionPossibleNumbers[TimetableInfo.GetDirection(_selectedDirection[0].ToString())]
+				_numbers = _info.DirectionPossibleNumbers[_selectedDirection]
 					.Select(item => item.ToString("00"))
 					.Select(GetGroupSelector).ToList();
 
@@ -210,56 +236,61 @@ namespace SiriusTimetable.Droid.Dialogs
 			_groups.Visibility = ViewStates.Visible;
 			_directionName.Visibility = ViewStates.Visible;
 		}
+		private void OnChooseGroup(string group)
+		{
+			if(_selectedGroup == group)
+				return;
+
+			SetGroupsOpacity(group);
+			_selectedGroup = group;
+
+			_groupName.SetText(_info.ShortLongTeamNameDictionary[_selectedDirection + _selectedGroup]);
+
+			_groupName.Visibility = ViewStates.Visible;
+			_selectButton.Enabled = true;
+		}
 		private TextView GetGroupSelector(string text)
 		{
-			var selecter = new TextView(Context)
+			var selector = new TextView(Context)
 			{
 				Text = text,
 				Tag = text,
-				Id = text.GetHashCode(),
+				Id = -2,
 				TextSize = 18,
 				Alpha = 0.25f
 			};
-			selecter.SetPadding(4, 0, 4, 0);
-			selecter.SetTextColor(Color.Black);
-			selecter.SetOnClickListener(this);
+			selector.SetPadding(4, 0, 4, 0);
+			selector.SetTextColor(Color.Black);
+			selector.SetOnClickListener(this);
 
+			selector.SetBackgroundDrawable(GetRippleBackground());
+			return selector;
+		}
+
+		private Drawable GetRippleBackground()
+		{
 			var attrs = new[]{ Android.Resource.Attribute.SelectableItemBackground};
 			var ta = Activity.ObtainStyledAttributes(attrs);
 			var selectedItemDrawable = ta.GetDrawable(0);
 			ta.Recycle();
-			selecter.SetBackgroundDrawable(selectedItemDrawable);
-			return selecter;
+			return selectedItemDrawable;
 		}
-		private void UpdateImageOpacity(int id)
+		private void UpdateImageOpacity(string[] tag)
 		{
-			foreach(var image in _images)
-				image.Alpha = image.Id == id ? 1f : 0.25f;
+			foreach (var image in _directions)
+			{
+				var tag2 = (string[])image.Tag;
+				image.Alpha = tag != null && tag[0] == tag2[0] && tag[1] == tag2[1] ? 1f : 0.25f;
+			}
 		}
 		private void OnChoose()
 		{
-			if(_selectedDirection == Resources.GetString(Resource.String.TxtUnknown))
-				_listener.SelectTeamOnChoose(_selectedGroup);
-			else
-				_listener.SelectTeamOnChoose(TimetableInfo.GetDirection(_selectedDirection[0].ToString()) + _selectedGroup);
+			_listener.SelectTeamOnChoose(_selectedDirection + _selectedGroup);
 			Dismiss();
 		}
 		private void OnClose()
 		{
 			Dismiss();
-		}
-		private int DirectionToId(string dir)
-		{
-			foreach(var image in _images)
-				if((string)image.Tag == dir) return image.Id;
-			return -1;
-		}
-		private int TeamToId(string team)
-		{
-			if(_numbers == null) return -1;
-			foreach(var number in _numbers)
-				if((string)number.Tag == team) return number.Id;
-			return -1;
 		}
 
 		#endregion
@@ -278,24 +309,23 @@ namespace SiriusTimetable.Droid.Dialogs
 				case Resource.Id.btn_close:
 					OnClose();
 					break;
-				case Resource.Id.img_sport:
-				case Resource.Id.img_art:
-				case Resource.Id.img_literature:
-				case Resource.Id.img_science:
-				case Resource.Id.img_unknown:
-					OnChooseDirection(id);
+				case -3:
+					OnChooseDirection((string[])v.Tag);
 					break;
-				default:
-					OnChooseGroup(id);
+				case -2:
+					OnChooseGroup((string)v.Tag);
 					break;
 			}
 		}
 
 		public View MakeView()
 		{
-			var textView = new TextView(Context);
-			textView.Gravity = GravityFlags.CenterHorizontal | GravityFlags.Center;
-			textView.SetLines(2);
+			var textView = new TextView(Context)
+			{
+				Gravity = GravityFlags.CenterHorizontal | GravityFlags.Center
+			};
+			var dip = new DipConverter(Context);
+			textView.SetPadding(dip.ToDip(10), 0, dip.ToDip(10), 0);
 			return textView;
 		}
 

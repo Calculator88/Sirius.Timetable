@@ -18,13 +18,13 @@ namespace SiriusTimetable.Droid
 			RegisterServices();
 
 			var intent = new Intent(Application.Context, typeof(MainActivity));
-			var team = ServiceLocator.GetService<ICacher>().Get(ServiceLocator.GetService<ICacher>().CacheDirectory + MainActivity.CACHEDTEAMNAME);
-			var shortTeam = ServiceLocator.GetService<ICacher>().Get(ServiceLocator.GetService<ICacher>().CacheDirectory + MainActivity.CACHEDSHORTTEAM);
+			var team = ServiceLocator.GetService<ICacher>().Get(ServiceLocator.GetService<ICacher>().CacheDirectory + MainActivity.CachedTeamName);
+			var shortTeam = ServiceLocator.GetService<ICacher>().Get(ServiceLocator.GetService<ICacher>().CacheDirectory + MainActivity.CachedShortTeam);
 			if(!String.IsNullOrEmpty(team))
 			{
-				intent.PutExtra(MainActivity.ISTEAMCACHED, true);
-				intent.PutExtra(MainActivity.CACHEDTEAMNAME, team);
-				intent.PutExtra(MainActivity.CACHEDSHORTTEAM, shortTeam);
+				intent.PutExtra(MainActivity.IsTeamCached, true);
+				intent.PutExtra(MainActivity.CachedTeamName, team);
+				intent.PutExtra(MainActivity.CachedShortTeam, shortTeam);
 			}
 
 			StartActivity(intent);

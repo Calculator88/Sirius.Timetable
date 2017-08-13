@@ -20,68 +20,17 @@
   <HorizontalScrollView
     android:scrollbars="none"
     android:layout_width="wrap_content"
+    android:paddingLeft="5dip"
+    android:paddingRight="5dip"
     android:layout_height="wrap_content">
 
     <LinearLayout
       android:orientation="horizontal"
+      android:id="@+id/directionContainer"
       android:layout_height="wrap_content"
+      android:paddingTop="5dip"
+      android:paddingBottom="5dip"
       android:layout_width="match_parent">
-      <ImageView
-        android:src="@drawable/science"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:id="@+id/img_science"
-        android:layout_height="55dip"
-        android:layout_width="55dip"
-        android:layout_marginRight="10dip"
-        android:layout_marginLeft="10dip"
-        android:layout_marginTop="5dip"
-        android:layout_marginBottom="5dip"
-        android:tag="@string/TxtScience"
-        android:alpha="0.25" />
-      <ImageView
-        android:src="@drawable/sport"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:id="@+id/img_sport"
-        android:layout_height="55dip"
-        android:layout_width="55dip"
-        android:layout_marginTop="5dip"
-        android:layout_marginBottom="5dip"
-        android:layout_marginRight="10dip"
-        android:tag="@string/TxtSport"
-        android:alpha="0.25" />
-      <ImageView
-        android:src="@drawable/art"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:id="@+id/img_art"
-        android:layout_height="55dip"
-        android:layout_width="55dip"
-        android:layout_marginRight="10dip"
-        android:layout_marginTop="5dip"
-        android:layout_marginBottom="5dip"
-        android:tag="@string/TxtArt"
-        android:alpha="0.25" />
-      <ImageView
-        android:src="@drawable/literature"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:id="@+id/img_literature"
-        android:layout_height="55dip"
-        android:layout_width="55dip"
-        android:layout_marginTop="5dip"
-        android:layout_marginBottom="5dip"
-        android:layout_marginRight="10dip"
-        android:tag="@string/TxtLiterature"
-        android:alpha="0.25" />
-      <ImageView
-        android:src="@drawable/unknown"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:id="@+id/img_unknown"
-        android:layout_height="55dip"
-        android:layout_width="55dip"
-        android:layout_marginTop="5dip"
-        android:layout_marginBottom="5dip"
-        android:layout_marginRight="10dip"
-        android:tag="@string/TxtUnknown"
-        android:alpha="0.25" />
     </LinearLayout>
   </HorizontalScrollView>
   
@@ -111,7 +60,7 @@
     android:text="groupName"
     android:visibility="gone"
     android:layout_marginTop="3dip" />
-  <LinearLayout
+<LinearLayout
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:gravity="end"

@@ -103,11 +103,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Dialogs\DatePickerDialog.cs" />
-    <Compile Include="Dialogs\DetailsBottomSheetDialog.cs" />
+    <Compile Include="Dialogs\DetailsDialog.cs" />
     <Compile Include="Dialogs\LoadingDialog.cs" />
     <Compile Include="Dialogs\SelectTeamDialog.cs" />
     <Compile Include="Fragments\TimetableFragment.cs" />
     <Compile Include="Fragments\TimetableFragmentFiller.cs" />
+    <Compile Include="Helpers\DipConverter.cs" />
     <Compile Include="Helpers\RecyclerViewAdapter.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
@@ -156,6 +157,9 @@
     <AndroidResource Include="Resources\layout\TimetableFragmentFiller.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
+    <AndroidResource Include="Resources\layout\navigationheader.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\Main.axml">
@@ -171,7 +175,9 @@
     </AndroidResource>
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\menu\MainMenu.xml" />
+    <AndroidResource Include="Resources\menu\MainMenu.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SiriusTimetable.Core\SiriusTimetable.Core.csproj">
@@ -223,6 +229,22 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\unknown.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\menu\drawerMenu.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\header.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values-en\Strings.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\img_background.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -11,7 +11,7 @@ namespace SiriusTimetable.Core.Timetable
 	{
 		public TimetableInfo()
 		{
-			_regx = new Regex(@"(\b([НИЛС])(\d+)\b)|(\b\w+[\w\s\W]*$)");
+			_regx = new Regex(@"\b([a-zA-Zа-я-А-Я]+)(\d+)\b|\S+[\w\s\W]*$");
 		}
 
 		/// <summary>
@@ -37,7 +37,7 @@ namespace SiriusTimetable.Core.Timetable
 		/// <summary>
 		/// Direction/Number groups existing for this direction
 		/// </summary>
-		public ReadOnlyDictionary<TimetableDirection, List<int>> DirectionPossibleNumbers { get; set; }
+		public ReadOnlyDictionary<String, List<int>> DirectionPossibleNumbers { get; set; }
 
 		/// <summary>
 		/// Short name/full name collection
@@ -81,12 +81,12 @@ namespace SiriusTimetable.Core.Timetable
 		}
 
 
-		private void UpdateData(Dictionary<String, Timetable> rawTimetable)
+		private void UpdateData(IReadOnlyDictionary<String, Timetable> rawTimetable)
 		{
 			var shortLongTeamNameDictionary = new Dictionary<String, String>();
 			var timetable = new Dictionary<String, List<Activity>>();
 
-			var directionPossibleNumbers = new Dictionary<TimetableDirection, List<int>>();
+			var directionPossibleNumbers = new Dictionary<String, List<int>>();
 			var unknownPossibleTeams = new List<String>();
 			
 			var date = Date.ToString("yyyyMMdd");
@@ -95,43 +95,59 @@ namespace SiriusTimetable.Core.Timetable
 				timetableNode.Value.Sort(ComparingActivities);										  //Отсортировать ативности по вермени началу события
 
 				var matches = _regx.Matches(timetableNode.Key);
-				if(matches.Count == 0) return;												  //Если ни одного совпадения по шаблону нет,
+				if(matches.Count == 0) return;												          //Если ни одного совпадения по шаблону нет,
 																									  //то хрен знает, что делать. Расходимся
-				if (matches.Count == 1)
-				{                                                                                     //Единственное совпадение. Это значит, что это и есть
-					timetable[timetableNode.Key] = timetableNode.Value;								  //название группы. Пример - "СОТРУДНИКИ"
+				if (matches.Count == 1 && String.IsNullOrEmpty(matches[0].Groups[1].Value))
+				{                                                                                     
+					timetable[timetableNode.Key] = timetableNode.Value;								  				
 					unknownPossibleTeams.Add(timetableNode.Key);
 					shortLongTeamNameDictionary[timetableNode.Key] = timetableNode.Key;
 				}
 				else
 				{
-					for(var i = 0; i < matches.Count - 1; ++i)										   //Если совпадений больше одного, то значит, что
-					{																				   //в ключе минимум одна команда, но может быть больше
-						var teamName = matches[i].Value + ' ' + matches[matches.Count - 1].Value;	   //В таком случае нужно найти название для каждой команды
-						var direction = GetDirection(matches[i].Groups[2].Value);					   //и продублировать расписание для нее
-						var group = Convert.ToInt32(matches[i].Groups[3].Value);					   //Пример такой ситуации - "Н16, Н17 Big Data"
+					var lastMatch = matches[matches.Count - 1];
+					if (String.IsNullOrEmpty(lastMatch.Groups[1].Value))
+					{
+						for (var i = 0; i < matches.Count - 1; ++i)									  //Если совпадений больше одного, то значит, что
+						{
+																									  //в ключе минимум одна команда, но может быть больше
+							var teamName =
+								matches[i].Value + ' ' +
+								matches[matches.Count - 1].Value;									  //В таком случае нужно найти название для каждой команды
+							var direction = matches[i].Groups[1].Value;				                  //и продублировать расписание для нее
+							var group = Convert.ToInt32(matches[i].Groups[2].Value);				  //Пример такой ситуации - "Н16, Н17 Big Data"
 
-						timetable[teamName] = timetableNode.Value;
-						if(!directionPossibleNumbers.ContainsKey(direction))
-							directionPossibleNumbers[direction] = new List<int>();
-						directionPossibleNumbers[direction].Add(group);
-						shortLongTeamNameDictionary[direction + group.ToString("00")] = teamName;
+							timetable[teamName] = timetableNode.Value;
+							if (!directionPossibleNumbers.ContainsKey(direction))
+								directionPossibleNumbers[direction] = new List<int>();
+							directionPossibleNumbers[direction].Add(group);
+							shortLongTeamNameDictionary[direction + group.ToString("00")] = teamName;
+						}
+					}
+					else
+					{
+						for(var i = 0; i < matches.Count; ++i)
+						{
+
+							var teamName = matches[i].Value;
+							var direction = matches[i].Groups[1].Value;
+							var group = Convert.ToInt32(matches[i].Groups[2].Value);
+
+							timetable[teamName] = timetableNode.Value;
+							if(!directionPossibleNumbers.ContainsKey(direction))
+								directionPossibleNumbers[direction] = new List<int>();
+							directionPossibleNumbers[direction].Add(group);
+							shortLongTeamNameDictionary[direction + group.ToString("00")] = teamName;
+						}
 					}
 				}
 			}
 
-			if(directionPossibleNumbers.ContainsKey(TimetableDirection.Art))							//Команды могут поступать не по порядку,
-				directionPossibleNumbers[TimetableDirection.Art].Sort();								//поэтому сортируем коллецию номеров команд
-			if(directionPossibleNumbers.ContainsKey(TimetableDirection.Literature))						//для каждого направления
-				directionPossibleNumbers[TimetableDirection.Literature].Sort();
-			if(directionPossibleNumbers.ContainsKey(TimetableDirection.Science))
-				directionPossibleNumbers[TimetableDirection.Science].Sort();
-			if(directionPossibleNumbers.ContainsKey(TimetableDirection.Sport))
-				directionPossibleNumbers[TimetableDirection.Sport].Sort();
+			foreach (var value in directionPossibleNumbers.Values) value.Sort();
 
 			Timetable = new ReadOnlyDictionary<string, List<Activity>>(timetable);
 			ShortLongTeamNameDictionary = new ReadOnlyDictionary<String, String>(shortLongTeamNameDictionary);
-			DirectionPossibleNumbers = new ReadOnlyDictionary<TimetableDirection, List<int>>(directionPossibleNumbers);
+			DirectionPossibleNumbers = new ReadOnlyDictionary<String, List<int>>(directionPossibleNumbers);
 			UnknownPossibleTeams = new ReadOnlyCollection<string>(unknownPossibleTeams);
 		}
 		private static int ComparingActivities(Activity act1, Activity act2)
@@ -145,20 +161,7 @@ namespace SiriusTimetable.Core.Timetable
 			if(act1.Start < act2.Start) return -1;
 			return 1;
 		}
-		public static TimetableDirection GetDirection(string group)
-		{
-			switch(group)
-			{
-				case "Н":
-					return TimetableDirection.Science;
-				case "С":
-					return TimetableDirection.Sport;
-				case "И":
-					return TimetableDirection.Art;
-				default:
-					return TimetableDirection.Literature;
-			}
-		}
+
 		private readonly Regex _regx;
 	}
 	public enum TimetableDirection

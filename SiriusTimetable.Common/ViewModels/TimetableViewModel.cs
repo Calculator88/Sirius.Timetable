@@ -30,6 +30,7 @@ namespace SiriusTimetable.Common.ViewModels
 
 		#region Public properties
 
+		public TimetableInfo TempTimetableInfo { get; set; }
 		public TimetableInfo TimetableInfo
 		{
 			get { return _info; }
