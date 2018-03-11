@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Android.Util;
 using Newtonsoft.Json;
@@ -23,22 +22,27 @@ namespace SiriusTool.Services
             _downloader.Cancel();
         }
 
+        /// <inheritdoc />
         public async Task<Dictionary<string, List<Event>>> RequestTimetable(DateTime? start, DateTime? end)
         {
             try
             {
+                Log.Info("SiriusTool", "Requesting json...");
                 var response = await _downloader.GetJsonTimetable(start, end);
+                Log.Info("SiriusTool", "Response recieved successfully");
+                Log.Info("SiriusTool", "Parsing json...");
                 var respString = Encoding.GetEncoding("windows-1251").GetString(response);
                 var dict = JsonConvert.DeserializeObject<Dictionary<string, List<Event>>>(respString);
+                Log.Info("SiriusTool", "Json parsed successfully");
                 return dict;
-            }
-            catch (TaskCanceledException)
-            {
-                Log.Info("SiriusTool", "Json requesting has been canceled");
-                throw;
             }
             catch (WebException ex)
             {
+                if (ex.Message == "Aborted.")
+                {
+                    Log.Warn("SiriusTool", "Requesting json has been canceled");
+                    throw;
+                }
                 Log.Error("SiriusTool", $"An exception occured while loading json: {ex.Message}");
                 throw;
             }

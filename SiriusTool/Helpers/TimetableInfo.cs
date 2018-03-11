@@ -77,13 +77,13 @@ namespace SiriusTool.Helpers
                         tname = name;
                         teams.Add((direction, number));
                     }
-                    foreach (var team in teams)
+                    foreach (var (direction, number) in teams)
                     {
-                        if (!directionPossibleNumbers.ContainsKey(team.Direction))
-                            directionPossibleNumbers[team.Direction] = new List<int>();
-                        directionPossibleNumbers[team.Direction].Add(team.Number);
+                        if (!directionPossibleNumbers.ContainsKey(direction))
+                            directionPossibleNumbers[direction] = new List<int>();
+                        directionPossibleNumbers[direction].Add(number);
 
-                        var fullTeam = team.Direction + ' ' + team.Number.ToString("00");
+                        var fullTeam = direction + ' ' + number.ToString("00");
                         shortLongTeamNameDictionary[fullTeam] = fullTeam + ' ' + tname;
                     }
                 }

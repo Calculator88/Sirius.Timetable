@@ -1,10 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
 using Android.Support.V7.App;
-using Android.Util;
 using Android.Views;
 using Android.Widget;
 using SiriusTool.Dialogs;
@@ -19,7 +17,7 @@ using Toolbar = Android.Support.V7.Widget.Toolbar;
 namespace SiriusTool
 {
 	public class MainActivity : AppCompatActivity, View.IOnClickListener, TimetableFragment.IOnItemSelected, ISelectTeamDialogService, 
-		SelectTeamDialog.ISelectTeamDialogResultListener, ILoadingDialogService, Android.App.DatePickerDialog.IOnDateSetListener,
+		SelectTeamDialog.ISelectTeamDialogResultListener, Android.App.DatePickerDialog.IOnDateSetListener,
 		DialogAlertService.IDialogAlertResultListener
 	{
 		#region Private fields
@@ -28,10 +26,12 @@ namespace SiriusTool
 		private TextView _headerText;
 		private TimetableViewModel _viewModel;
 		private TimetableInfo _tempInfo;
+	    private LinearLayout _statusLoadingLayout;
+	    private IMenuItem _chooseMenuItem;
 
-		public const string ISTEAMCACHED = "ISTEAMCACHED";
-		public const string CACHEDTEAMNAME = "CACHEDTEAM";
-		public const string CACHEDSHORTTEAM = "SHORTTEAM";
+		public const string IsTeamCached = "com.sirius.timetable.MainActivity.IsTeamCached";
+		public const string CachedTeamName = "com.sirius.timetable.MainActivity.CachedTeamName";
+		public const string CachedShortTeam = "com.sirius.timetable.MainActivity.CachedShortTeam";
 
 		#endregion
 
@@ -48,23 +48,27 @@ namespace SiriusTool
 			_headerSelDate = FindViewById<TextView>(Resource.Id.header_date);
 			_headerSelDate.SetOnClickListener(this);
 			SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.toolbar));
+		    _statusLoadingLayout = FindViewById<LinearLayout>(Resource.Id.main_loading_status_layout);
 
 			RegisterServices();
 			_viewModel = ServiceLocator.GetService<TimetableViewModel>();
 			_viewModel.PropertyChanged += ViewModelOnPropertyChanged;
+            _viewModel.ExceptionOccured += VMOnExceptionOccured;
 
 			UpdateVMLinks();
 
-			if(Intent.GetBooleanExtra(ISTEAMCACHED, false))
-			{
-				var infoGot = await LoadTimetableInfo();
-				var team = Intent.GetStringExtra(CACHEDTEAMNAME);
-				var shortTeam = Intent.GetStringExtra(CACHEDSHORTTEAM);
-				if(infoGot && _viewModel.TimetableInfo.Timetable.ContainsKey(team))
-					SelectTeamOnChoose(shortTeam);
-			}
+		    await _viewModel.GetTimetable(_viewModel.Date);
 		}
-		protected override void OnDestroy()
+
+	    private void VMOnExceptionOccured(Exception exception)
+	    {
+	        new AlertDialog.Builder(this)
+	            .SetMessage(exception.Message)
+	            .SetTitle("Error")
+	            .Show();
+	    }
+
+	    protected override void OnDestroy()
 		{
 			_viewModel.PropertyChanged -= ViewModelOnPropertyChanged;
 
@@ -77,6 +81,9 @@ namespace SiriusTool
 		public override bool OnCreateOptionsMenu(IMenu menu)
 		{
 			MenuInflater.Inflate(Resource.Menu.MainMenu, menu);
+		    _chooseMenuItem = menu.FindItem(Resource.Id.btn_selectTeam);
+		    if (_viewModel.IsBusy)
+		        _chooseMenuItem.SetEnabled(false);
 			return true;
 		}
 		public override bool OnOptionsItemSelected(IMenuItem item)
@@ -101,8 +108,6 @@ namespace SiriusTool
 				case "SC":
 					_tempInfo = null;
 					break;
-				default:
-					break;
 			}
 		}
 		public void OnAlertPositiveButtonClick(string tag)
@@ -113,8 +118,6 @@ namespace SiriusTool
 					_viewModel.TimetableInfo = _tempInfo;
 					_tempInfo = null;
 					ShowSelectTeamDialog();
-					break;
-				default:
 					break;
 			}
 		}
@@ -130,11 +133,13 @@ namespace SiriusTool
 
 			StartActivity(intent);
 		}
-		public void OnDateSet(DatePicker view, int year, int month, int dayOfMonth)
+		public async void OnDateSet(DatePicker view, int year, int month, int dayOfMonth)
 		{
 			var selectedDate = new DateTime(year, month + 1, dayOfMonth);
-			_viewModel.Date = selectedDate;
-			if(_viewModel.Date.Date != _viewModel.TimetableInfo?.Date.Date)
+
+		    await _viewModel.GetTimetable(selectedDate);
+
+            if (_viewModel.Date == selectedDate)
 				SelectTeamOnClick();
 		}
 		public void SelectTeamOnChoose(string result)
@@ -146,20 +151,6 @@ namespace SiriusTool
 
 		#region Service methods
 
-		public void ShowLoadingFragment()
-		{
-			var fragment = (LoadingDialog)SupportFragmentManager.FindFragmentByTag(Resources.GetString(Resource.String.TagLoadingDialog));
-			if (fragment != null) return;
-
-			new LoadingDialog().Show(SupportFragmentManager, Resources.GetString(Resource.String.TagLoadingDialog));
-			FragmentManager.ExecutePendingTransactions();
-		}
-		public void HideLoadingFragment()
-		{
-			var fragment = (LoadingDialog)SupportFragmentManager.FindFragmentByTag(Resources.GetString(Resource.String.TagLoadingDialog));
-			fragment?.Dismiss();
-			FragmentManager.ExecutePendingTransactions();
-		}
 		public void ShowSelectTeamDialog()
 		{
 			new SelectTeamDialog()
@@ -177,14 +168,13 @@ namespace SiriusTool
 		private void RegisterServices()
 		{
 			ServiceLocator.RegisterService<ISelectTeamDialogService>(this);
-			ServiceLocator.RegisterService<ILoadingDialogService>(this);
 		}
 		private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs property)
 		{
 			var propName = property.PropertyName;
 			switch(propName)
 			{
-				case nameof(_viewModel.Timetable):
+				case nameof(_viewModel.CurrentTimetable):
 					VMOnTimetableChanged();
 					break;
 				case nameof(_viewModel.Date):
@@ -196,14 +186,17 @@ namespace SiriusTool
 				case nameof(_viewModel.ShortTeam):
 					VMOnShortNameChanged();
 					break;
+                case nameof(_viewModel.IsBusy):
+                    VMOnIsBusyChanged();
+                    break;
 			}
 		}
 		private void VMOnTimetableChanged()
 		{
-			if(_viewModel.Timetable == null)
+			if(_viewModel.CurrentTimetable == null)
 			{
-				var fragment = (TimetableFragmentFiller)SupportFragmentManager.FindFragmentByTag(Resources.GetString(Resource.String.TagTimetableFragment));
-				if(fragment == null) return;
+				var fragment = (TimetableFragmentFiller)SupportFragmentManager.FindFragmentByTag(Resources.GetString(Resource.String.TagTimetableFragmentFiller));
+				if(fragment != null) return;
 
 				SupportFragmentManager.BeginTransaction()
 					.Replace(Resource.Id.TimetableFragment, new TimetableFragmentFiller(),
@@ -242,45 +235,29 @@ namespace SiriusTool
 			VMOnShortNameChanged();
 			VMOnTeamNameChanged();
 			VMOnTimetableChanged();
+            VMOnIsBusyChanged();
 		}
-
-		private async Task<bool> LoadTimetableInfo()
-		{
-			if(_viewModel.Date.Date == _viewModel.TimetableInfo?.Date.Date)
-				return true;
-
-			ShowLoadingFragment();
-
-		    var timetable = await ServiceLocator.GetService<ITimetableProvider>().RequestTimetable(null, null);
-
-		    HideLoadingFragment();
-
-            TimetableInfo info;
-
-
-		    try
-		    {
-		        info = new TimetableInfo(timetable, _viewModel.Date);
-		    }
-		    catch (Exception ex)
-		    {
-		        Log.Error("SiriusTool", ex.Message);
-		        new DialogAlertService(
-		                Resources.GetString(Resource.String.AlertTitle),
-		                Resources.GetString(Resource.String.AlertNoInternetMessage),
-		                Resources.GetString(Android.Resource.String.Ok), null)
-		            .Show(SupportFragmentManager, "ALERT");
-		        return false;
+	    private void VMOnIsBusyChanged()
+	    {
+	        if (_viewModel.IsBusy)
+	        {
+	            _statusLoadingLayout.Visibility = ViewStates.Visible;
+	            _chooseMenuItem?.SetEnabled(false);
+	            Title = null;
             }
-
-			_viewModel.TimetableInfo = info;
-			return true;
-		}
-		private async void SelectTeamOnClick()
-		{
-			var infoGot = await LoadTimetableInfo();
-			if (infoGot)
-				ShowSelectTeamDialog();
+	        else
+	        {
+	            _statusLoadingLayout.Visibility = ViewStates.Gone;
+	            Title = GetString(Resource.String.MainActivityTitle);
+	            _chooseMenuItem?.SetEnabled(true);
+	        }
+        }
+	    private async void SelectTeamOnClick()
+	    {
+	        if (_viewModel.TimetableInfo == null)
+	            await _viewModel.GetTimetable(_viewModel.Date);
+            if (_viewModel.TimetableInfo != null)
+			    ShowSelectTeamDialog();
 		}
 		
 		#endregion

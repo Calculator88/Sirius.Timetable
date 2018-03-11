@@ -75,17 +75,15 @@ namespace SiriusTool.Fragments
 			var propName = e.PropertyName;
 			switch(propName)
 			{
-				case nameof(_viewModel.Timetable):
+				case nameof(_viewModel.CurrentTimetable):
 					VMOnTimetableChanged();
-					break;
-				default:
 					break;
 			}
 		}
 
 		private void VMOnTimetableChanged()
 		{
-			SetItems(_viewModel.Timetable.ToList());
+			SetItems(_viewModel.CurrentTimetable?.ToList());
 		}
 
 		private void UpdateVMLinks()

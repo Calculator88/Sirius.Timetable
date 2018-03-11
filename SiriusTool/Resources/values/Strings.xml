@@ -2,6 +2,7 @@
 
 <resources>
   <string name="app_name">Раписание Сириус</string>
+  <string name="MainActivityTitle">Расписание</string>
   <string name="AlertTitle">Произошла ошибка при загруке данных</string>
   <string name="AlertNoInternetMessage">Убедитесь, что вы подключены к интернету и повторите попытку</string>
   <string name="AlertStaleCacheMessage">На устройсве есть сохраненная копия расписания. Вы хотите загрузить ее? Возможно, она не актуальна!</string>
@@ -28,4 +29,5 @@
   <string name="Activity">Событие</string>
   <string name="Place">Место проведения события:</string>
   <string name="Begin">Время начало события:</string>
+  <string name="Loading">Загрузка</string>
 </resources>

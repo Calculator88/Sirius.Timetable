@@ -18,10 +18,13 @@ namespace SiriusTool.Services
 	        _client = new WebClient();
 	    }
 
-		public Task<byte[]> GetJsonTimetable(DateTime? start, DateTime? end)
+		public Task<byte[]> GetJsonTimetable(DateTime? start = null, DateTime? end = null)
 		{
-		    Log.Info("SiriusTool", "Json was requested");
-            if (_client.IsBusy) _client.CancelAsync();
+		    if (_client.IsBusy)
+		    {
+		        Log.Warn("SiriusTool", "Another web operation is in process. Canceling current operation...");
+		        _client.CancelAsync();
+		    }
             var pars = new NameValueCollection
             {
                 { "key", Key }
@@ -38,9 +41,11 @@ namespace SiriusTool.Services
 		        Log.Info("SiriusTool", $"Request params: start:{start:yyyy-MM-dd}");
                 pars.Add("start", $"{start:yyyy-MM-dd}");
 		    }
-
+		    else
+		    {
+		        Log.Info("SiriusTool", "Json requested with no parameters");
+		    }
 		    var resp = _client.UploadValuesTaskAsync(ApiUrl, pars);
-		    Log.Info("SiriusTool", "Requesting json...");
 		    return resp;
 		}
 

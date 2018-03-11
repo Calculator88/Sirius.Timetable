@@ -7,4 +7,28 @@
   android:background="?attr/colorPrimary"
   android:elevation="4dp"
   android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-  app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+  app:popupTheme="@style/ThemeOverlay.AppCompat.Light" >
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:gravity="center_vertical"
+    android:layout_height="match_parent"
+    android:id="@+id/main_loading_status_layout"
+    android:orientation="horizontal"
+    android:visibility="gone">
+    <TextView
+      android:layout_gravity="center_vertical"
+      android:textColor="?attr/titleTextColor"
+      android:fontStyle="?attr/titleTextStyle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textSize="18dp"
+      android:text="@string/Loading"/>
+    <ProgressBar
+      android:layout_width="24dp"
+      android:layout_margin="5dp"
+      android:layout_height="24dp"
+      android:indeterminateTint="?attr/titleTextColor"
+      android:layout_gravity="center_vertical"
+      android:indeterminateOnly="true"/>
+  </LinearLayout>
+</android.support.v7.widget.Toolbar>

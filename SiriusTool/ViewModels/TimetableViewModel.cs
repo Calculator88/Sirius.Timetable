@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using Android.Util;
+using System.Threading.Tasks;
+using SiriusTool.Framework;
 using SiriusTool.Helpers;
 using SiriusTool.Model;
+using SiriusTool.Services;
+using SiriusTool.Services.Abstractions;
 
 namespace SiriusTool.ViewModels
 {
@@ -10,11 +13,15 @@ namespace SiriusTool.ViewModels
 	{
 		#region Private fields
 
-		private ObservableCollection<Event> _timetable;
+		private ObservableCollection<Event> _currentTimetable;
 		private TimetableInfo _info;
 		private DateTime _date;
 		private string _teamName;
 		private string _shortTeam;
+	    private bool _isBusy;
+	    private readonly TimetableFactory _timetableFactory;
+	    private readonly ITimetableProvider _timetableProvider;
+	    private readonly TimeSpan _timetableLifeTime = TimeSpan.FromMinutes(10);
 
 		#endregion
 
@@ -23,6 +30,8 @@ namespace SiriusTool.ViewModels
 		public TimetableViewModel(DateTime defaultDate)
 		{
 			Date = defaultDate;
+            _timetableFactory = new TimetableFactory();
+		    _timetableProvider = ServiceLocator.GetService<ITimetableProvider>();
 		}
 
 		#endregion
@@ -34,26 +43,38 @@ namespace SiriusTool.ViewModels
 			get => _info;
 		    set => SetProperty(ref _info, value);
 		}
+
 		public string ShortTeam
 		{
 			get => _shortTeam;
 		    set => SetProperty(ref _shortTeam, value);
 		}
+
 		public string TeamName
 		{
 			get => _teamName;
 		    set => SetProperty(ref _teamName, value);
 		}
+
 		public DateTime Date
 		{
 			get => _date;
 		    set => SetProperty(ref _date, value);
 		}
-		public ObservableCollection<Event> Timetable
+
+		public ObservableCollection<Event> CurrentTimetable
 		{
-			get => _timetable;
-		    set => SetProperty(ref _timetable, value);
+			get => _currentTimetable;
+		    set => SetProperty(ref _currentTimetable, value);
 		}
+
+	    public bool IsBusy
+	    {
+	        get => _isBusy;
+	        set => SetProperty(ref _isBusy, value);
+	    }
+
+	    public event ExceptionOccuredEventHandler ExceptionOccured;
 
 		#endregion
 
@@ -64,14 +85,64 @@ namespace SiriusTool.ViewModels
 
 		#region Public methods
 
-		public bool UpdateSchedule(string team)
+	    public async Task GetTimetable(DateTime date, bool forceNet = false)
+	    {
+	        if (date.Date is var d && !forceNet && 
+	            _timetableFactory.TimetableExists(d) && 
+	            DateTime.UtcNow - _timetableFactory.GetCreationTime(d) < _timetableLifeTime)
+	        {
+	            TimetableInfo = _timetableFactory.GetInfo(d);
+	            Date = date.Date;
+	            CurrentTimetable = null;
+	            TeamName = null;
+	            ShortTeam = null;
+                return;
+	        }
+
+
+	        IsBusy = true;
+	        try
+	        {
+	            var timetable = await _timetableProvider.RequestTimetable(date, null);
+	            var info = new TimetableInfo(timetable, date.Date);
+                _timetableFactory.ForceAdd(date.Date, info);
+	            TimetableInfo = info;
+	            Date = date.Date;
+	            CurrentTimetable = null;
+	            TeamName = null;
+	            ShortTeam = null;
+	        }
+	        catch (Exception exception)
+	        {
+	            if (!_timetableFactory.TimetableExists(date.Date))
+	            {
+                    ExceptionOccured?.Invoke(exception);
+	            }
+	            else
+	            {
+	                TimetableInfo = _timetableFactory.GetInfo(date.Date);
+	                Date = date.Date;
+	                CurrentTimetable = null;
+	                TeamName = null;
+	                ShortTeam = null;
+                }
+            }
+
+	        IsBusy = false;
+	    }
+
+        public void UpdateSchedule(string team)
 		{
 			//checking data
 			var dataExists =
 				TimetableInfo.Timetable != null &&
 				TimetableInfo.ShortLongTeamNameDictionary != null;
 
-			if(!dataExists) return false;
+		    if (!dataExists)
+		    {
+                ExceptionOccured?.Invoke(new Exception($"Unexpected exception occured: cannot get data from {nameof(TimetableInfo)}"));
+                return;
+		    }
 
 			//updating data
 			try
@@ -79,21 +150,14 @@ namespace SiriusTool.ViewModels
 				var timetableAll = TimetableInfo.Timetable;
 				var timetable = timetableAll[TimetableInfo.ShortLongTeamNameDictionary[team]];
 
-				Timetable = new ObservableCollection<Event>(timetable);
 				TeamName = TimetableInfo.ShortLongTeamNameDictionary[team];
+				CurrentTimetable = new ObservableCollection<Event>(timetable);
 				ShortTeam = team;
 				Date = TimetableInfo.Date;
-				return true;
 			}
-			catch(Exception ex)
+			catch(Exception exception)
 			{
-			    Log.Error("SiriusTool", $"An error occured: {ex.Message}");
-
-				//discard all values
-				Timetable = null;
-				TeamName = null;
-				ShortTeam = null;
-				return false;
+                ExceptionOccured?.Invoke(exception);
 			}
 		}
 
