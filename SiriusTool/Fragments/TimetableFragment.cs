@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Android.OS;
+using Android.Support.Design.Widget;
 using Android.Support.V4.App;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -18,7 +19,8 @@ namespace SiriusTool.Fragments
 		#region Private fields
 
 		private RecyclerView _recyclerView;
-		private LinearLayoutManager _manager;
+	    private FloatingActionButton _fabSelectDate;
+        private LinearLayoutManager _manager;
 		private RecyclerViewAdapter _adapter;
 		private IOnItemSelected _listener;
 		private TimetableViewModel _viewModel;
@@ -36,8 +38,11 @@ namespace SiriusTool.Fragments
 		{
 			var v = inflater.Inflate(Resource.Layout.TimetableFragment, container, false);
 			_recyclerView = v.FindViewById<RecyclerView>(Resource.Id.recycler);
+		    _fabSelectDate = v.FindViewById<FloatingActionButton>(Resource.Id.fab_select_date);
+            _fabSelectDate.Click += FabSelectDateOnClick;
 
-			_manager = new LinearLayoutManager(Activity);
+
+            _manager = new LinearLayoutManager(Activity);
 			_recyclerView.SetAdapter(null);
 			_recyclerView.SetLayoutManager(_manager);
 			_recyclerView.AddItemDecoration(new DividerItemDecoration(_recyclerView.Context, _manager.Orientation));
@@ -48,7 +53,13 @@ namespace SiriusTool.Fragments
 
 			return v;
 		}
-		public override void OnDestroy()
+
+	    private void FabSelectDateOnClick(object sender, EventArgs eventArgs)
+	    {
+	        PickDate?.Invoke();
+	    }
+
+	    public override void OnDestroy()
 		{
 			_viewModel.PropertyChanged -= _viewModelOnPropertyChanged;
 			base.OnDestroy();
@@ -78,6 +89,9 @@ namespace SiriusTool.Fragments
 				case nameof(_viewModel.CurrentTimetable):
 					VMOnTimetableChanged();
 					break;
+                case nameof(_viewModel.Date):
+                    VMOnDateChanged();
+                    break;
 			}
 		}
 
@@ -86,9 +100,14 @@ namespace SiriusTool.Fragments
 			SetItems(_viewModel.CurrentTimetable?.ToList());
 		}
 
-		private void UpdateVMLinks()
+	    private void VMOnDateChanged()
+	    {
+        }
+
+        private void UpdateVMLinks()
 		{
 			VMOnTimetableChanged();
+            VMOnDateChanged();
 		}
 
 		#endregion
@@ -110,12 +129,13 @@ namespace SiriusTool.Fragments
 			_recyclerView.SetAdapter(_adapter);
 		}
 
-		#endregion
+        #endregion
 
-		#region Public fields
+        #region Public fields
 
-		public static readonly string LoadFromVMTag =  "LOADFROMVM";
+	    public delegate void PickDateClickEventHandler();
+        public event PickDateClickEventHandler PickDate;
 
-		#endregion
+	    #endregion
 	}
 }

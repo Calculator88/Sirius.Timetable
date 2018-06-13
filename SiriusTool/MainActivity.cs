@@ -1,7 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 using Android.Content;
+using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.OS;
+using Android.Support.Design.Widget;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
@@ -16,7 +19,7 @@ using Toolbar = Android.Support.V7.Widget.Toolbar;
 
 namespace SiriusTool
 {
-	public class MainActivity : AppCompatActivity, View.IOnClickListener, TimetableFragment.IOnItemSelected, ISelectTeamDialogService, 
+	public class MainActivity : AppCompatActivity, TimetableFragment.IOnItemSelected, ISelectTeamDialogService, 
 		SelectTeamDialog.ISelectTeamDialogResultListener, Android.App.DatePickerDialog.IOnDateSetListener,
 		DialogAlertService.IDialogAlertResultListener
 	{
@@ -43,10 +46,9 @@ namespace SiriusTool
 			Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
 			SetContentView(Resource.Layout.Main);
 
-
 			_headerText = FindViewById<TextView>(Resource.Id.header_tmName);
 			_headerSelDate = FindViewById<TextView>(Resource.Id.header_date);
-			_headerSelDate.SetOnClickListener(this);
+            _headerSelDate.Click += ViewOnClick;
 			SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.toolbar));
 		    _statusLoadingLayout = FindViewById<LinearLayout>(Resource.Id.main_loading_status_layout);
 
@@ -60,7 +62,18 @@ namespace SiriusTool
 		    await _viewModel.GetTimetable(_viewModel.Date);
 		}
 
-	    private void VMOnExceptionOccured(Exception exception)
+	    private void ViewOnClick(object sender, EventArgs eventArgs)
+	    {
+	        var id = ((View)sender).Id;
+	        switch (id)
+	        {
+	            case Resource.Id.header_date:
+	                ShowDatePicker();
+	                break;
+	        }
+        }
+
+        private void VMOnExceptionOccured(Exception exception)
 	    {
 	        new AlertDialog.Builder(this)
 	            .SetMessage(exception.Message)
@@ -208,17 +221,19 @@ namespace SiriusTool
 				var fragment = (TimetableFragment)SupportFragmentManager.FindFragmentByTag(Resources.GetString(Resource.String.TagTimetableFragment));
 				if(fragment == null)
 				{
+                    var ttfragment = new TimetableFragment();
+                    ttfragment.PickDate += TimetableFragmentOnPickDate;
 					SupportFragmentManager.BeginTransaction()
 						.Replace(Resource.Id.TimetableFragment,
-							new TimetableFragment(),
+					        ttfragment,
 							Resources.GetString(Resource.String.TagTimetableFragment))
 						.Commit();
 				}
 			}
 		}
-		private void VMOnDateChanged()
+	    private void VMOnDateChanged()
 		{
-			_headerSelDate.Text = $"{_viewModel.Date:D}";
+            _headerSelDate.Text = $"{_viewModel.Date:D}";
 		}
 		private void VMOnTeamNameChanged()
 		{
@@ -259,23 +274,17 @@ namespace SiriusTool
             if (_viewModel.TimetableInfo != null)
 			    ShowSelectTeamDialog();
 		}
-		
-		#endregion
 
-		#region Public methods
+	    private void TimetableFragmentOnPickDate()
+	    {
+            ShowDatePicker();
+	    }
 
-		public void OnClick(View v)
-		{
-			var id = v.Id;
-			switch(id)
-			{
-				case Resource.Id.header_date:
-					ShowDatePicker();
-					break;
-			}
-		}
+        #endregion
 
-		#endregion
+        #region Public methods
 
-	}
+        #endregion
+
+    }
 }
