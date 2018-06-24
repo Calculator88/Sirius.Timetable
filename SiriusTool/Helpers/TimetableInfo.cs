@@ -6,26 +6,51 @@ using SiriusTool.Model;
 
 namespace SiriusTool.Helpers
 {
+    /// <summary>
+    /// Предоставляет разделенные данные расписания для всех команд на определенную дату
+    /// </summary>
     public sealed class TimetableInfo
     {
+        /// <summary>
+        /// </summary>
+        /// <param name="timetable">Массив данных с расписаниями для каждой команды</param>
+        /// <param name="date">Дата</param>
         public TimetableInfo(IDictionary<string, List<Event>> timetable, DateTime date)
         {
-            _regx = new Regex(@"(\b(?<team>\D+)(?<digit>\d+)\b)|(?<name>\b\w+[\w\s\W]*$)");
+            _regx = new Regex(@"(\b(?<team>\D+)(?<digit>\d+)\b)|(?<name>\b\w+[\w\s\W]*$)", RegexOptions.Compiled);
             Timetable = new ReadOnlyDictionary<string, List<Event>>(timetable);
             Date = date;
             UpdateData();
         }
 
+        /// <summary>
+        /// Дата для всех расписаний
+        /// </summary>
         public DateTime Date { get; set; }
 
+        /// <summary>
+        /// Словарь с расписаниями для каждой команды FullTeamName/Timetable
+        /// </summary>
         public ReadOnlyDictionary<string, List<Event>> Timetable { get; set; }
 
+        /// <summary>
+        /// Для каждой группы команд (наука, спорт и т.д.) задает список возможных номеров команд
+        /// </summary>
         public ReadOnlyDictionary<string, List<int>> DirectionPossibleNumbers { get; set; }
 
+        /// <summary>
+        /// Сопоставляет короткий псевдоним команды полному имени
+        /// </summary>
         public ReadOnlyDictionary<string, string> ShortLongTeamNameDictionary { get; set; }
 
+        /// <summary>
+        /// Возвращает все команды без номеров
+        /// </summary>
         public ReadOnlyCollection<string> UnknownPossibleTeams { get; set; }
 
+        /// <summary>
+        /// На осонове заданой Timetable обновляет все записи словарей
+        /// </summary>
         private void UpdateData()
         {
             var shortLongTeamNameDictionary = new Dictionary<string, string>();
@@ -94,6 +119,13 @@ namespace SiriusTool.Helpers
             DirectionPossibleNumbers = new ReadOnlyDictionary<string, List<int>>(directionPossibleNumbers);
             UnknownPossibleTeams = new ReadOnlyCollection<string>(unknownPossibleTeams);
         }
+
+        /// <summary>
+        /// Используется для упорядочивания событий в расписании по времени начала
+        /// </summary>
+        /// <param name="act1"></param>
+        /// <param name="act2"></param>
+        /// <returns></returns>
         private static int ComparingEvents(Event act1, Event act2)
         {
             if (act1.Start == act2.Start)

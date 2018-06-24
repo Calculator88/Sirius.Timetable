@@ -38,7 +38,7 @@ namespace SiriusTool.Dialogs
 		{
 			base.OnCreate(savedInstanceState);
 			_listener = Activity as ISelectTeamDialogResultListener;
-			_info = ServiceLocator.GetService<TimetableViewModel>().TimetableInfo;
+			_info = ServiceLocator.GetService<TimetableViewModel>().GetTemporaryTimetableInfo();
 
 			var dataExists = _info.ShortLongTeamNameDictionary != null && 
 				(_info.DirectionPossibleNumbers != null || _info.UnknownPossibleTeams != null);

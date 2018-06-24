@@ -1,45 +1,58 @@
-﻿<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical"
-              android:animateLayoutChanges="true"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
-  <include layout="@layout/toolbar"/>
-  <LinearLayout
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:background="?attr/colorPrimary"
-    android:elevation="4dp">
-    <TextView
-      android:layout_height="wrap_content"
-      android:layout_width="wrap_content"
-      android:layout_gravity="center"
-      android:gravity="center"
-      android:paddingRight="5dip"
-      android:paddingLeft="5dip"
-      android:paddingBottom="4dip"
-      android:background="?attr/selectableItemBackground"
-      android:textColor="#FFFFFF"
-      android:textSize="16dip"
-      android:clickable="true"
-      android:id="@+id/header_date" />
-    <TextView
-      android:layout_height="wrap_content"
-      android:singleLine="true"
-      android:layout_width="match_parent"
-      android:textColor="#FFFFFF"
-      android:gravity="end"
-      android:paddingRight="5dip"
-      android:paddingLeft="5dip"
-      android:layout_marginBottom="2dip"
-      android:visibility="gone"
-      android:textSize="16dip"
-      android:id="@+id/header_tmName" />
-  </LinearLayout>
-  <FrameLayout
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/TimetableFragment">
-  </FrameLayout>
-</LinearLayout>
+    android:fitsSystemWindows="true">
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/main.appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/main.toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:elevation="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:layout_scrollFlags="scroll|enterAlways|snap">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:gravity="center_vertical"
+                android:layout_height="match_parent"
+                android:id="@+id/main_loading_status_layout"
+                android:orientation="horizontal"
+                android:visibility="gone">
+                <TextView
+                    android:layout_gravity="center_vertical"
+                    android:textColor="?attr/titleTextColor"
+                    android:fontStyle="?attr/titleTextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18dp"
+                    android:text="@string/Loading" />
+                <ProgressBar
+                    android:layout_width="24dp"
+                    android:layout_margin="5dp"
+                    android:layout_height="24dp"
+                    android:indeterminateTint="?attr/titleTextColor"
+                    android:layout_gravity="center_vertical"
+                    android:indeterminateOnly="true" />
+            </LinearLayout>
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler"
+        android:scrollbars="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_select_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/round_event"
+        android:layout_gravity="end|bottom|right"
+        android:layout_margin="16dp" />
+</android.support.design.widget.CoordinatorLayout>

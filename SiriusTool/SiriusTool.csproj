@@ -105,8 +105,6 @@
     <Compile Include="Dialogs\LoadingDialog.cs" />
     <Compile Include="Dialogs\SelectTeamDialog.cs" />
     <Compile Include="Fragments\DetailsFragment.cs" />
-    <Compile Include="Fragments\TimetableFragment.cs" />
-    <Compile Include="Fragments\TimetableFragmentFiller.cs" />
     <Compile Include="Framework\Framework.cs" />
     <Compile Include="Helpers\ObservableObject.cs" />
     <Compile Include="Helpers\RecyclerViewAdapter.cs" />
@@ -162,19 +160,10 @@
     <AndroidResource Include="Resources\layout\DetailsFragment.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
-    <AndroidResource Include="Resources\layout\TimetableFragment.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
     <AndroidResource Include="Resources\layout\Toolbar.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
     <AndroidResource Include="Resources\layout\Details.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout-land\Main.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout\TimetableFragmentFiller.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>
@@ -228,6 +217,7 @@
     <Folder Include="Resources\drawable-xhdpi\" />
     <Folder Include="Resources\drawable-xxhdpi\" />
     <Folder Include="Resources\drawable-xxxhdpi\" />
+    <Folder Include="Resources\layout-land\" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\WhiteRipple.xml" />

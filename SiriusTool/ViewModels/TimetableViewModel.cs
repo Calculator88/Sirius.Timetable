@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using SiriusTool.Framework;
 using SiriusTool.Helpers;
 using SiriusTool.Model;
 using SiriusTool.Services;
@@ -16,12 +15,14 @@ namespace SiriusTool.ViewModels
 		private ObservableCollection<Event> _currentTimetable;
 		private TimetableInfo _info;
 		private DateTime _date;
+	    private DateTime _updatingDate;
 		private string _teamName;
 		private string _shortTeam;
 	    private bool _isBusy;
 	    private readonly TimetableFactory _timetableFactory;
 	    private readonly ITimetableProvider _timetableProvider;
 	    private readonly TimeSpan _timetableLifeTime = TimeSpan.FromMinutes(10);
+	    private bool _isUpdating;
 
 		#endregion
 
@@ -74,8 +75,6 @@ namespace SiriusTool.ViewModels
 	        set => SetProperty(ref _isBusy, value);
 	    }
 
-	    public event ExceptionOccuredEventHandler ExceptionOccured;
-
 		#endregion
 
 		#region Private methods
@@ -85,80 +84,71 @@ namespace SiriusTool.ViewModels
 
 		#region Public methods
 
-	    public async Task GetTimetable(DateTime date, bool forceNet = false)
+	    public TimetableInfo GetTemporaryTimetableInfo()
 	    {
-	        if (date.Date is var d && !forceNet && 
-	            _timetableFactory.TimetableExists(d) && 
-	            DateTime.UtcNow - _timetableFactory.GetCreationTime(d) < _timetableLifeTime)
+	        if (_isUpdating) return _timetableFactory.GetInfo(_updatingDate.Date);
+	        return _timetableFactory.GetInfo(Date.Date);
+	    }
+	    public bool ExistsInfo()
+	    {
+	        return _timetableFactory.TimetableExists(_isUpdating ? _updatingDate : Date);
+	    }
+
+	    public void StartDateUpdatingTimetable(DateTime date)
+	    {
+	        _isUpdating = true;
+	        _updatingDate = date;
+	    }
+
+        /// <summary>
+        /// Обновляет данные в TimetableFactory для текущей даты, но не меняет текущих значений
+        /// </summary>
+        /// <param name="forceNet">true, если нужно загрузить данные из интернета принудительно</param>
+        /// <returns></returns>
+	    public async Task GetTimetable(bool forceNet = false)
+        {
+            var date = _isUpdating ? _updatingDate : Date;
+
+	        if (!forceNet && _timetableFactory.TimetableExists(date.Date) && 
+	            DateTime.UtcNow - _timetableFactory.GetCreationTime(date.Date) < _timetableLifeTime)
 	        {
-	            TimetableInfo = _timetableFactory.GetInfo(d);
-	            Date = date.Date;
-	            CurrentTimetable = null;
-	            TeamName = null;
-	            ShortTeam = null;
+	            if (ShortTeam != null) UpdateSchedule(ShortTeam);
                 return;
-	        }
+            }
 
 
 	        IsBusy = true;
-	        try
-	        {
-	            var timetable = await _timetableProvider.RequestTimetable(date, null);
-	            var info = new TimetableInfo(timetable, date.Date);
-                _timetableFactory.ForceAdd(date.Date, info);
-	            TimetableInfo = info;
-	            Date = date.Date;
-	            CurrentTimetable = null;
-	            TeamName = null;
-	            ShortTeam = null;
-	        }
-	        catch (Exception exception)
-	        {
-	            if (!_timetableFactory.TimetableExists(date.Date))
-	            {
-                    ExceptionOccured?.Invoke(exception);
-	            }
-	            else
-	            {
-	                TimetableInfo = _timetableFactory.GetInfo(date.Date);
-	                Date = date.Date;
-	                CurrentTimetable = null;
-	                TeamName = null;
-	                ShortTeam = null;
-                }
-            }
 
-	        IsBusy = false;
+            try
+            {
+                var timetable = await _timetableProvider.RequestTimetable(date, null);
+                var info = new TimetableInfo(timetable, date.Date);
+                _timetableFactory.ForceAdd(date.Date, info);
+            }
+            finally
+            {
+	            IsBusy = false;
+            }
+            
+
+            if (ShortTeam != null) UpdateSchedule(ShortTeam);
 	    }
 
         public void UpdateSchedule(string team)
 		{
-			//checking data
-			var dataExists =
-				TimetableInfo.Timetable != null &&
-				TimetableInfo.ShortLongTeamNameDictionary != null;
-
-		    if (!dataExists)
-		    {
-                ExceptionOccured?.Invoke(new Exception($"Unexpected exception occured: cannot get data from {nameof(TimetableInfo)}"));
-                return;
-		    }
+		    var date = _isUpdating ? _updatingDate : Date;
+		    TimetableInfo = _timetableFactory.GetInfo(date.Date);
+		    Date = date;
 
 			//updating data
-			try
-			{
-				var timetableAll = TimetableInfo.Timetable;
-				var timetable = timetableAll[TimetableInfo.ShortLongTeamNameDictionary[team]];
+			var timetableAll = TimetableInfo.Timetable;
+			var timetable = timetableAll[TimetableInfo.ShortLongTeamNameDictionary[team]];
 
-				TeamName = TimetableInfo.ShortLongTeamNameDictionary[team];
-				CurrentTimetable = new ObservableCollection<Event>(timetable);
-				ShortTeam = team;
-				Date = TimetableInfo.Date;
-			}
-			catch(Exception exception)
-			{
-                ExceptionOccured?.Invoke(exception);
-			}
+			TeamName = TimetableInfo.ShortLongTeamNameDictionary[team];
+			CurrentTimetable = new ObservableCollection<Event>(timetable);
+			ShortTeam = team;
+
+		    _isUpdating = false;
 		}
 
 		#endregion

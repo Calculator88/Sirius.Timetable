@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using Android.Content;
-using Android.Graphics;
-using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.V7.App;
+using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using SiriusTool.Dialogs;
@@ -13,53 +16,55 @@ using SiriusTool.Fragments;
 using SiriusTool.Helpers;
 using SiriusTool.Model;
 using SiriusTool.Services;
-using SiriusTool.Services.Abstractions;
 using SiriusTool.ViewModels;
 using Toolbar = Android.Support.V7.Widget.Toolbar;
 
 namespace SiriusTool
 {
-	public class MainActivity : AppCompatActivity, TimetableFragment.IOnItemSelected, ISelectTeamDialogService, 
-		SelectTeamDialog.ISelectTeamDialogResultListener, Android.App.DatePickerDialog.IOnDateSetListener,
-		DialogAlertService.IDialogAlertResultListener
-	{
-		#region Private fields
+	public class MainActivity : AppCompatActivity, SelectTeamDialog.ISelectTeamDialogResultListener, Android.App.DatePickerDialog.IOnDateSetListener,
+		DialogAlertService.IDialogAlertResultListener, RecyclerViewAdapter.IItemClickListener, RecyclerViewAdapter.IItemLongClickListener
+    {
+        #region Private fields
 
-		private TextView _headerSelDate;
-		private TextView _headerText;
-		private TimetableViewModel _viewModel;
+	    private RecyclerView _recyclerView;
+	    private FloatingActionButton _fabSelectDate;
+	    private LinearLayoutManager _manager;
+	    private RecyclerViewAdapter _adapter;
+        private TimetableViewModel _viewModel;
 		private TimetableInfo _tempInfo;
 	    private LinearLayout _statusLoadingLayout;
 	    private IMenuItem _chooseMenuItem;
 
-		public const string IsTeamCached = "com.sirius.timetable.MainActivity.IsTeamCached";
-		public const string CachedTeamName = "com.sirius.timetable.MainActivity.CachedTeamName";
 		public const string CachedShortTeam = "com.sirius.timetable.MainActivity.CachedShortTeam";
 
 		#endregion
 
 		#region Actvity lifecycle
 
-		protected override async void OnCreate(Bundle bundle)
+		protected override void OnCreate(Bundle bundle)
 		{
 			base.OnCreate(bundle);
 			Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
 			SetContentView(Resource.Layout.Main);
 
-			_headerText = FindViewById<TextView>(Resource.Id.header_tmName);
-			_headerSelDate = FindViewById<TextView>(Resource.Id.header_date);
-            _headerSelDate.Click += ViewOnClick;
-			SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.toolbar));
+			SetSupportActionBar(FindViewById<Toolbar>(Resource.Id.main_toolbar));
 		    _statusLoadingLayout = FindViewById<LinearLayout>(Resource.Id.main_loading_status_layout);
+		    _recyclerView = FindViewById<RecyclerView>(Resource.Id.recycler);
+		    _fabSelectDate = FindViewById<FloatingActionButton>(Resource.Id.fab_select_date);
 
-			RegisterServices();
+		    _manager = new LinearLayoutManager(this);
+		    _recyclerView.SetAdapter(null);
+		    _recyclerView.SetLayoutManager(_manager);
+		    _recyclerView.AddItemDecoration(new DividerItemDecoration(_recyclerView.Context, _manager.Orientation));
+
+            RegisterServices();
 			_viewModel = ServiceLocator.GetService<TimetableViewModel>();
 			_viewModel.PropertyChanged += ViewModelOnPropertyChanged;
-            _viewModel.ExceptionOccured += VMOnExceptionOccured;
+		    _fabSelectDate.Click += ViewOnClick;
 
 			UpdateVMLinks();
 
-		    await _viewModel.GetTimetable(_viewModel.Date);
+            SelectTeamOnClick();
 		}
 
 	    private void ViewOnClick(object sender, EventArgs eventArgs)
@@ -67,19 +72,11 @@ namespace SiriusTool
 	        var id = ((View)sender).Id;
 	        switch (id)
 	        {
-	            case Resource.Id.header_date:
+	            case Resource.Id.fab_select_date:
 	                ShowDatePicker();
 	                break;
 	        }
         }
-
-        private void VMOnExceptionOccured(Exception exception)
-	    {
-	        new AlertDialog.Builder(this)
-	            .SetMessage(exception.Message)
-	            .SetTitle("Error")
-	            .Show();
-	    }
 
 	    protected override void OnDestroy()
 		{
@@ -110,11 +107,19 @@ namespace SiriusTool
 			return true;
 		}
 
-		#endregion
+        #endregion
 
-		#region Fragment listeners
+        #region Fragment listeners
 
-		public void OnAlertNegativeButtonClick(string tag)
+        public void ItemClick(Event item)
+        {
+            ItemSelected(item);
+        }
+        public void ItemLongClick(Event item)
+        {
+        }
+
+        public void OnAlertNegativeButtonClick(string tag)
 		{
 			switch(tag)
 			{
@@ -150,10 +155,8 @@ namespace SiriusTool
 		{
 			var selectedDate = new DateTime(year, month + 1, dayOfMonth);
 
-		    await _viewModel.GetTimetable(selectedDate);
-
-            if (_viewModel.Date == selectedDate)
-				SelectTeamOnClick();
+            _viewModel.StartDateUpdatingTimetable(selectedDate);
+		    await ValidateTimetableInfo();
 		}
 		public void SelectTeamOnChoose(string result)
 		{
@@ -180,7 +183,6 @@ namespace SiriusTool
 
 		private void RegisterServices()
 		{
-			ServiceLocator.RegisterService<ISelectTeamDialogService>(this);
 		}
 		private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs property)
 		{
@@ -204,47 +206,53 @@ namespace SiriusTool
                     break;
 			}
 		}
-		private void VMOnTimetableChanged()
-		{
-			if(_viewModel.CurrentTimetable == null)
-			{
-				var fragment = (TimetableFragmentFiller)SupportFragmentManager.FindFragmentByTag(Resources.GetString(Resource.String.TagTimetableFragmentFiller));
-				if(fragment != null) return;
 
-				SupportFragmentManager.BeginTransaction()
-					.Replace(Resource.Id.TimetableFragment, new TimetableFragmentFiller(),
-					Resources.GetString(Resource.String.TagTimetableFragmentFiller))
-					.Commit();
-			}
-			else
-			{
-				var fragment = (TimetableFragment)SupportFragmentManager.FindFragmentByTag(Resources.GetString(Resource.String.TagTimetableFragment));
-				if(fragment == null)
-				{
-                    var ttfragment = new TimetableFragment();
-                    ttfragment.PickDate += TimetableFragmentOnPickDate;
-					SupportFragmentManager.BeginTransaction()
-						.Replace(Resource.Id.TimetableFragment,
-					        ttfragment,
-							Resources.GetString(Resource.String.TagTimetableFragment))
-						.Commit();
-				}
-			}
-		}
-	    private void VMOnDateChanged()
+        private async Task<bool> ValidateTimetableInfo()
+        {
+            try
+            {
+                await _viewModel.GetTimetable();
+            }
+            catch (WebException)
+            {
+                new AlertDialog.Builder(this)
+                    .SetMessage(
+                        "Произошла ошибка при загрузке данных. Проверте ваше подключение и повторите попытку")
+                    .SetTitle("Error")
+                    .Show();
+                return false;
+            }
+            catch (Exception)
+            {
+                new AlertDialog.Builder(this)
+                    .SetMessage("Непредвиденная ошибка")
+                    .SetTitle("Error")
+                    .Show();
+                return false;
+            }
+
+            return true;
+        }
+        private void VMOnTimetableChanged()
 		{
-            _headerSelDate.Text = $"{_viewModel.Date:D}";
+		    SetItems(_viewModel.CurrentTimetable?.ToList());
 		}
+        private void VMOnDateChanged()
+        {
+            if (!String.IsNullOrWhiteSpace(_viewModel.ShortTeam))
+                Title = $"{_viewModel.ShortTeam} - {_viewModel.Date:M}";
+        }
 		private void VMOnTeamNameChanged()
 		{
-			_headerText.Visibility = _viewModel.TeamName == null ? ViewStates.Gone : ViewStates.Visible;
-			_headerText.Text = _viewModel.TeamName;
-		}
-		private void VMOnShortNameChanged()
+		    if (!String.IsNullOrWhiteSpace(_viewModel.ShortTeam))
+		        Title = $"{_viewModel.ShortTeam} - {_viewModel.Date:M}";
+        }
+        private void VMOnShortNameChanged()
 		{
-			//TODO
+		    if (!String.IsNullOrWhiteSpace(_viewModel.ShortTeam))
+		        Title = $"{_viewModel.ShortTeam} - {_viewModel.Date:M}";
 		}
-		private void UpdateVMLinks()
+        private void UpdateVMLinks()
 		{
 			VMOnDateChanged();
 			VMOnShortNameChanged();
@@ -258,31 +266,36 @@ namespace SiriusTool
 	        {
 	            _statusLoadingLayout.Visibility = ViewStates.Visible;
 	            _chooseMenuItem?.SetEnabled(false);
+	            _fabSelectDate.Enabled = false;
 	            Title = null;
             }
 	        else
 	        {
 	            _statusLoadingLayout.Visibility = ViewStates.Gone;
-	            Title = GetString(Resource.String.MainActivityTitle);
+                Title = 
+                    !String.IsNullOrWhiteSpace(_viewModel.ShortTeam) ? 
+                        $"{_viewModel.ShortTeam} - {_viewModel.Date:M}" : 
+                        GetString(Resource.String.MainActivityTitle);
+
 	            _chooseMenuItem?.SetEnabled(true);
+	            _fabSelectDate.Enabled = true;
 	        }
         }
 	    private async void SelectTeamOnClick()
 	    {
-	        if (_viewModel.TimetableInfo == null)
-	            await _viewModel.GetTimetable(_viewModel.Date);
-            if (_viewModel.TimetableInfo != null)
+	        if (await ValidateTimetableInfo())
 			    ShowSelectTeamDialog();
 		}
-
-	    private void TimetableFragmentOnPickDate()
-	    {
-            ShowDatePicker();
-	    }
 
         #endregion
 
         #region Public methods
+
+        public void SetItems(List<Event> items)
+        {
+            _adapter = new RecyclerViewAdapter(items, this, this);
+            _recyclerView.SetAdapter(_adapter);
+        }
 
         #endregion
 

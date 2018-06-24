@@ -13,10 +13,10 @@ namespace SiriusTool.Dialogs
 		private string _message;
 		private string _positiveButton;
 		private string _negativeButton;
-		private const string TitleTag = "TITLE";
-		private const string MessageTag = "MESSAGE";
-		private const string PositiveButtonTag = "POSITIVEBUTTON";
-		private const string NegativeButtonTag = "NEGATIVEBUTTON";
+		private const string TitleTag = "com.sirius.timetable.dialogAlertService.TITLE";
+		private const string MessageTag = "com.sirius.timetable.dialogAlertService.MESSAGE";
+		private const string PositiveButtonTag = "com.sirius.timetable.dialogAlertService.POSITIVEBUTTON";
+		private const string NegativeButtonTag = "com.sirius.timetable.dialogAlertService.NEGATIVEBUTTON";
 		private IDialogAlertResultListener _listener;
 
 		#endregion
