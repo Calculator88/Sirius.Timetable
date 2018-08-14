@@ -21,8 +21,7 @@ using Toolbar = Android.Support.V7.Widget.Toolbar;
 
 namespace SiriusTool
 {
-	public class MainActivity : AppCompatActivity, SelectTeamDialog.ISelectTeamDialogResultListener, Android.App.DatePickerDialog.IOnDateSetListener,
-		DialogAlertService.IDialogAlertResultListener, RecyclerViewAdapter.IItemClickListener, RecyclerViewAdapter.IItemLongClickListener
+	public class MainActivity : AppCompatActivity, DialogAlertService.IDialogAlertResultListener
     {
         #region Private fields
 
@@ -35,7 +34,7 @@ namespace SiriusTool
 	    private LinearLayout _statusLoadingLayout;
 	    private IMenuItem _chooseMenuItem;
 
-		public const string CachedShortTeam = "com.sirius.timetable.MainActivity.CachedShortTeam";
+		public const string CachedShortTeam = "com.sirius.timetable.MainActivity.CACHEDSHORTTEAM";
 
 		#endregion
 
@@ -64,7 +63,9 @@ namespace SiriusTool
 
 			UpdateVMLinks();
 
-            SelectTeamOnClick();
+		    if (!Intent.GetBooleanExtra(SplashActivity.FirstStart, false)) return;
+		    SelectTeamOnClick();
+		    Intent.RemoveExtra(SplashActivity.FirstStart);
 		}
 
 	    private void ViewOnClick(object sender, EventArgs eventArgs)
@@ -111,14 +112,6 @@ namespace SiriusTool
 
         #region Fragment listeners
 
-        public void ItemClick(Event item)
-        {
-            ItemSelected(item);
-        }
-        public void ItemLongClick(Event item)
-        {
-        }
-
         public void OnAlertNegativeButtonClick(string tag)
 		{
 			switch(tag)
@@ -134,33 +127,10 @@ namespace SiriusTool
 			{
 				case "SC":
 					_viewModel.TimetableInfo = _tempInfo;
-					_tempInfo = null;
-					ShowSelectTeamDialog();
+					_tempInfo = null;                                                                 
+					ShowSelectTeamDialog();                                      
 					break;
 			}
-		}
-		public void ItemSelected(Event item)
-		{
-			var intent = new Intent(this, typeof(DetailsActivity));
-			var args = new Bundle();
-
-			args.PutString(DetailsFragment.TitleTextTag, item.Title);
-			args.PutString(DetailsFragment.BeginTimeTag, item.Start?.ToString("HH:mm"));
-			args.PutString(DetailsFragment.EndTimeTag, item.End?.ToString("HH:mm"));
-			intent.PutExtra("ARGS", args);
-
-			StartActivity(intent);
-		}
-		public async void OnDateSet(DatePicker view, int year, int month, int dayOfMonth)
-		{
-			var selectedDate = new DateTime(year, month + 1, dayOfMonth);
-
-            _viewModel.StartDateUpdatingTimetable(selectedDate);
-		    await ValidateTimetableInfo();
-		}
-		public void SelectTeamOnChoose(string result)
-		{
-			_viewModel.UpdateSchedule(result);
 		}
 
 		#endregion
@@ -169,15 +139,29 @@ namespace SiriusTool
 
 		public void ShowSelectTeamDialog()
 		{
-			new SelectTeamDialog()
-				.Show(SupportFragmentManager, Resources.GetString(Resource.String.TagSelectTeamDialog));
+			var teamSelector = new SelectTeamDialog();
+			teamSelector.Show(SupportFragmentManager, Resources.GetString(Resource.String.TagSelectTeamDialog));
+		    SupportFragmentManager.ExecutePendingTransactions();
+            teamSelector.OnTeamSelected += TeamSelectorOnTeamSelected;
 		}
-		private void ShowDatePicker()
+        private void TeamSelectorOnTeamSelected(string selectedTeam)
+        {
+            _viewModel.UpdateSchedule(selectedTeam);
+        }
+        private void ShowDatePicker()
 		{
-			new DatePickerDialog(_viewModel.Date).Show(SupportFragmentManager, Resources.GetString(Resource.String.TagDatePickerDialog));
+		    var picker = new DatePickerDialog(_viewModel.Date);
+		    picker.Show(SupportFragmentManager, Resources.GetString(Resource.String.TagDatePickerDialog));
+		    SupportFragmentManager.ExecutePendingTransactions();
+            ((Android.App.DatePickerDialog)picker.Dialog).DateSet += OnDatePickerDateSet;
 		}
+        private async void OnDatePickerDateSet(object sender, Android.App.DatePickerDialog.DateSetEventArgs dateSetEventArgs)
+        {
+            _viewModel.StartDateUpdatingTimetable(dateSetEventArgs.Date);
+            await ValidateTimetableInfo();
+        }
 
-		#endregion
+        #endregion
 
 		#region Private methods
 
@@ -206,7 +190,6 @@ namespace SiriusTool
                     break;
 			}
 		}
-
         private async Task<bool> ValidateTimetableInfo()
         {
             try
@@ -286,6 +269,22 @@ namespace SiriusTool
 	        if (await ValidateTimetableInfo())
 			    ShowSelectTeamDialog();
 		}
+        private void RecyclerViewOnItemClicked(Event sender)
+        {
+            ItemSelected(sender);
+        }
+        private void ItemSelected(Event item)
+        {
+            var intent = new Intent(this, typeof(DetailsActivity));
+            var args = new Bundle();
+
+            args.PutString(DetailsFragment.TitleTextTag, item.Title);
+            args.PutString(DetailsFragment.BeginTimeTag, item.Start?.ToString("HH:mm"));
+            args.PutString(DetailsFragment.EndTimeTag, item.End?.ToString("HH:mm"));
+            intent.PutExtra("ARGS", args);
+
+            StartActivity(intent);
+        }
 
         #endregion
 
@@ -293,8 +292,9 @@ namespace SiriusTool
 
         public void SetItems(List<Event> items)
         {
-            _adapter = new RecyclerViewAdapter(items, this, this);
+            _adapter = new RecyclerViewAdapter(items);
             _recyclerView.SetAdapter(_adapter);
+            _adapter.ItemClicked += RecyclerViewOnItemClicked;
         }
 
         #endregion

@@ -94,14 +94,18 @@ namespace SiriusTool.ViewModels
 	        return _timetableFactory.TimetableExists(_isUpdating ? _updatingDate : Date);
 	    }
 
-	    public void StartDateUpdatingTimetable(DateTime date)
+        /// <summary>
+        /// Начинает цикл обновления расписания для новой выбранной даты. 
+        /// Следующий вызов функции GetTimetable получит расписание для этой заданной даты</summary>
+        /// <param name="date">Дата для обновления</param>
+        public void StartDateUpdatingTimetable(DateTime date)
 	    {
 	        _isUpdating = true;
 	        _updatingDate = date;
 	    }
 
         /// <summary>
-        /// Обновляет данные в TimetableFactory для текущей даты, но не меняет текущих значений
+        /// Обновляет данные в TimetableFactory для текущей даты, но не меняет текущих значений, в случае ошибки
         /// </summary>
         /// <param name="forceNet">true, если нужно загрузить данные из интернета принудительно</param>
         /// <returns></returns>
@@ -134,6 +138,10 @@ namespace SiriusTool.ViewModels
             if (ShortTeam != null) UpdateSchedule(ShortTeam);
 	    }
 
+        /// <summary>
+        /// Обновляет текущие данные для текущей даты или даты обновления для указнной команды
+        /// </summary>
+        /// <param name="team">Короткое имя команды</param>
         public void UpdateSchedule(string team)
 		{
 		    var date = _isUpdating ? _updatingDate : Date;

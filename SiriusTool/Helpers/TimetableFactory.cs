@@ -36,11 +36,11 @@ namespace SiriusTool.Helpers
         /// <exception cref="TimetableFactoryException"></exception>
         public void Add(DateTime date, TimetableInfo info)
         {
-            if (TimetableExists(date))
+            if (TimetableExists(date.Date))
                 throw new TimetableFactoryException("Timetable already exists for this date", date);
 
-            _timetableStore[date] = info;
-            _storeUpdates[date] = DateTime.UtcNow;
+            _timetableStore[date.Date] = info;
+            _storeUpdates[date.Date] = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -50,8 +50,8 @@ namespace SiriusTool.Helpers
         /// <param name="info">Экземпляр <see cref="TimetableInfo"/></param>
         public void ForceAdd(DateTime date, TimetableInfo info)
         {
-            _timetableStore[date] = info;
-            _storeUpdates[date] = DateTime.UtcNow;
+            _timetableStore[date.Date] = info;
+            _storeUpdates[date.Date] = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -62,11 +62,11 @@ namespace SiriusTool.Helpers
         /// <exception cref="TimetableFactoryException"></exception>
         public void Update(DateTime date, TimetableInfo newInfo)
         {
-            if (!TimetableExists(date))
+            if (!TimetableExists(date.Date))
                 throw new TimetableFactoryException("Timetable for this date does not exist", date);
 
-            _timetableStore[date] = newInfo;
-            _storeUpdates[date] = DateTime.UtcNow;
+            _timetableStore[date.Date] = newInfo;
+            _storeUpdates[date.Date] = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -75,11 +75,11 @@ namespace SiriusTool.Helpers
         /// <param name="date">Дата для <see cref="TimetableInfo"/></param>
         public void Remove(DateTime date)
         {
-            if (!TimetableExists(date))
+            if (!TimetableExists(date.Date))
                 throw new TimetableFactoryException("Timetable for this date does not exist", date);
 
-            _timetableStore.Remove(date);
-            _storeUpdates.Remove(date);
+            _timetableStore.Remove(date.Date);
+            _storeUpdates.Remove(date.Date);
         }
 
         /// <summary>
@@ -90,10 +90,10 @@ namespace SiriusTool.Helpers
         /// <returns></returns>
         public TimetableInfo GetInfo(DateTime date)
         {
-            if (!TimetableExists(date))
+            if (!TimetableExists(date.Date))
                 throw new TimetableFactoryException("Timetable for this date does not exist", date);
 
-            return _timetableStore[date];
+            return _timetableStore[date.Date];
         }
 
         /// <summary>
@@ -104,10 +104,10 @@ namespace SiriusTool.Helpers
         /// <returns></returns>
         public DateTime GetCreationTime(DateTime date)
         {
-            if (!TimetableExists(date))
+            if (!TimetableExists(date.Date))
                 throw new TimetableFactoryException("Timetable for this date does not exist", date);
 
-            return _storeUpdates[date];
+            return _storeUpdates[date.Date];
         }
 
 
@@ -127,7 +127,7 @@ namespace SiriusTool.Helpers
         /// <returns></returns>
         public bool TimetableExists(DateTime date)
         {
-            return _timetableStore.ContainsKey(date);
+            return _timetableStore.ContainsKey(date.Date);
         }
     }
 }

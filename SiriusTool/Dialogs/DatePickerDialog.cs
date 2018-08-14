@@ -6,14 +6,17 @@ namespace SiriusTool.Dialogs
 {
 	public class DatePickerDialog : Android.Support.V7.App.AppCompatDialogFragment
 	{
-		private Android.App.DatePickerDialog.IOnDateSetListener _listener;
-
 		private const string Year = "com.sirius.timetable.DatePickerDialog.YEAR";
 		private const string Month = "com.sirius.timetable.DatePickerDialog.MONTH";
 		private const string Day = "com.sirius.timetable.DatePickerDialog.DAY";
 		private int _year;
 		private int _month;
 		private int _day;
+
+	    public DatePickerDialog()
+	    {
+
+	    }
 
 		public DatePickerDialog(DateTime date)
 		{
@@ -25,7 +28,6 @@ namespace SiriusTool.Dialogs
 		public override void OnCreate(Bundle savedInstanceState)
 		{
 			base.OnCreate(savedInstanceState);
-			_listener = Activity as Android.App.DatePickerDialog.IOnDateSetListener;
 
 			if(savedInstanceState == null) return;
 
@@ -42,7 +44,8 @@ namespace SiriusTool.Dialogs
 		}
 		public override Dialog OnCreateDialog(Bundle savedInstanceState)
 		{
-			var dialog = new Android.App.DatePickerDialog(Activity, Resource.Style.datepickerdialog, _listener, _year, _month - 1,	_day);
+			var dialog = new Android.App.DatePickerDialog(Activity, Resource.Style.datepickerdialog);
+            dialog.DatePicker.UpdateDate(_year, _month - 1, _day);
 		    var dt1970 = new DateTime(1970, 1, 1);
 
             //минимальная дата - 1 число текущего месяца

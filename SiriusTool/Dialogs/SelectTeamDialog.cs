@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Android.Graphics;
@@ -5,23 +6,23 @@ using Android.OS;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
+using SiriusTool.Framework;
 using SiriusTool.Helpers;
 using SiriusTool.Services;
 using SiriusTool.ViewModels;
 
 namespace SiriusTool.Dialogs
 {
-	public class SelectTeamDialog : AppCompatDialogFragment, View.IOnClickListener
+	public class SelectTeamDialog : AppCompatDialogFragment
 	{
 		#region Private fields
 
-		private const string TeamTag = "TEAM";
-		private const string DirectionTag = "DIRECTION";
+		private const string TeamTag = "com.sirius.timetable.SelectTeamDialog.TEAM";
+		private const string DirectionTag = "com.sirius.timetable.SelectTeamDialog.DIRECTION";
 
 		private string _selectedDirection;
 		private string _selectedGroup;
 		private TimetableInfo _info;
-		private ISelectTeamDialogResultListener _listener;
 
 		private List<TextView> _numbers;
 		private readonly ImageView[] _images = new ImageView[5];
@@ -37,7 +38,6 @@ namespace SiriusTool.Dialogs
 		public override void OnCreate(Bundle savedInstanceState)
 		{
 			base.OnCreate(savedInstanceState);
-			_listener = Activity as ISelectTeamDialogResultListener;
 			_info = ServiceLocator.GetService<TimetableViewModel>().GetTemporaryTimetableInfo();
 
 			var dataExists = _info.ShortLongTeamNameDictionary != null && 
@@ -69,34 +69,33 @@ namespace SiriusTool.Dialogs
 				_images[3].Visibility = ViewStates.Gone;
 
 			_images[4] = v.FindViewById<ImageView>(Resource.Id.img_unknown);
-			if(_info.UnknownPossibleTeams == null || _info.UnknownPossibleTeams.Count == 0)
+			if(_info.UnknownPossibleTeams == null || _info.UnknownPossibleTeams.Count == 0 || !ShowUnknown)
 				_images[4].Visibility = ViewStates.Gone;
 
 			_groupName = v.FindViewById<TextView>(Resource.Id.group_name);
 			_directionName = v.FindViewById<TextView>(Resource.Id.dir_name);
 			_selectButton = v.FindViewById<Button>(Resource.Id.btn_select);
-			_selectButton.SetOnClickListener(this);
-			v.FindViewById<Button>(Resource.Id.btn_close).SetOnClickListener(this);
+			_selectButton.Click += OnClick;
+			v.FindViewById<Button>(Resource.Id.btn_close).Click += OnClick;
 
-			_images[0].SetOnClickListener(this);   
-			_images[1].SetOnClickListener(this);
-			_images[2].SetOnClickListener(this);
-			_images[3].SetOnClickListener(this);
-			_images[4].SetOnClickListener(this);
-			
-
+			_images[0].Click += OnClick;  
+			_images[1].Click += OnClick;
+			_images[2].Click += OnClick;
+			_images[3].Click += OnClick;
+			_images[4].Click += OnClick;
 
 			if(savedInstanceState == null) return v;
 
 			var dir = savedInstanceState.GetInt(DirectionTag);
-			OnClick(new View(Activity) { Id = dir });
+			OnClick(new View(Activity) { Id = dir }, null);
 
 			var team = savedInstanceState.GetInt(TeamTag);
-			OnClick(new View(Activity) { Id = team });
+			OnClick(new View(Activity) { Id = team }, null);
 
 			return v;
 		}
-		public override void OnSaveInstanceState(Bundle outState)
+
+	    public override void OnSaveInstanceState(Bundle outState)
 		{
 			base.OnSaveInstanceState(outState);
 			outState.PutInt(DirectionTag, DirectionToId(_selectedDirection));
@@ -199,9 +198,9 @@ namespace SiriusTool.Dialogs
 			};
 			selecter.SetPadding(4, 0, 4, 0);
 			selecter.SetTextColor(Color.Black);
-			selecter.SetOnClickListener(this);
+			selecter.Click += OnClick;
 
-			var attrs = new[]{ Android.Resource.Attribute.SelectableItemBackground};
+			var attrs = new[]{ Android.Resource.Attribute.SelectableItemBackground };
 			var ta = Activity.ObtainStyledAttributes(attrs);
 			var selectedItemDrawable = ta.GetDrawable(0);
 			ta.Recycle();
@@ -216,9 +215,9 @@ namespace SiriusTool.Dialogs
 		private void OnChoose()
 		{
 			if(_selectedDirection == Resources.GetString(Resource.String.TxtUnknown))
-				_listener.SelectTeamOnChoose(_selectedGroup);
+				OnTeamSelected?.Invoke(_selectedGroup);
 			else
-				_listener.SelectTeamOnChoose(_selectedDirection[0] + _selectedGroup);
+				OnTeamSelected?.Invoke(_selectedDirection[0] + _selectedGroup);
 			Dismiss();
 		}
 		private void OnClose()
@@ -238,45 +237,43 @@ namespace SiriusTool.Dialogs
 				if((string)number.Tag == team) return number.Id;
 			return -1;
 		}
+	    private void OnClick(object sender, EventArgs eventArgs)
+	    {
+	        var id = ((View)sender).Id;
+	        if (id == -1) return;
+	        switch (id)
+	        {
+	            case Resource.Id.btn_select:
+	                OnChoose();
+	                break;
+	            case Resource.Id.btn_close:
+	                OnClose();
+	                break;
+	            case Resource.Id.img_sport:
+	            case Resource.Id.img_art:
+	            case Resource.Id.img_literature:
+	            case Resource.Id.img_science:
+	            case Resource.Id.img_unknown:
+	                OnChooseDirection(id);
+	                break;
+	            default:
+	                OnChooseGroup(id);
+	                break;
+	        }
+	    }
 
-		#endregion
+        #endregion
 
-		#region Public methods
+        #region Events
 
-		public void OnClick(View v)
-		{
-			var id = v.Id;
-			if(id == -1) return;
-			switch(id)
-			{
-				case Resource.Id.btn_select:
-					OnChoose();
-					break;
-				case Resource.Id.btn_close:
-					OnClose();
-					break;
-				case Resource.Id.img_sport:
-				case Resource.Id.img_art:
-				case Resource.Id.img_literature:
-				case Resource.Id.img_science:
-				case Resource.Id.img_unknown:
-					OnChooseDirection(id);
-					break;
-				default:
-					OnChooseGroup(id);
-					break;
-			}
-		}
+        public event TeamSelectedEventHandler OnTeamSelected;
 
-		#endregion
+        #endregion
 
-		#region Interaction interfaces
+        #region Public properties
 
-		public interface ISelectTeamDialogResultListener
-		{
-			void SelectTeamOnChoose(string result);
-		}
+        public bool ShowUnknown { get; set; } = false;
 
-		#endregion
+	    #endregion
 	}
 }

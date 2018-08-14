@@ -10,12 +10,14 @@ namespace SiriusTool
 {
 	public class SplashActivity : AppCompatActivity
 	{
+	    public const string FirstStart = "com.sirius.timetable.SplashActivity.FIRSTSTART";
 		protected override void OnCreate(Bundle savedInstanceState)
 		{
 			base.OnCreate(savedInstanceState);
 			RegisterServices();
 
 			var intent = new Intent(Application.Context, typeof(MainActivity));
+		    intent.PutExtra(FirstStart, true);
 			StartActivity(intent);
 			Finish();
 		}

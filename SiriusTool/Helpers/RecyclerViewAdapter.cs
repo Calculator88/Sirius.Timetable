@@ -4,31 +4,31 @@ using Android.Support.V7.Widget;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using SiriusTool.Framework;
 using SiriusTool.Model;
 
 namespace SiriusTool.Helpers
 {
-	public class RecyclerViewAdapter : RecyclerView.Adapter, View.IOnClickListener,  View.IOnLongClickListener
+	public class RecyclerViewAdapter : RecyclerView.Adapter
 	{
 		private readonly List<Event> _activities;
 
-		private readonly IItemClickListener _clickListener;
-		private readonly IItemLongClickListener _longClickListener;
-
-		public RecyclerViewAdapter(List<Event> activities, IItemClickListener clickListener, IItemLongClickListener longClickListener)
+		public RecyclerViewAdapter(List<Event> activities)
 		{
 			_activities = activities;
-			_clickListener = clickListener;
-			_longClickListener = longClickListener;
 		}
 
-		public override int ItemCount => _activities?.Count ?? 0;
+	    public override int ItemCount => _activities?.Count ?? 0;
 
-		public void OnClick(View v)
+	    public event ItemClickedEventHandler ItemClicked;
+
+
+        public void OnClick(View v)
 		{
 			var tag = (Holder) v.Tag;
+            
 			var el = _activities[tag.LayoutPosition];
-			_clickListener?.ItemClick(el);
+			ItemClicked?.Invoke(el);
 		}
 
 		public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
@@ -55,10 +55,10 @@ namespace SiriusTool.Helpers
 			}
 		}
 
-		public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, Int32 viewType)
+		public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
 		{
 			var view = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.TimetableItem, parent, false);
-			var holder = new Holder(view, this, this)
+			var holder = new Holder(view)
 			{
 				Title = view.FindViewById<TextView>(Resource.Id.TextTitle),
 				BeginTime = view.FindViewById<TextView>(Resource.Id.TextStart),
@@ -74,12 +74,10 @@ namespace SiriusTool.Helpers
 
 		public class Holder : RecyclerView.ViewHolder
 		{
-			public Holder(View itemView, View.IOnClickListener instance, View.IOnLongClickListener listener) : base(itemView)
+			public Holder(View itemView) : base(itemView)
 			{
 				View = itemView;
-				View.SetOnClickListener(instance);
-				View.LongClickable = true;
-				View.SetOnLongClickListener(listener);
+				View.Click += (sender, args) => Click?.Invoke(sender, args);
 			}
 
 			public View View { get; set; }
@@ -90,24 +88,8 @@ namespace SiriusTool.Helpers
 			public LinearLayout MainLayout { get; set; }
 			public TextView Dash { get; set; }
 			public LinearLayout Times { get; set; }
-		}
 
-		public bool OnLongClick(View v)
-		{
-			if (_longClickListener == null) return false;
-
-			var holder = (Holder) v.Tag;
-			var el = _activities[holder.LayoutPosition];
-			_longClickListener.ItemLongClick(el);
-			return true;
-		}
-		public interface IItemClickListener
-		{
-			void ItemClick(Event item);
-		}
-		public interface IItemLongClickListener
-		{
-			void ItemLongClick(Event item);
+		    public event EventHandler Click;
 		}
 	}
 }
